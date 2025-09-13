@@ -51,4 +51,5 @@ export const APP_INFO = {
   version: '1.0.0',
   qualityScore: '9.2/10',
   description: 'Enterprise-grade data flow visualization platform',
+  buildDate: new Date().toISOString().split('T')[0],
 } as const;
