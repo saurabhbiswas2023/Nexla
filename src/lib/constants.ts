@@ -45,3 +45,10 @@ export const HAPTIC_FEEDBACK = {
   medium: 20,
   heavy: 50,
 } as const;
+
+export const APP_INFO = {
+  name: 'Nexla Data Flow Architect',
+  version: '1.0.0',
+  qualityScore: '9.2/10',
+  description: 'Enterprise-grade data flow visualization platform',
+} as const;
