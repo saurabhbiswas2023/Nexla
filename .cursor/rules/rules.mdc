@@ -1,0 +1,504 @@
+---
+alwaysApply: true
+---
+## **🎨 ATOMIC DESIGN - STRICT HIERARCHY**
+
+### **Atoms** (`src/components/atoms/`)
+```typescript
+// ✅ Single responsibility, no business logic
+export const Button = ({ variant = 'primary', size = 'md', ...props }) => (
+  <button className={`btn btn-${variant} btn-${size} min-h-[44px] min-w-[44px]`} {...props} />
+);
+```
+
+### **Molecules** (`src/components/molecules/`)
+```typescript
+// ✅ Combine 2-3 atoms with specific purpose
+export const MessageBubble = ({ message, sender, timestamp }) => (
+  <div className={`flex gap-3 ${sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+    <Avatar type={sender} />
+    <div className="flex flex-col">
+      <Typography variant="body">{message}</Typography>
+      <Typography variant="caption">{formatTime(timestamp)}</Typography>
+    </div>
+  </div>
+);
+```
+
+### **Organisms** (`src/components/organisms/`)
+```typescript
+// ✅ Complex components with business logic
+export const ChatInterface = () => {
+  const { messages, sendMessage } = useChat();
+  return (
+    <div className="flex flex-col h-full">
+      <MessageList messages={messages} />
+      <InputArea onSend={sendMessage} />
+    </div>
+  );
+};
+```
+
+---
+
+## **📱 MOBILE-FIRST RESPONSIVE**
+
+```typescript
+// ✅ REQUIRED: Always mobile-first with Tailwind breakpoints
+<div className="
+  /* Mobile base (0-639px) */
+  flex flex-col gap-4 p-4 text-sm
+  
+  /* sm: Large Mobile (640px+) */
+  sm:gap-6 sm:p-6 sm:text-base
+  
+  /* md: Tablet (768px+) */
+  md:grid md:grid-cols-2 md:gap-8 md:p-8
+  
+  /* lg: Desktop (1024px+) */
+  lg:max-w-6xl lg:mx-auto lg:p-10
+  
+  /* xl: Large Desktop (1280px+) */
+  xl:p-12 xl:max-w-7xl
+">
+
+// ✅ REQUIRED: Minimum 44px touch targets
+<button className="min-h-[44px] min-w-[44px] flex items-center justify-center">
+```
+
+---
+
+## **♿ ACCESSIBILITY REQUIREMENTS**
+
+```typescript
+// ✅ REQUIRED: Comprehensive ARIA support
+<select
+  value={selectedSource}
+  onChange={handleSourceChange}
+  aria-label="Select source connector"
+  aria-describedby="source-help"
+  aria-required="true"
+  aria-invalid={hasError}
+>
+  {options.map(option => (
+    <option key={option.value} value={option.value}>{option.label}</option>
+  ))}
+</select>
+<div id="source-help" className="sr-only">Choose the data source for your flow</div>
+
+// ✅ REQUIRED: Keyboard navigation
+<div
+  onClick={() => setEditing(true)}
+  onKeyDown={(e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setEditing(true);
+    }
+  }}
+  tabIndex={0}
+  role="button"
+  aria-label="Edit field value"
+>
+
+// ✅ REQUIRED: Live regions for dynamic content
+<div aria-live="polite" aria-atomic="true">
+  {status === 'thinking' && (
+    <div>
+      <Loader />
+      <span className="sr-only">AI is processing your request</span>
+    </div>
+  )}
+</div>
+```
+
+---
+
+## **🔒 SECURITY PATTERNS**
+
+```typescript
+// ✅ REQUIRED: Input validation & sanitization
+import { validateFieldValue, sanitizeInput } from '../lib/security';
+
+const handleInputChange = (value: string, fieldName: string) => {
+  const sanitized = sanitizeInput(value);
+  const validation = validateFieldValue(fieldName, sanitized);
+  
+  if (validation.isValid) {
+    updateField(fieldName, sanitized);
+  } else {
+    setFieldError(fieldName, validation.error);
+  }
+};
+
+// ✅ REQUIRED: Credential masking
+const displayValue = (key: string, value: string): string => {
+  const sensitiveKeys = ['password', 'token', 'secret', 'key', 'apiKey'];
+  if (sensitiveKeys.some((k) => key.toLowerCase().includes(k))) {
+    return maskCredentialValue(key, value);
+  }
+  return value;
+};
+```
+
+---
+
+## **⚡ PERFORMANCE PATTERNS**
+
+```typescript
+// ✅ REQUIRED: Memoization for expensive operations
+const ExpensiveComponent = React.memo(({ data, onAction }) => {
+  const processedData = useMemo(() => {
+    return data.map(item => processItem(item));
+  }, [data]);
+
+  const handleAction = useCallback((id: string) => {
+    onAction(id);
+  }, [onAction]);
+
+  return <div>{/* Component JSX */}</div>;
+});
+
+// ✅ REQUIRED: Proper hook dependencies
+useEffect(() => {
+  // Effect logic
+}, [dependency1, dependency2]); // All dependencies included
+
+// ✅ REQUIRED: Debounced inputs
+const debouncedValue = useDebounce(inputValue, 300);
+```
+
+---
+
+## **🎯 TYPESCRIPT STANDARDS**
+
+```typescript
+// ✅ REQUIRED: No 'any' types - use specific interfaces
+interface FlowNode {
+  id: string;
+  type: 'source' | 'transform' | 'destination';
+  title: string;
+  status: 'pending' | 'partial' | 'complete' | 'error';
+  position: { x: number; y: number };
+  configuration: Record<string, string | number | boolean>;
+}
+
+// ✅ REQUIRED: Discriminated unions for type safety
+type NodeStatus =
+  | { status: 'pending'; progress?: never }
+  | { status: 'partial'; progress: number }
+  | { status: 'complete'; progress?: never }
+  | { status: 'error'; error: string };
+
+// ✅ REQUIRED: Proper error handling with types
+const handleApiCall = async <T>(
+  apiCall: () => Promise<T>
+): Promise<{ data?: T; error?: string }> => {
+  try {
+    const data = await apiCall();
+    return { data };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+};
+```
+
+---
+
+## **🗃️ ZUSTAND STORE PATTERNS**
+
+```typescript
+// ✅ REQUIRED: Zustand store structure
+interface CanvasStore {
+  // State
+  nodes: FlowNode[];
+  selectedNodeId: string | null;
+  
+  // Actions
+  addNode: (node: FlowNode) => void;
+  updateNode: (id: string, updates: Partial<FlowNode>) => void;
+  selectNode: (id: string | null) => void;
+  
+  // Computed values
+  selectedNode: FlowNode | null;
+}
+
+export const useCanvasStore = create<CanvasStore>()(
+  devtools(
+    persist(
+      (set, get) => ({
+        nodes: [],
+        selectedNodeId: null,
+        
+        addNode: (node) =>
+          set((state) => ({ nodes: [...state.nodes, node] })),
+          
+        updateNode: (id, updates) =>
+          set((state) => ({
+            nodes: state.nodes.map((node) => 
+              node.id === id ? { ...node, ...updates } : node
+            ),
+          })),
+          
+        selectNode: (id) => set({ selectedNodeId: id }),
+        
+        get selectedNode() {
+          const state = get();
+          return state.nodes.find((node) => node.id === state.selectedNodeId) || null;
+        },
+      }),
+      { name: 'canvas-store', version: 1 }
+    ),
+    { name: 'canvas-store' }
+  )
+);
+```
+
+---
+
+## **🛡️ ERROR HANDLING**
+
+```typescript
+// ✅ REQUIRED: Functional error boundary using react-error-boundary
+import { ErrorBoundary } from 'react-error-boundary';
+
+const ErrorFallback = ({ error, resetErrorBoundary }) => (
+  <div role="alert" className="p-4 border border-red-200 rounded-lg bg-red-50">
+    <h2 className="text-lg font-semibold text-red-800">Something went wrong</h2>
+    <p className="text-red-600 mt-2">{error.message}</p>
+    <button
+      onClick={resetErrorBoundary}
+      className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+    >
+      Try again
+    </button>
+  </div>
+);
+
+// Usage
+<ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => window.location.reload()}>
+  <App />
+</ErrorBoundary>
+```
+
+---
+
+## **🧪 TESTING REQUIREMENTS**
+
+```typescript
+// ✅ REQUIRED: Comprehensive component tests
+describe('Button Component', () => {
+  it('renders with correct variant classes', () => {
+    render(<Button variant="primary">Click me</Button>);
+    expect(screen.getByRole('button')).toHaveClass('btn-primary');
+  });
+
+  it('handles keyboard navigation', () => {
+    const handleClick = jest.fn();
+    render(<Button onClick={handleClick}>Click me</Button>);
+    
+    fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
+    expect(handleClick).toHaveBeenCalled();
+  });
+
+  it('meets accessibility requirements', async () => {
+    const { container } = render(<Button>Accessible Button</Button>);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('has proper touch target size', () => {
+    render(<Button>Touch me</Button>);
+    const button = screen.getByRole('button');
+    const styles = window.getComputedStyle(button);
+    
+    expect(parseInt(styles.minHeight)).toBeGreaterThanOrEqual(44);
+    expect(parseInt(styles.minWidth)).toBeGreaterThanOrEqual(44);
+  });
+});
+```
+
+---
+
+## **📁 FILE STRUCTURE**
+
+```
+src/
+├── components/
+│   ├── atoms/              ← Single-purpose components
+│   ├── molecules/          ← 2-3 atom combinations  
+│   └── organisms/          ← Complex business logic components
+├── hooks/                  ← Custom React hooks
+├── lib/                    ← Utility functions
+├── store/                  ← Zustand stores
+├── types/                  ← TypeScript type definitions
+└── routes/                 ← Page components
+```
+
+---
+
+## **🎨 STYLING RULES**
+
+```typescript
+// ✅ REQUIRED: Mobile-first utility classes
+<div className="
+  /* Mobile base styles */
+  flex flex-col gap-4 p-4 text-sm
+  
+  /* Small screens (640px+) */
+  sm:gap-6 sm:p-6 sm:text-base
+  
+  /* Medium screens (768px+) */
+  md:grid md:grid-cols-2 md:gap-8 md:p-8
+  
+  /* Large screens (1024px+) */
+  lg:max-w-6xl lg:mx-auto lg:p-10
+">
+
+// ✅ REQUIRED: Consistent spacing using Tailwind scale
+const spacingClasses = {
+  xs: 'gap-1 p-1',      // 4px
+  sm: 'gap-2 p-2',      // 8px  
+  md: 'gap-4 p-4',      // 16px
+  lg: 'gap-6 p-6',      // 24px
+  xl: 'gap-8 p-8',      // 32px
+};
+
+// ✅ REQUIRED: Color system using design tokens
+const colorClasses = {
+  primary: 'bg-blue-600 text-white hover:bg-blue-500',
+  secondary: 'bg-purple-500 text-white hover:bg-purple-400', 
+  success: 'bg-green-500 text-white hover:bg-green-400',
+  warning: 'bg-orange-500 text-white hover:bg-orange-400',
+  error: 'bg-red-500 text-white hover:bg-red-400',
+};
+```
+
+---
+
+## **🔄 DATA FLOW PATTERNS**
+
+```typescript
+// ✅ REQUIRED: Node type definitions
+interface FlowNode {
+  id: string;
+  type: 'source' | 'transform' | 'destination';
+  title: string;
+  status: 'pending' | 'partial' | 'complete' | 'error';
+  position: { x: number; y: number };
+  configuration: Record<string, unknown>;
+}
+
+// ✅ REQUIRED: Status color mapping
+const getNodeColor = (type: FlowNode['type'], status: FlowNode['status']) => {
+  const typeColors = {
+    source: 'blue',      // Blue for data sources
+    transform: 'purple', // Purple for transformations  
+    destination: 'green', // Green for destinations
+  };
+  
+  const statusColors = {
+    pending: 'orange',   // Orange for pending
+    partial: 'blue',     // Blue for partial
+    complete: 'green',   // Green for complete
+    error: 'red',        // Red for error
+  };
+  
+  return status === 'pending' ? statusColors[status] : typeColors[type];
+};
+
+// ✅ REQUIRED: Auto-scroll behavior
+const useAutoScroll = (messages: Message[]) => {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+  
+  return messagesEndRef;
+};
+```
+
+---
+
+## **📊 QUALITY GATES**
+
+```bash
+# ✅ REQUIRED: All checks must pass before commit
+npm run lint          # ESLint: 0 errors, 0 warnings
+npm run build         # TypeScript: 0 compilation errors  
+npm run test:unit     # Unit tests: All passing
+npm run test:e2e      # E2E tests: Critical flows passing
+npm audit             # Security: No high/critical vulnerabilities
+```
+
+---
+
+## **🔧 GIT COMMIT STANDARDS**
+
+```bash
+# ✅ REQUIRED: Conventional commit format
+feat: add drag and drop functionality to canvas nodes
+fix: resolve accessibility issue with keyboard navigation  
+docs: update component documentation for Button
+style: improve mobile responsiveness for chat interface
+refactor: extract common validation logic to utility function
+test: add E2E tests for flow creation workflow
+```
+
+---
+
+## **📖 DOCUMENTATION REQUIREMENTS**
+
+```typescript
+/**
+ * Button component following atomic design principles
+ *
+ * @example
+ * ```tsx
+ * <Button variant="primary" size="lg" onClick={handleClick}>
+ *   Click me
+ * </Button>
+ * ```
+ *
+ * @param variant - Visual style variant
+ * @param size - Size of the button (affects padding and font size)  
+ * @param children - Button content
+ * @param onClick - Click handler function
+ */
+interface ButtonProps {
+  variant?: 'primary' | 'secondary' | 'ghost' | 'destructive';
+  size?: 'sm' | 'md' | 'lg';
+  children: React.ReactNode;
+  onClick?: () => void;
+}
+```
+
+---
+
+## **🎯 DEFINITION OF DONE**
+
+A feature is complete when:
+
+- [ ] **Functionality**: All requirements implemented and working
+- [ ] **Quality**: Passes all automated quality checks  
+- [ ] **Accessibility**: WCAG 2.1 AA compliant
+- [ ] **Performance**: Meets performance targets
+- [ ] **Security**: Input validation and sanitization implemented
+- [ ] **Testing**: Unit and E2E tests passing
+- [ ] **Documentation**: Component and API documentation complete
+- [ ] **Review**: Code review approved by team member
+
+---
+
+## **📏 QUALITY METRICS**
+
+- **ESLint**: 0 errors, 0 warnings
+- **TypeScript**: 0 compilation errors
+- **Test Coverage**: > 80%
+- **Accessibility**: 100% axe-core compliance  
+- **Performance**: Lighthouse score > 90
+- **Bundle Size**: < 500KB gzipped
+
+---
+
+**🎊 USE THIS DOCUMENT FOR EVERY CODING SESSION TO ENSURE CONSISTENCY AND QUALITY**
