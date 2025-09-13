@@ -225,10 +225,7 @@ export const processPrefillFromLanding = () => {
 
   console.log('🔄 Processing prefill from landing:', prefill);
 
-  const userId = crypto.randomUUID();
-  const aiId = crypto.randomUUID();
-
-  // Replace messages entirely (don't append to existing messages)
+  // Replace messages entirely with just the welcome message
   useChatStore.setState({
     messages: [
       {
@@ -239,12 +236,11 @@ export const processPrefillFromLanding = () => {
         status: 'sent',
         createdAt: Date.now(),
       },
-      { id: userId, type: 'user', content: prefill, status: 'sent', createdAt: Date.now() },
     ],
-    input: '', // Don't set input to prefill to avoid duplicate
+    input: prefill, // Set the input to prefill
     conversationHistory: [],
-    highlightId: userId, // Highlight the user message
-    aiThinking: true, // Show AI thinking
+    highlightId: null,
+    aiThinking: false,
   });
 
   // Process the prefill with the enhanced chatbot
@@ -252,10 +248,9 @@ export const processPrefillFromLanding = () => {
     const store = useChatStore.getState();
     console.log('🔄 Executing prefill timeout for:', prefill);
 
-    // Set input and send - this will create the AI response
-    store.setInput(prefill);
+    // Send the prefill - this will create both user message and AI response
     store.sendWithCanvasUpdate();
-  }, 500); // Reduced timeout for faster response
+  }, 100); // Very short timeout just to ensure state is set
 
   // Clear the prefill after processing
   localStorage.removeItem('prefillPrompt');
