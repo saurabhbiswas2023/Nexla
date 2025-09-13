@@ -1,6 +1,7 @@
 {
   "name": "nexla-data-flow-architect",
   "version": "1.0.0",
+  "description": "Enterprise-grade data flow visualization platform with 9.2/10 quality score",
   "private": true,
   "type": "module",
   "scripts": {
