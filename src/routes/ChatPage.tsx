@@ -113,8 +113,10 @@ export function ChatPage() {
           </form>
         </div>
         {/* Right: canvas column (60%) */}
-        <div className="h-full bg-gray-50" data-testid="canvas-container">
-          <Canvas showControls={false} showJsonPanel={false} />
+        <div className="h-full bg-gray-50 p-4" data-testid="canvas-container">
+          <div className="h-full bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <Canvas showControls={false} showJsonPanel={false} />
+          </div>
         </div>
       </main>
 

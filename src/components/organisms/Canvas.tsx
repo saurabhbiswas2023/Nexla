@@ -268,7 +268,7 @@ export function Canvas({
   return (
     <div
       ref={canvasRef}
-      className={`space-y-6 ${className}`}
+      className={`flex flex-col h-full ${className}`}
       tabIndex={0}
       role="application"
       aria-label="Data flow configuration canvas"
@@ -572,14 +572,16 @@ export function Canvas({
         </div>
       )}
 
-      {/* Canvas */}
-      <div>
-        <div className="text-sm font-semibold text-slate-600 px-1 mb-2">{title}</div>
-        <FlowCanvasRF
-          nodes={dynamicFlow.nodes as unknown as import('./FlowCanvasRF').FlowNodeInput[]}
-          links={dynamicFlow.edges as unknown as import('./FlowCanvasRF').FlowEdgeInput[]}
-          onNodeValuesChange={handleNodeValuesChange}
-        />
+      {/* Canvas - Expanded to fill remaining space */}
+      <div className="flex-1 flex flex-col min-h-0">
+        <div className="text-sm font-semibold text-slate-600 px-1 mb-3">{title}</div>
+        <div className="flex-1 min-h-[400px]">
+          <FlowCanvasRF
+            nodes={dynamicFlow.nodes as unknown as import('./FlowCanvasRF').FlowNodeInput[]}
+            links={dynamicFlow.edges as unknown as import('./FlowCanvasRF').FlowEdgeInput[]}
+            onNodeValuesChange={handleNodeValuesChange}
+          />
+        </div>
       </div>
 
       {/* Keyboard Navigation Help */}

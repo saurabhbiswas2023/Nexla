@@ -469,11 +469,17 @@ video {
 .max-h-20 {
   max-height: 5rem;
 }
+.min-h-0 {
+  min-height: 0px;
+}
 .min-h-\[24px\] {
   min-height: 24px;
 }
 .min-h-\[32px\] {
   min-height: 32px;
+}
+.min-h-\[400px\] {
+  min-height: 400px;
 }
 .min-h-\[44px\] {
   min-height: 44px;

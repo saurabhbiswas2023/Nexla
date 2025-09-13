@@ -243,9 +243,8 @@ function InnerCanvas({
   return (
     <div
       ref={hostRef}
-      className="relative rounded-xl bg-slate-50 border"
+      className="relative rounded-xl bg-slate-50 border h-full w-full"
       data-testid="flow-canvas"
-      style={{ height: FLOW_CONSTANTS.CANVAS.defaultHeight }}
     >
       <ReactFlow
         nodes={nodes}
@@ -271,6 +270,7 @@ function InnerCanvas({
           [1200, 1000],
         ]}
         onViewportChange={() => {}} // Prevent viewport changes
+        style={{ width: '100%', height: '100%' }}
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
         <Controls position="bottom-left" showInteractive={false} />
