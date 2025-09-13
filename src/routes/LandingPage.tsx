@@ -1,8 +1,37 @@
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useChatStore } from '../store/chat';
+import { useCanvasStore } from '../store/canvasStore';
+import { Footer } from '../components/atoms/Footer';
 
 export function LandingPage() {
+  const [inputValue, setInputValue] = useState('');
+
+  // Clear all Zustand stores on landing page mount
+  useEffect(() => {
+    console.log('🧹 Clearing Zustand stores on landing page');
+
+    // Clear chat store
+    useChatStore.getState().clearMessages();
+    useChatStore.setState({ input: '', aiThinking: false, highlightId: null });
+
+    // Reset canvas store to default configuration
+    useCanvasStore.getState().resetToDefaultConfiguration();
+
+    // Also clear localStorage to ensure fresh start
+    localStorage.removeItem('prefillPrompt');
+
+    console.log('✅ All stores cleared');
+  }, []);
+
+  const handleSubmit = () => {
+    if (inputValue.trim()) {
+      localStorage.setItem('prefillPrompt', inputValue.trim());
+    }
+  };
+
   return (
-    <div className="min-h-full">
+    <div className="min-h-screen flex flex-col">
       {/* Header gradient */}
       <div className="bg-gradient-to-b from-violet-700 to-blue-500 text-white pb-24">
         <div className="container-narrow py-10 text-center">
@@ -15,17 +44,22 @@ export function LandingPage() {
       </div>
 
       {/* Search card */}
-      <div className="-mt-14 container-narrow">
+      <div className="-mt-14 container-narrow flex-1">
         <div className="mx-auto max-w-3xl rounded-2xl bg-white shadow-xl p-6">
           <div className="flex gap-3">
             <input
+              data-testid="landing-input"
               className="flex-1 rounded-lg border border-slate-300 bg-slate-50 px-4 py-3"
               placeholder="e.g., Connect Shopify orders to Snowflake"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
             />
             <Link
               to="/chat"
+              data-testid="landing-submit"
               className="rounded-lg bg-violet-600 text-white px-6 py-3 font-semibold hover:bg-violet-500"
               aria-label="Start"
+              onClick={handleSubmit}
             >
               Start
             </Link>
@@ -44,7 +78,6 @@ export function LandingPage() {
             <button
               key={label}
               onClick={() => {
-                // prefill and navigate to chat
                 localStorage.setItem('prefillPrompt', label);
                 window.location.href = '/chat';
               }}
@@ -61,9 +94,8 @@ export function LandingPage() {
         </div>
       </div>
 
-      <footer className="container-narrow py-10 text-center text-slate-500 text-sm">
-        © 2025 Nexla. All rights reserved.
-      </footer>
+      {/* Footer - Reusable Footer Atom */}
+      <Footer className="mt-auto" />
     </div>
   );
 }

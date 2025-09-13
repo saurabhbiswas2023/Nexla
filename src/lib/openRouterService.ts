@@ -12,7 +12,8 @@ export interface FlowParseResult {
   error?: string;
 }
 
-const OPENROUTER_API_KEY = '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';
+const OPENROUTER_API_KEY =
+  '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';
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 const systemPrompt = `You are an AI assistant that helps users build data integration flows. Your job is to parse user messages and extract:
@@ -47,31 +48,34 @@ Respond with JSON in this exact format:
   "followUpQuestion": "What specific question to ask next"
 }`;
 
-export async function parseFlowWithLLM(userMessage: string, conversationHistory: string[] = []): Promise<FlowParseResult> {
+export async function parseFlowWithLLM(
+  userMessage: string,
+  conversationHistory: string[] = []
+): Promise<FlowParseResult> {
   try {
     const messages = [
       { role: 'system', content: systemPrompt },
       ...conversationHistory.map((msg, i) => ({
         role: i % 2 === 0 ? 'user' : 'assistant',
-        content: msg
+        content: msg,
       })),
-      { role: 'user', content: userMessage }
+      { role: 'user', content: userMessage },
     ];
 
     const response = await fetch(OPENROUTER_API_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
         'HTTP-Referer': 'https://nexla-data-flow.com',
-        'X-Title': 'Nexla Data Flow Architect'
+        'X-Title': 'Nexla Data Flow Architect',
       },
       body: JSON.stringify({
         model: 'openai/gpt-4o-mini',
         messages,
         temperature: 0.3,
-        max_tokens: 500
-      })
+        max_tokens: 500,
+      }),
     });
 
     if (!response.ok) {
@@ -108,13 +112,12 @@ export async function parseFlowWithLLM(userMessage: string, conversationHistory:
         transform: parsedResult.transform || null,
         destination: parsedResult.destination || null,
         credentials: parsedResult.credentials || {},
-        followUpQuestion: parsedResult.followUpQuestion || null
-      }
+        followUpQuestion: parsedResult.followUpQuestion || null,
+      },
     };
-
   } catch (error) {
     console.error('OpenRouter service error:', error);
-    
+
     // Fallback to regex parsing
     return parseFlowFromTextRegex(userMessage);
   }
@@ -122,30 +125,29 @@ export async function parseFlowWithLLM(userMessage: string, conversationHistory:
 
 // Fallback regex-based parsing
 function parseFlowFromTextRegex(text: string): FlowParseResult {
-  
   // Common patterns for source systems
   const sourcePatterns = [
     /(?:from|connect|sync|get.*from|extract.*from)\s+(\w+)/i,
-    /(\w+)\s+(?:to|into|→)/i
+    /(\w+)\s+(?:to|into|→)/i,
   ];
-  
-  // Common patterns for destination systems  
+
+  // Common patterns for destination systems
   const destPatterns = [
     /(?:to|into|send.*to|load.*into|→)\s+(\w+)/i,
-    /(?:from|connect|sync)\s+\w+\s+(?:to|into)\s+(\w+)/i
+    /(?:from|connect|sync)\s+\w+\s+(?:to|into)\s+(\w+)/i,
   ];
 
   let source = null;
   let destination = null;
-  
+
   // Try to find source
   for (const pattern of sourcePatterns) {
     const match = text.match(pattern);
     if (match && match[1]) {
       const candidate = match[1].toLowerCase();
       // Check if it's a known connector
-      const connectorName = Object.keys(connectorCatalog).find(name => 
-        name.toLowerCase().includes(candidate) || candidate.includes(name.toLowerCase())
+      const connectorName = Object.keys(connectorCatalog).find(
+        (name) => name.toLowerCase().includes(candidate) || candidate.includes(name.toLowerCase())
       );
       if (connectorName) {
         source = connectorName;
@@ -153,15 +155,15 @@ function parseFlowFromTextRegex(text: string): FlowParseResult {
       }
     }
   }
-  
+
   // Try to find destination
   for (const pattern of destPatterns) {
     const match = text.match(pattern);
     if (match && match[1]) {
       const candidate = match[1].toLowerCase();
       // Check if it's a known connector
-      const connectorName = Object.keys(connectorCatalog).find(name => 
-        name.toLowerCase().includes(candidate) || candidate.includes(name.toLowerCase())
+      const connectorName = Object.keys(connectorCatalog).find(
+        (name) => name.toLowerCase().includes(candidate) || candidate.includes(name.toLowerCase())
       );
       if (connectorName) {
         destination = connectorName;
@@ -173,15 +175,15 @@ function parseFlowFromTextRegex(text: string): FlowParseResult {
   // Note: We don't automatically set a default transform anymore
   // The transform should remain "Dummy Transform" until explicitly mentioned
 
-  let followUpQuestion = "I can help you set up this data flow. ";
+  let followUpQuestion = 'I can help you set up this data flow. ';
   if (!source && !destination) {
-    followUpQuestion += "What systems would you like to connect?";
+    followUpQuestion += 'What systems would you like to connect?';
   } else if (!source) {
-    followUpQuestion += "What system should we get the data from?";
+    followUpQuestion += 'What system should we get the data from?';
   } else if (!destination) {
-    followUpQuestion += "Where should we send the data?";
+    followUpQuestion += 'Where should we send the data?';
   } else {
-    followUpQuestion += "What credentials do you have for these systems?";
+    followUpQuestion += 'What credentials do you have for these systems?';
   }
 
   return {
@@ -191,7 +193,7 @@ function parseFlowFromTextRegex(text: string): FlowParseResult {
       transform: null, // Don't assume default transform
       destination,
       credentials: {},
-      followUpQuestion
-    }
+      followUpQuestion,
+    },
   };
 }
