@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <!-- Simplified SVG (no external styles/markers) for maximum renderer compatibility -->
+  <rect x="0" y="0" width="1200" height="720" fill="#ffffff"/>
+
+  <!-- Title -->
+  <text x="600" y="48" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#0f172a">Interaction Flows</text>
+
+  <!-- Section label -->
+  <text x="80" y="88" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="600" fill="#0f172a">Chat Conversation</text>
+
+  <!-- Chat flow boxes -->
+  <rect x="80" y="108" width="220" height="64" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="190" y="146" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#334155">Initial Greeting</text>
+
+  <!-- Arrow 1 (box1 -> box2) -->
+  <line x1="300" y1="140" x2="352" y2="140" stroke="#94a3b8" stroke-width="2"/>
+  <polygon points="352,134 364,140 352,146" fill="#94a3b8"/>
+
+  <rect x="364" y="108" width="220" height="64" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="474" y="146" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#334155">User Input</text>
+
+  <!-- Arrow 2 (box2 -> box3) -->
+  <line x1="584" y1="140" x2="636" y2="140" stroke="#94a3b8" stroke-width="2"/>
+  <polygon points="636,134 648,140 636,146" fill="#94a3b8"/>
+
+  <rect x="648" y="108" width="220" height="64" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="758" y="146" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#334155">AI Response</text>
+
+  <!-- Arrow 3 (box3 -> box4) -->
+  <line x1="868" y1="140" x2="920" y2="140" stroke="#94a3b8" stroke-width="2"/>
+  <polygon points="920,134 932,140 920,146" fill="#94a3b8"/>
+
+  <rect x="932" y="108" width="220" height="64" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="1042" y="146" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#334155">Action Trigger</text>
+
+  <!-- Node configuration label -->
+  <text x="80" y="238" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="600" fill="#0f172a">Node Configuration</text>
+
+  <!-- Node config boxes -->
+  <rect x="80" y="258" width="220" height="64" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="190" y="296" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#334155">Select Node</text>
+
+  <line x1="300" y1="290" x2="352" y2="290" stroke="#94a3b8" stroke-width="2"/>
+  <polygon points="352,284 364,290 352,296" fill="#94a3b8"/>
+
+  <rect x="364" y="258" width="220" height="64" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="474" y="296" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#334155">Open Panel</text>
+
+  <line x1="584" y1="290" x2="636" y2="290" stroke="#94a3b8" stroke-width="2"/>
+  <polygon points="636,284 648,290 636,296" fill="#94a3b8"/>
+
+  <rect x="648" y="258" width="220" height="64" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="758" y="296" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#334155">Configure</text>
+
+  <line x1="868" y1="290" x2="920" y2="290" stroke="#94a3b8" stroke-width="2"/>
+  <polygon points="920,284 932,290 920,296" fill="#94a3b8"/>
+
+  <rect x="932" y="258" width="220" height="64" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="1042" y="296" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#334155">Validate &amp; Save</text>
+
+  <!-- Responsive legend -->
+  <text x="80" y="372" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="600" fill="#0f172a">Responsive Breakpoints (Tailwind)</text>
+  <text x="80" y="396" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#334155">Base: Mobile first • sm ≥ 640px • md ≥ 768px • lg ≥ 1024px • xl ≥ 1280px • 2xl ≥ 1536px</text>
+  <text x="80" y="420" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#334155">Layouts: 1 column (base) → 2 columns (md) → 3 panels (lg)</text>
+</svg>

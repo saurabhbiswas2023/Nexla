@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700">
+  <defs>
+    <style>
+      .title{font:700 24px Inter, Arial, sans-serif; fill:#0f172a}
+      .subtitle{font:600 16px Inter, Arial, sans-serif; fill:#334155}
+      .label{font:600 14px Inter, Arial, sans-serif; fill:#0f172a}
+      .small{font:500 12px Inter, Arial, sans-serif; fill:#334155}
+      .box{fill:#ffffff; stroke:#cbd5e1; stroke-width:2}
+      .arrow{stroke:#94a3b8; stroke-width:2; marker-end:url(#arrow)}
+      .pill{fill:#f8fafc; stroke:#cbd5e1}
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8" />
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="700" fill="#ffffff"/>
+  <text x="600" y="48" text-anchor="middle" class="title">Nexla Data Flow Architect — Visual Architecture</text>
+  <text x="600" y="80" text-anchor="middle" class="subtitle">Single Page Application • React + TypeScript • Tailwind CSS</text>
+
+  <!-- Pages -->
+  <rect x="80" y="140" width="300" height="160" rx="12" class="box"/>
+  <text x="230" y="170" text-anchor="middle" class="label">Landing Page</text>
+  <text x="230" y="196" text-anchor="middle" class="small">Hero • Prompt Input • Examples</text>
+
+  <rect x="450" y="140" width="300" height="160" rx="12" class="box"/>
+  <text x="600" y="170" text-anchor="middle" class="label">Chat Interface</text>
+  <text x="600" y="196" text-anchor="middle" class="small">Message History • Input • Actions</text>
+
+  <rect x="820" y="140" width="300" height="160" rx="12" class="box"/>
+  <text x="970" y="170" text-anchor="middle" class="label">Visual Canvas</text>
+  <text x="970" y="196" text-anchor="middle" class="small">Node Library • Canvas • Properties</text>
+
+  <!-- Arrows between pages -->
+  <line x1="380" y1="220" x2="450" y2="220" class="arrow"/>
+  <line x1="750" y1="220" x2="820" y2="220" class="arrow"/>
+
+  <!-- State and Routing Layer -->
+  <rect x="80" y="340" width="1040" height="140" rx="12" class="pill"/>
+  <text x="600" y="368" text-anchor="middle" class="label">Application Services</text>
+  <text x="200" y="400" class="small">React Router (SPA)</text>
+  <text x="200" y="424" class="small">Route-based code splitting</text>
+  <text x="520" y="400" class="small">Global State (Zustand/Context)</text>
+  <text x="520" y="424" class="small">Theme • Session • Feature Flags</text>
+  <text x="880" y="400" class="small">Real-time (WebSocket)</text>
+  <text x="880" y="424" class="small">Service Worker • Cache</text>
+
+  <!-- Node types legend -->
+  <rect x="80" y="520" width="1040" height="120" rx="12" class="pill"/>
+  <text x="100" y="548" class="small">Node Types</text>
+  <rect x="190" y="528" width="16" height="16" fill="#3b82f6" rx="3"/>
+  <text x="212" y="540" class="small">Source</text>
+  <rect x="300" y="528" width="16" height="16" fill="#8b5cf6" rx="3"/>
+  <text x="322" y="540" class="small">Transform</text>
+  <rect x="430" y="528" width="16" height="16" fill="#10b981" rx="3"/>
+  <text x="452" y="540" class="small">Destination</text>
+
+  <text x="190" y="568" class="small">Status: Pending</text>
+  <rect x="280" y="556" width="14" height="14" fill="#f59e0b" rx="3"/>
+  <text x="300" y="568" class="small">Partial</text>
+  <rect x="360" y="556" width="14" height="14" fill="#3b82f6" rx="3"/>
+  <text x="380" y="568" class="small">Complete</text>
+  <rect x="450" y="556" width="14" height="14" fill="#10b981" rx="3"/>
+  <text x="470" y="568" class="small">Error</text>
+  <rect x="520" y="556" width="14" height="14" fill="#ef4444" rx="3"/>
+
+  <!-- Footer -->
+  <text x="600" y="660" text-anchor="middle" class="small">Tailwind CSS • Default breakpoints: sm md lg xl 2xl • Mobile-first</text>
+</svg>
+
+

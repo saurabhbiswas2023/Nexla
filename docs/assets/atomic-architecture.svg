@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="820" viewBox="0 0 1200 820">
+  <defs>
+    <style>
+      .title{font:700 22px Inter, Arial, sans-serif; fill:#0f172a}
+      .label{font:600 14px Inter, Arial, sans-serif; fill:#0f172a}
+      .small{font:500 12px Inter, Arial, sans-serif; fill:#334155}
+      .box{fill:#ffffff; stroke:#cbd5e1; stroke-width:2}
+    </style>
+  </defs>
+  <rect x="0" y="0" width="1200" height="820" fill="#ffffff"/>
+  <text x="600" y="48" text-anchor="middle" class="title">Atomic Design Architecture</text>
+
+  <!-- Atoms -->
+  <text x="120" y="96" class="label">Atoms</text>
+  <rect x="80" y="112" width="240" height="140" rx="12" class="box"/>
+  <text x="200" y="140" text-anchor="middle" class="small">Button • Input • Icon • Badge • Avatar</text>
+
+  <!-- Molecules -->
+  <text x="470" y="96" class="label">Molecules</text>
+  <rect x="430" y="112" width="240" height="140" rx="12" class="box"/>
+  <text x="550" y="140" text-anchor="middle" class="small">Message Bubble • Card • Form Group</text>
+
+  <!-- Organisms -->
+  <text x="820" y="96" class="label">Organisms</text>
+  <rect x="780" y="112" width="340" height="140" rx="12" class="box"/>
+  <text x="950" y="140" text-anchor="middle" class="small">Header • Chat Interface • Flow Canvas • Footer</text>
+
+  <!-- Templates -->
+  <text x="120" y="300" class="label">Templates</text>
+  <rect x="80" y="316" width="1040" height="160" rx="12" class="box"/>
+  <text x="600" y="352" text-anchor="middle" class="small">Landing Page • Chat Page • Canvas Page</text>
+  <text x="600" y="380" text-anchor="middle" class="small">Grid • Regions • Hierarchy • Navigation</text>
+
+  <!-- Mapping to Tailwind -->
+  <text x="120" y="520" class="label">Tailwind Component Mapping</text>
+  <rect x="80" y="536" width="1040" height="220" rx="12" class="box"/>
+  <text x="120" y="566" class="small">Atoms</text>
+  <text x="200" y="566" class="small">button: inline-flex items-center gap-2 rounded-md px-4 py-2 font-medium</text>
+  <text x="200" y="590" class="small">input: block w-full rounded-md border border-slate-300 px-3 py-2</text>
+  <text x="200" y="614" class="small">badge: inline-flex items-center rounded-full px-2.5 py-0.5 text-xs</text>
+  <text x="120" y="646" class="small">Molecules</text>
+  <text x="200" y="646" class="small">card: rounded-xl border bg-white p-4 shadow-sm</text>
+  <text x="120" y="678" class="small">Organisms</text>
+  <text x="200" y="678" class="small">header: sticky top-0 z-40 border-b bg-white/80 backdrop-blur</text>
+  <text x="200" y="702" class="small">chat: grid grid-rows-[auto_1fr_auto] h-full</text>
+  <text x="200" y="726" class="small">canvas: grid lg:grid-cols-[200px_minmax(0,1fr)_260px] gap-4</text>
+
+  <text x="600" y="792" text-anchor="middle" class="small">Use Tailwind's default breakpoints: sm md lg xl 2xl • Mobile-first</text>
+</svg>
+
+

@@ -1,0 +1,71 @@
+{
+  "name": "nexla-data-flow-architect",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --port 5173",
+    "test:e2e": "playwright test",
+    "pretest:e2e": "npx playwright install chromium --with-deps || true",
+    "e2e:serve": "start-server-and-test preview http://localhost:5173 test:e2e",
+    "lint": "eslint . --ext .ts,.tsx --max-warnings=0",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "lint:css": "stylelint \"**/*.{css,scss}\"",
+    "lint:css:fix": "stylelint \"**/*.{css,scss}\" --fix",
+    "test:unit": "vitest run",
+    "build:connectors": "node scripts/build-connectors.cjs",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@xyflow/react": "^12.8.4",
+    "lucide-react": "^0.441.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-error-boundary": "^6.0.0",
+    "react-router-dom": "^6.25.1",
+    "zustand": "^4.5.7"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.1",
+    "@types/react": "^18.2.42",
+    "@types/react-dom": "^18.2.17",
+    "@typescript-eslint/eslint-plugin": "^8.43.0",
+    "@typescript-eslint/parser": "^8.43.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.17",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.34.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "^9.1.7",
+    "jsdom": "^24.1.0",
+    "lint-staged": "^16.1.6",
+    "postcss": "^8.4.35",
+    "prettier": "^3.6.2",
+    "start-server-and-test": "^2.1.0",
+    "stylelint": "^16.24.0",
+    "stylelint-config-standard": "^39.0.0",
+    "tailwindcss": "^3.4.10",
+    "typescript": "^5.3.3",
+    "vite": "^5.2.0",
+    "vitest": "^1.6.0"
+  },
+  "optionalDependencies": {
+    "@playwright/test": "^1.47.2"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{css,scss}": [
+      "stylelint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  }
+}

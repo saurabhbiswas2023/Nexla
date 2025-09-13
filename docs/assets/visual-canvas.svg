@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <defs>
+    <style>
+      .title{font:700 22px Inter, Arial, sans-serif; fill:#0f172a}
+      .label{font:600 14px Inter, Arial, sans-serif; fill:#0f172a}
+      .small{font:500 12px Inter, Arial, sans-serif; fill:#334155}
+      .box{fill:#ffffff; stroke:#cbd5e1; stroke-width:2}
+      .source{fill:#3b82f6; stroke:#2563eb}
+      .transform{fill:#8b5cf6; stroke:#7c3aed}
+      .dest{fill:#10b981; stroke:#059669}
+      .arrow{stroke:#475569; stroke-width:2; marker-end:url(#arrow)}
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569" />
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1200" height="800" fill="#ffffff"/>
+  <text x="600" y="48" text-anchor="middle" class="title">Visual Canvas</text>
+
+  <!-- Shell -->
+  <rect x="80" y="80" width="200" height="640" rx="12" class="box"/>
+  <text x="100" y="110" class="label">Node Library</text>
+  <text x="100" y="140" class="small">Sources</text>
+  <rect x="100" y="152" width="160" height="36" rx="8" class="source"/>
+  <text x="180" y="176" text-anchor="middle" fill="#fff" class="small">Salesforce</text>
+  <rect x="100" y="196" width="160" height="36" rx="8" class="source"/>
+  <text x="180" y="220" text-anchor="middle" fill="#fff" class="small">Database</text>
+  <text x="100" y="268" class="small">Transforms</text>
+  <rect x="100" y="280" width="160" height="36" rx="8" class="transform"/>
+  <text x="180" y="304" text-anchor="middle" fill="#fff" class="small">Map</text>
+  <rect x="100" y="324" width="160" height="36" rx="8" class="transform"/>
+  <text x="180" y="348" text-anchor="middle" fill="#fff" class="small">Filter</text>
+  <text x="100" y="392" class="small">Destinations</text>
+  <rect x="100" y="404" width="160" height="36" rx="8" class="dest"/>
+  <text x="180" y="428" text-anchor="middle" fill="#fff" class="small">Snowflake</text>
+
+  <rect x="300" y="80" width="620" height="640" rx="12" class="box"/>
+  <text x="320" y="110" class="label">Canvas</text>
+
+  <!-- Nodes on canvas -->
+  <rect x="360" y="220" width="150" height="56" rx="10" class="source"/>
+  <text x="435" y="252" text-anchor="middle" fill="#fff" class="small">Salesforce</text>
+
+  <rect x="560" y="220" width="150" height="56" rx="10" class="transform"/>
+  <text x="635" y="252" text-anchor="middle" fill="#fff" class="small">Transform</text>
+
+  <rect x="760" y="220" width="150" height="56" rx="10" class="dest"/>
+  <text x="835" y="252" text-anchor="middle" fill="#fff" class="small">Warehouse</text>
+
+  <line x1="510" y1="248" x2="560" y2="248" class="arrow"/>
+  <line x1="710" y1="248" x2="760" y2="248" class="arrow"/>
+
+  <!-- Properties -->
+  <rect x="940" y="80" width="180" height="640" rx="12" class="box"/>
+  <text x="960" y="110" class="label">Properties</text>
+  <text x="960" y="140" class="small">Connection: Connected</text>
+  <text x="960" y="164" class="small">Object: Lead</text>
+  <text x="960" y="188" class="small">Fields: Name, Email</text>
+
+  <text x="600" y="760" text-anchor="middle" class="small">Tailwind: grid grid-cols-1 lg:grid-cols-[200px_minmax(0,1fr)_260px] gap-4</text>
+</svg>
+
+

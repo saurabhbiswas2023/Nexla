@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <defs>
+    <style>
+      .title{font:700 22px Inter, Arial, sans-serif; fill:#0f172a}
+      .label{font:600 14px Inter, Arial, sans-serif; fill:#0f172a}
+      .small{font:500 12px Inter, Arial, sans-serif; fill:#334155}
+      .box{fill:#ffffff; stroke:#cbd5e1; stroke-width:2}
+      .code{font:600 12px ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; fill:#0f172a}
+    </style>
+  </defs>
+  <rect x="0" y="0" width="1200" height="900" fill="#ffffff"/>
+  <text x="600" y="48" text-anchor="middle" class="title">Tailwind Components Cheatsheet</text>
+
+  <!-- Buttons -->
+  <rect x="80" y="80" width="1040" height="140" rx="12" class="box"/>
+  <text x="100" y="110" class="label">Buttons</text>
+  <text x="100" y="136" class="code">btn base: inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2</text>
+  <text x="100" y="160" class="code">btn primary: bg-blue-600 text-white hover:bg-blue-500 focus:ring-blue-600</text>
+  <text x="100" y="184" class="code">btn ghost: bg-transparent hover:bg-slate-100</text>
+
+  <!-- Inputs -->
+  <rect x="80" y="240" width="1040" height="140" rx="12" class="box"/>
+  <text x="100" y="270" class="label">Inputs</text>
+  <text x="100" y="296" class="code">input: block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500</text>
+  <text x="100" y="320" class="code">textarea: block w-full rounded-md border border-slate-300 bg-white px-3 py-2 min-h-[80px]</text>
+
+  <!-- Cards -->
+  <rect x="80" y="400" width="1040" height="140" rx="12" class="box"/>
+  <text x="100" y="430" class="label">Cards</text>
+  <text x="100" y="456" class="code">card: rounded-xl border border-slate-200 bg-white p-4 shadow-sm</text>
+  <text x="100" y="480" class="code">card header: mb-3 flex items-center justify-between gap-2</text>
+
+  <!-- Layouts -->
+  <rect x="80" y="560" width="1040" height="200" rx="12" class="box"/>
+  <text x="100" y="590" class="label">Layouts</text>
+  <text x="100" y="616" class="code">container: mx-auto px-4 sm:px-6 lg:px-8 max-w-screen-2xl</text>
+  <text x="100" y="640" class="code">grid landing: grid gap-6 sm:grid-cols-2 lg:grid-cols-3</text>
+  <text x="100" y="664" class="code">chat shell: grid h-dvh grid-rows-[auto_1fr_auto]</text>
+  <text x="100" y="688" class="code">canvas shell: grid gap-4 lg:grid-cols-[200px_minmax(0,1fr)_260px]</text>
+  <text x="100" y="712" class="code">responsive: hidden md:block | flex-col md:flex-row | p-4 md:p-6 lg:p-8</text>
+
+  <text x="600" y="840" text-anchor="middle" class="small">Breakpoints: sm md lg xl 2xl • Mobile-first • Utilities-first</text>
+</svg>
+
+

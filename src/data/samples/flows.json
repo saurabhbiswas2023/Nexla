@@ -1,0 +1,41 @@
+{
+  "samples": [
+    {
+      "id": "sf-mailchimp",
+      "label": "Salesforce to Mailchimp",
+      "source": {
+        "name": "Salesforce",
+        "values": { "loginUrl": "https://login.salesforce.com", "username": "user@example.com" }
+      },
+      "transform": { "name": "Map & Validate" },
+      "destination": { "name": "Mailchimp", "values": { "apiKey": "***", "serverPrefix": "us1" } },
+      "status": { "source": "partial", "transform": "pending", "destination": "pending" }
+    },
+    {
+      "id": "shopify-mailchimp-basic",
+      "label": "Shopify to Mailchimp (Basic)",
+      "source": { "name": "Shopify", "values": { "storeDomain": "my-shop.myshopify.com" } },
+      "transform": { "name": "Cleanse" },
+      "destination": { "name": "Mailchimp", "values": { "apiKey": "***" } },
+      "status": { "source": "complete", "transform": "partial", "destination": "pending" }
+    },
+    {
+      "id": "shopify-mailchimp-advanced",
+      "label": "Shopify to Mailchimp (Advanced)",
+      "source": {
+        "name": "Shopify",
+        "values": {
+          "storeDomain": "brand.myshopify.com",
+          "adminApiAccessToken": "***",
+          "apiVersion": "2024-04"
+        }
+      },
+      "transform": { "name": "Enrich & Map" },
+      "destination": {
+        "name": "Mailchimp",
+        "values": { "apiKey": "***", "serverPrefix": "us9", "listId": "abcd1234" }
+      },
+      "status": { "source": "complete", "transform": "partial", "destination": "error" }
+    }
+  ]
+}

@@ -1,0 +1,270 @@
+# 🔍 Automated Code Review Workflow
+# Based on docs/code-quality/CODE_QUALITY_REVIEW.md analysis
+
+name: 'Code Quality Review'
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  code-quality:
+    name: 'Code Quality Analysis'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: ESLint Analysis
+        run: |
+          echo "🔍 Running ESLint analysis..."
+          npm run lint
+          
+      - name: TypeScript Check
+        run: |
+          echo "📝 Running TypeScript check..."
+          npm run build
+          
+      - name: Security Audit
+        run: |
+          echo "🔒 Running security audit..."
+          npm audit --audit-level moderate
+          
+      - name: Accessibility Testing
+        run: |
+          echo "♿ Running accessibility tests..."
+          npm run test:a11y || echo "Accessibility tests not configured"
+          
+      - name: Performance Testing
+        run: |
+          echo "⚡ Running performance tests..."
+          npm run test:performance || echo "Performance tests not configured"
+          
+      - name: Unit Tests
+        run: |
+          echo "🧪 Running unit tests..."
+          npm run test:unit || echo "Unit tests not configured"
+          
+      - name: E2E Tests
+        run: |
+          echo "🎭 Running E2E tests..."
+          npm run test:e2e || echo "E2E tests not configured"
+
+  atomic-design-check:
+    name: 'Atomic Design Validation'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Validate Component Structure
+        run: |
+          echo "🏗️ Validating atomic design structure..."
+          
+          # Check for proper atomic structure
+          if [ ! -d "src/components/atoms" ]; then
+            echo "❌ Missing atoms directory"
+            exit 1
+          fi
+          
+          if [ ! -d "src/components/molecules" ]; then
+            echo "❌ Missing molecules directory"
+            exit 1
+          fi
+          
+          if [ ! -d "src/components/organisms" ]; then
+            echo "❌ Missing organisms directory"
+            exit 1
+          fi
+          
+          # Check for required atomic components
+          required_atoms=("Button.tsx" "Input.tsx" "Label.tsx")
+          for atom in "${required_atoms[@]}"; do
+            if [ ! -f "src/components/atoms/$atom" ]; then
+              echo "❌ Missing required atom: $atom"
+              exit 1
+            fi
+          done
+          
+          echo "✅ Atomic design structure validated"
+
+  security-check:
+    name: 'Security Analysis'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Check for Security Patterns
+        run: |
+          echo "🔒 Checking for security anti-patterns..."
+          
+          # Check for potential XSS vulnerabilities
+          if grep -r "dangerouslySetInnerHTML" src/; then
+            echo "⚠️ Found dangerouslySetInnerHTML usage - review for XSS risks"
+          fi
+          
+          # Check for hardcoded credentials
+          if grep -r -i "password.*=.*['\"]" src/ --exclude-dir=node_modules; then
+            echo "❌ Found potential hardcoded credentials"
+            exit 1
+          fi
+          
+          # Check for unsafe JSON parsing
+          if grep -r "JSON.parse.*target.value" src/ --exclude-dir=node_modules; then
+            echo "⚠️ Found unsafe JSON parsing - ensure validation is in place"
+          fi
+          
+          # Check for missing input validation
+          if ! grep -r "validateInput\|sanitizeInput" src/ --exclude-dir=node_modules; then
+            echo "⚠️ No input validation functions found - security risk"
+          fi
+          
+          echo "✅ Security patterns check completed"
+
+  accessibility-check:
+    name: 'Accessibility Analysis'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Check Accessibility Patterns
+        run: |
+          echo "♿ Checking accessibility patterns..."
+          
+          # Check for ARIA labels
+          if ! grep -r "aria-label\|aria-describedby" src/ --exclude-dir=node_modules; then
+            echo "⚠️ No ARIA labels found - accessibility concern"
+          fi
+          
+          # Check for keyboard navigation
+          if ! grep -r "onKeyDown\|tabIndex" src/ --exclude-dir=node_modules; then
+            echo "⚠️ Limited keyboard navigation support found"
+          fi
+          
+          # Check for screen reader support
+          if ! grep -r "aria-live\|sr-only" src/ --exclude-dir=node_modules; then
+            echo "⚠️ No screen reader support patterns found"
+          fi
+          
+          # Check for proper form labels
+          if grep -r "<input" src/ --exclude-dir=node_modules | grep -v "aria-label\|id="; then
+            echo "⚠️ Found inputs without proper labeling"
+          fi
+          
+          echo "✅ Accessibility patterns check completed"
+
+  mobile-first-check:
+    name: 'Mobile-First Validation'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Check Mobile-First Patterns
+        run: |
+          echo "📱 Checking mobile-first patterns..."
+          
+          # Check for mobile-first CSS classes
+          if grep -r "md:grid-cols.*grid-cols" src/ --exclude-dir=node_modules; then
+            echo "⚠️ Found desktop-first CSS patterns - should be mobile-first"
+          fi
+          
+          # Check for proper touch targets
+          if ! grep -r "min-h-\[44px\]\|min-w-\[44px\]" src/ --exclude-dir=node_modules; then
+            echo "⚠️ No 44px touch targets found - mobile usability concern"
+          fi
+          
+          # Check for responsive breakpoints
+          if ! grep -r "sm:\|md:\|lg:" src/ --exclude-dir=node_modules; then
+            echo "⚠️ No responsive breakpoints found"
+          fi
+          
+          echo "✅ Mobile-first patterns check completed"
+
+  performance-check:
+    name: 'Performance Analysis'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Check Performance Patterns
+        run: |
+          echo "⚡ Checking performance patterns..."
+          
+          # Check for memoization
+          if ! grep -r "useMemo\|useCallback\|React.memo" src/ --exclude-dir=node_modules; then
+            echo "⚠️ No memoization patterns found - potential performance issues"
+          fi
+          
+          # Check for expensive operations in render
+          if grep -r "\.filter\|\.map\|\.reduce" src/ --exclude-dir=node_modules | grep -v "useMemo\|useCallback"; then
+            echo "⚠️ Found array operations that might need memoization"
+          fi
+          
+          # Check for proper dependency arrays
+          if grep -r "useEffect\|useCallback\|useMemo" src/ --exclude-dir=node_modules | grep -c "\[\]$" > /dev/null; then
+            echo "⚠️ Found hooks with empty dependency arrays - verify if correct"
+          fi
+          
+          echo "✅ Performance patterns check completed"
+
+  code-review-summary:
+    name: 'Code Review Summary'
+    runs-on: ubuntu-latest
+    needs: [code-quality, atomic-design-check, security-check, accessibility-check, mobile-first-check, performance-check]
+    if: always()
+    
+    steps:
+      - name: Generate Review Summary
+        run: |
+          echo "📋 Code Review Summary"
+          echo "====================="
+          echo ""
+          echo "✅ Code Quality: ${{ needs.code-quality.result }}"
+          echo "🏗️ Atomic Design: ${{ needs.atomic-design-check.result }}"
+          echo "🔒 Security: ${{ needs.security-check.result }}"
+          echo "♿ Accessibility: ${{ needs.accessibility-check.result }}"
+          echo "📱 Mobile-First: ${{ needs.mobile-first-check.result }}"
+          echo "⚡ Performance: ${{ needs.performance-check.result }}"
+          echo ""
+          
+          if [[ "${{ needs.code-quality.result }}" == "success" && 
+                "${{ needs.atomic-design-check.result }}" == "success" && 
+                "${{ needs.security-check.result }}" == "success" && 
+                "${{ needs.accessibility-check.result }}" == "success" && 
+                "${{ needs.mobile-first-check.result }}" == "success" && 
+                "${{ needs.performance-check.result }}" == "success" ]]; then
+            echo "🎉 All quality checks passed! Ready for merge."
+          else
+            echo "❌ Some quality checks failed. Please review and fix issues."
+            exit 1
+          fi

@@ -1,0 +1,1404 @@
+{
+  "connectors": [
+    {
+      "name": "2dehands",
+      "category": "Other"
+    },
+    {
+      "name": "2ememain",
+      "category": "Other"
+    },
+    {
+      "name": "6Sense",
+      "category": "Other"
+    },
+    {
+      "name": "ActiGraph CentrePoint",
+      "category": "Other"
+    },
+    {
+      "name": "Active Campaign",
+      "category": "Other"
+    },
+    {
+      "name": "Ad Butler",
+      "category": "Other"
+    },
+    {
+      "name": "Adobe Experience Manager",
+      "category": "Other"
+    },
+    {
+      "name": "Adobe User Management",
+      "category": "Other"
+    },
+    {
+      "name": "Adyen",
+      "category": "Other"
+    },
+    {
+      "name": "Affinity CRM",
+      "category": "CRM"
+    },
+    {
+      "name": "Aftership",
+      "category": "Other"
+    },
+    {
+      "name": "Agile CRM",
+      "category": "Other"
+    },
+    {
+      "name": "Aircall",
+      "category": "Other"
+    },
+    {
+      "name": "Airtable",
+      "category": "Other"
+    },
+    {
+      "name": "Amazon Ads",
+      "category": "Marketing & Advertising"
+    },
+    {
+      "name": "Amazon Redshift",
+      "category": "Databases"
+    },
+    {
+      "name": "Amazon S3",
+      "category": "File Systems"
+    },
+    {
+      "name": "Amazon Seller Partner API",
+      "category": "E-Commerce"
+    },
+    {
+      "name": "Amplitude",
+      "category": "Other"
+    },
+    {
+      "name": "Ansible",
+      "category": "Other"
+    },
+    {
+      "name": "Anthropic AI",
+      "category": "LLMs"
+    },
+    {
+      "name": "Anvyl",
+      "category": "Other"
+    },
+    {
+      "name": "Apache ActiveMQ",
+      "category": "Other"
+    },
+    {
+      "name": "Apache Airflow",
+      "category": "Other"
+    },
+    {
+      "name": "Apify",
+      "category": "Other"
+    },
+    {
+      "name": "AppFollow",
+      "category": "Other"
+    },
+    {
+      "name": "Apprl",
+      "category": "Other"
+    },
+    {
+      "name": "Arts Vision",
+      "category": "Other"
+    },
+    {
+      "name": "Asana",
+      "category": "Other"
+    },
+    {
+      "name": "AT Internet",
+      "category": "Other"
+    },
+    {
+      "name": "ATS Anywhere",
+      "category": "Other"
+    },
+    {
+      "name": "Avaza",
+      "category": "Other"
+    },
+    {
+      "name": "Aventri",
+      "category": "Other"
+    },
+    {
+      "name": "AWS Athena",
+      "category": "Databases"
+    },
+    {
+      "name": "AWS CloudWatch",
+      "category": "Other"
+    },
+    {
+      "name": "AWS Kinesis Firehose",
+      "category": "Streaming"
+    },
+    {
+      "name": "Azure AI Studio",
+      "category": "LLMs"
+    },
+    {
+      "name": "Azure Blob Storage",
+      "category": "File Systems"
+    },
+    {
+      "name": "Azure Data Lake",
+      "category": "File Systems"
+    },
+    {
+      "name": "Azure Devops",
+      "category": "Other"
+    },
+    {
+      "name": "Azure Synapse",
+      "category": "Databases"
+    },
+    {
+      "name": "Bamboo HR",
+      "category": "Other"
+    },
+    {
+      "name": "Basis DSP",
+      "category": "Marketing & Advertising"
+    },
+    {
+      "name": "Bazaarvoice",
+      "category": "Other"
+    },
+    {
+      "name": "Beekeeper",
+      "category": "Other"
+    },
+    {
+      "name": "Beslist.nl",
+      "category": "Other"
+    },
+    {
+      "name": "Better Proposals",
+      "category": "Other"
+    },
+    {
+      "name": "Better Uptime",
+      "category": "Other"
+    },
+    {
+      "name": "Bexio",
+      "category": "Other"
+    },
+    {
+      "name": "Big Commerce Graph API",
+      "category": "E-Commerce"
+    },
+    {
+      "name": "Big Commerce Store Management",
+      "category": "E-Commerce"
+    },
+    {
+      "name": "Bill",
+      "category": "Other"
+    },
+    {
+      "name": "Bitbucket Server",
+      "category": "Other"
+    },
+    {
+      "name": "Blink",
+      "category": "Other"
+    },
+    {
+      "name": "Bloomerang",
+      "category": "Other"
+    },
+    {
+      "name": "Bloomreach",
+      "category": "Other"
+    },
+    {
+      "name": "Box",
+      "category": "File Systems"
+    },
+    {
+      "name": "Braze",
+      "category": "Marketing & Advertising"
+    },
+    {
+      "name": "Brex",
+      "category": "Other"
+    },
+    {
+      "name": "Browserstack",
+      "category": "Other"
+    },
+    {
+      "name": "Bugherd",
+      "category": "Other"
+    },
+    {
+      "name": "Button",
+      "category": "Other"
+    },
+    {
+      "name": "Campaigner",
+      "category": "Marketing & Advertising"
+    },
+    {
+      "name": "Capsule",
+      "category": "CRM"
+    },
+    {
+      "name": "Certify",
+      "category": "Other"
+    },
+    {
+      "name": "Chargeback",
+      "category": "Other"
+    },
+    {
+      "name": "Chargebee",
+      "category": "Other"
+    },
+    {
+      "name": "Choozle",
+      "category": "Other"
+    },
+    {
+      "name": "CircleCI",
+      "category": "Other"
+    },
+    {
+      "name": "Clever",
+      "category": "Other"
+    },
+    {
+      "name": "Clever District",
+      "category": "Other"
+    },
+    {
+      "name": "Clickwise",
+      "category": "Other"
+    },
+    {
+      "name": "Clockify",
+      "category": "Other"
+    },
+    {
+      "name": "Cognism",
+      "category": "Other"
+    },
+    {
+      "name": "Collibra",
+      "category": "Data as a Service"
+    },
+    {
+      "name": "Confluence",
+      "category": "Other"
+    },
+    {
+      "name": "Confluent Kafka",
+      "category": "Streaming"
+    },
+    {
+      "name": "Convert Kit",
+      "category": "Other"
+    },
+    {
+      "name": "Convey",
+      "category": "Other"
+    },
+    {
+      "name": "Copper",
+      "category": "Other"
+    },
+    {
+      "name": "Corsano",
+      "category": "Other"
+    },
+    {
+      "name": "Coupa",
+      "category": "Other"
+    },
+    {
+      "name": "Criteo",
+      "category": "Marketing & Advertising"
+    },
+    {
+      "name": "Crunchbase",
+      "category": "Data as a Service"
+    },
+    {
+      "name": "Crunchbase Pro",
+      "category": "Data as a Service"
+    },
+    {
+      "name": "Cue",
+      "category": "Other"
+    },
+    {
+      "name": "data.world",
+      "category": "Data as a Service"
+    },
+    {
+      "name": "Databricks",
+      "category": "Other"
+    },
+    {
+      "name": "Datadog",
+      "category": "Other"
+    },
+    {
+      "name": "dbt",
+      "category": "Other"
+    },
+    {
+      "name": "Delighted",
+      "category": "Other"
+    },
+    {
+      "name": "Delta Lake",
+      "category": "File Systems"
+    },
+    {
+      "name": "Delta Lake on AWS S3",
+      "category": "File Systems"
+    },
+    {
+      "name": "Delta Lake on Azure Blob",
+      "category": "File Systems"
+    },
+    {
+      "name": "Delta Lake on Azure Data Lake",
+      "category": "File Systems"
+    },
+    {
+      "name": "Discord",
+      "category": "Other"
+    },
+    {
+      "name": "Dixa",
+      "category": "Other"
+    },
+    {
+      "name": "Docker",
+      "category": "Other"
+    },
+    {
+      "name": "Domo",
+      "category": "Other"
+    },
+    {
+      "name": "Dropbox",
+      "category": "File Systems"
+    },
+    {
+      "name": "DynamoDB",
+      "category": "Other"
+    },
+    {
+      "name": "Elasticsearch",
+      "category": "Databases"
+    },
+    {
+      "name": "ELT Script Runner",
+      "category": "Other"
+    },
+    {
+      "name": "Email Destination",
+      "category": "Other"
+    },
+    {
+      "name": "Email Source",
+      "category": "Other"
+    },
+    {
+      "name": "Emma",
+      "category": "Other"
+    },
+    {
+      "name": "Everhour",
+      "category": "Other"
+    },
+    {
+      "name": "Expensify",
+      "category": "Other"
+    },
+    {
+      "name": "Extole",
+      "category": "Other"
+    },
+    {
+      "name": "FDA",
+      "category": "Data as a Service"
+    },
+    {
+      "name": "File Upload",
+      "category": "Other"
+    },
+    {
+      "name": "Fingerbank",
+      "category": "Cybersecurity"
+    },
+    {
+      "name": "Firebase",
+      "category": "Other"
+    },
+    {
+      "name": "Firebolt",
+      "category": "Other"
+    },
+    {
+      "name": "Fivetran",
+      "category": "Other"
+    },
+    {
+      "name": "Fixer",
+      "category": "Other"
+    },
+    {
+      "name": "Foursquare",
+      "category": "Other"
+    },
+    {
+      "name": "Freshsales",
+      "category": "CRM"
+    },
+    {
+      "name": "Freshservice",
+      "category": "Other"
+    },
+    {
+      "name": "Front",
+      "category": "Other"
+    },
+    {
+      "name": "FTP, SFTP, FTPS",
+      "category": "File Systems"
+    },
+    {
+      "name": "Fulcrum",
+      "category": "Other"
+    },
+    {
+      "name": "FullContact",
+      "category": "Other"
+    },
+    {
+      "name": "Gainsight CS",
+      "category": "CRM"
+    },
+    {
+      "name": "Gem",
+      "category": "Other"
+    },
+    {
+      "name": "Github",
+      "category": "Other"
+    },
+    {
+      "name": "Glean",
+      "category": "Other"
+    },
+    {
+      "name": "Go Daddy",
+      "category": "Other"
+    },
+    {
+      "name": "Google Ads",
+      "category": "Marketing & Advertising"
+    },
+    {
+      "name": "Google AlloyDB",
+      "category": "Databases"
+    },
+    {
+      "name": "Google Analytics",
+      "category": "Marketing & Advertising"
+    },
+    {
+      "name": "Google BigQuery",
+      "category": "Databases"
+    },
+    {
+      "name": "Google BigQuery API",
+      "category": "Databases"
+    },
+    {
+      "name": "Google Cloud Spanner",
+      "category": "Databases"
+    },
+    {
+      "name": "Google Cloud SQL MySQL",
+      "category": "Databases"
+    },
+    {
+      "name": "Google Cloud SQL PostgreSQL",
+      "category": "Databases"
+    },
+    {
+      "name": "Google Cloud Storage",
+      "category": "File Systems"
+    },
+    {
+      "name": "Google CloudSQL SQLServer",
+      "category": "Databases"
+    },
+    {
+      "name": "Google Drive",
+      "category": "File Systems"
+    },
+    {
+      "name": "Google Gemini",
+      "category": "LLMs"
+    },
+    {
+      "name": "Google Gmail Postmaster",
+      "category": "Other"
+    },
+    {
+      "name": "Google Merchant Center",
+      "category": "Other"
+    },
+    {
+      "name": "Google Pub Sub",
+      "category": "Streaming"
+    },
+    {
+      "name": "Google Search Ads 360",
+      "category": "Marketing & Advertising"
+    },
+    {
+      "name": "Grade us",
+      "category": "Other"
+    },
+    {
+      "name": "GraphQL API",
+      "category": "Generic APIs"
+    },
+    {
+      "name": "Greenhouse",
+      "category": "Other"
+    },
+    {
+      "name": "Grok by xAI",
+      "category": "LLMs"
+    },
+    {
+      "name": "Harvest",
+      "category": "Other"
+    },
+    {
+      "name": "HelloSign",
+      "category": "Other"
+    },
+    {
+      "name": "Heureka",
+      "category": "Other"
+    },
+    {
+      "name": "HiBob",
+      "category": "Other"
+    },
+    {
+      "name": "Hightouch",
+      "category": "Data as a Service"
+    },
+    {
+      "name": "Hive",
+      "category": "Databases"
+    },
+    {
+      "name": "Hive HR",
+      "category": "Databases"
+    },
+    {
+      "name": "Hootsuite",
+      "category": "Other"
+    },
+    {
+      "name": "Hotjar",
+      "category": "Other"
+    },
+    {
+      "name": "Hotmart",
+      "category": "Other"
+    },
+    {
+      "name": "Hubspot",
+      "category": "CRM"
+    },
+    {
+      "name": "IBM AS400",
+      "category": "Other"
+    },
+    {
+      "name": "IBM Db2",
+      "category": "Databases"
+    },
+    {
+      "name": "Iceberg on S3",
+      "category": "File Systems"
+    },
+    {
+      "name": "iLevel",
+      "category": "Other"
+    },
+    {
+      "name": "Instagram",
+      "category": "Other"
+    },
+    {
+      "name": "Intuit Quickbooks",
+      "category": "Other"
+    },
+    {
+      "name": "Jampp",
+      "category": "Other"
+    },
+    {
+      "name": "JazzHR",
+      "category": "Other"
+    },
+    {
+      "name": "JIRA",
+      "category": "Other"
+    },
+    {
+      "name": "JMS",
+      "category": "Streaming"
+    },
+    {
+      "name": "Kafka",
+      "category": "Streaming"
+    },
+    {
+      "name": "Kapost",
+      "category": "Other"
+    },
+    {
+      "name": "Kargo",
+      "category": "Other"
+    },
+    {
+      "name": "Keap",
+      "category": "CRM"
+    },
+    {
+      "name": "Kibo",
+      "category": "Other"
+    },
+    {
+      "name": "Kissmetrics",
+      "category": "Other"
+    },
+    {
+      "name": "Klaviyo",
+      "category": "Marketing & Advertising"
+    },
+    {
+      "name": "KnowBe4 (KMSAT)",
+      "category": "Other"
+    },
+    {
+      "name": "Lattice",
+      "category": "Other"
+    },
+    {
+      "name": "LaunchDarkly",
+      "category": "Other"
+    },
+    {
+      "name": "Leadfeader",
+      "category": "Other"
+    },
+    {
+      "name": "Leapfin",
+      "category": "Other"
+    },
+    {
+      "name": "Leapsome",
+      "category": "Other"
+    },
+    {
+      "name": "Lemlist",
+      "category": "Other"
+    },
+    {
+      "name": "Lessonly / Seismic Learning",
+      "category": "Other"
+    },
+    {
+      "name": "LinkedIn Ads",
+      "category": "Marketing & Advertising"
+    },
+    {
+      "name": "LinkedIn Marketing",
+      "category": "Marketing & Advertising"
+    },
+    {
+      "name": "Locker",
+      "category": "Other"
+    },
+    {
+      "name": "Loggly",
+      "category": "Other"
+    },
+    {
+      "name": "LogicGate",
+      "category": "Other"
+    },
+    {
+      "name": "Lokalise",
+      "category": "Other"
+    },
+    {
+      "name": "Looker",
+      "category": "Data as a Service"
+    },
+    {
+      "name": "Lookup Tables",
+      "category": "Other"
+    },
+    {
+      "name": "Magento",
+      "category": "E-Commerce"
+    },
+    {
+      "name": "Mailboxlayer",
+      "category": "File Systems"
+    },
+    {
+      "name": "Mailchimp",
+      "category": "Marketing & Advertising"
+    },
+    {
+      "name": "ManagerPlus",
+      "category": "Other"
+    },
+    {
+      "name": "Manhattan",
+      "category": "Other"
+    },
+    {
+      "name": "Marketo",
+      "category": "Marketing & Advertising"
+    },
+    {
+      "name": "Maropost",
+      "category": "Other"
+    },
+    {
+      "name": "Medallia",
+      "category": "Other"
+    },
+    {
+      "name": "Meta / Facebook Ads",
+      "category": "Marketing & Advertising"
+    },
+    {
+      "name": "Meta / Facebook Pages",
+      "category": "Marketing & Advertising"
+    },
+    {
+      "name": "Microsoft Bing Ads",
+      "category": "Marketing & Advertising"
+    },
+    {
+      "name": "Microsoft Dynamics 365",
+      "category": "Other"
+    },
+    {
+      "name": "Microsoft Office 365",
+      "category": "Other"
+    },
+    {
+      "name": "Microsoft Office 365 Management",
+      "category": "Other"
+    },
+    {
+      "name": "Microsoft SQLServer",
+      "category": "Databases"
+    },
+    {
+      "name": "Microsoft Text Translator",
+      "category": "Other"
+    },
+    {
+      "name": "Milvus",
+      "category": "Databases"
+    },
+    {
+      "name": "MinIO",
+      "category": "Other"
+    },
+    {
+      "name": "Mirakl",
+      "category": "E-Commerce"
+    },
+    {
+      "name": "Mistral AI",
+      "category": "LLMs"
+    },
+    {
+      "name": "Mixpanel",
+      "category": "Other"
+    },
+    {
+      "name": "Mode",
+      "category": "Other"
+    },
+    {
+      "name": "Monday",
+      "category": "Other"
+    },
+    {
+      "name": "MongoDB",
+      "category": "Other"
+    },
+    {
+      "name": "Moz",
+      "category": "Other"
+    },
+    {
+      "name": "MySQL",
+      "category": "Databases"
+    },
+    {
+      "name": "Namely",
+      "category": "Other"
+    },
+    {
+      "name": "Netskope",
+      "category": "Cybersecurity"
+    },
+    {
+      "name": "New Relic",
+      "category": "Other"
+    },
+    {
+      "name": "News API",
+      "category": "Data as a Service"
+    },
+    {
+      "name": "Nexla Monitoring APIs",
+      "category": "Other"
+    },
+    {
+      "name": "Nielsen Digital Ad Ratings",
+      "category": "Other"
+    },
+    {
+      "name": "Notion Api",
+      "category": "Other"
+    },
+    {
+      "name": "NVIDIA AI",
+      "category": "LLMs"
+    },
+    {
+      "name": "Odoo ERP",
+      "category": "Other"
+    },
+    {
+      "name": "On24",
+      "category": "Other"
+    },
+    {
+      "name": "Open AI",
+      "category": "LLMs"
+    },
+    {
+      "name": "OpenAir",
+      "category": "Other"
+    },
+    {
+      "name": "OpenRouter",
+      "category": "Other"
+    },
+    {
+      "name": "OpenWeather",
+      "category": "Data as a Service"
+    },
+    {
+      "name": "Opsgenie",
+      "category": "Other"
+    },
+    {
+      "name": "Optimizely",
+      "category": "Other"
+    },
+    {
+      "name": "Oracle Autonomous Database",
+      "category": "Databases"
+    },
+    {
+      "name": "Oracle Database",
+      "category": "Databases"
+    },
+    {
+      "name": "Oracle Financials UCM",
+      "category": "Databases"
+    },
+    {
+      "name": "Oracle Netsuite APIs",
+      "category": "Databases"
+    },
+    {
+      "name": "Oracle Netsuite JDBC",
+      "category": "Databases"
+    },
+    {
+      "name": "Oracle PBCS",
+      "category": "Databases"
+    },
+    {
+      "name": "Oura Ring",
+      "category": "Other"
+    },
+    {
+      "name": "Outbrain Amplify",
+      "category": "Other"
+    },
+    {
+      "name": "Outbrain Engage",
+      "category": "Other"
+    },
+    {
+      "name": "Outreach",
+      "category": "Other"
+    },
+    {
+      "name": "Panaya",
+      "category": "Other"
+    },
+    {
+      "name": "Panda Doc",
+      "category": "Other"
+    },
+    {
+      "name": "Pandas",
+      "category": "Other"
+    },
+    {
+      "name": "Paymo",
+      "category": "Other"
+    },
+    {
+      "name": "Paypal",
+      "category": "Other"
+    },
+    {
+      "name": "Peakon",
+      "category": "Other"
+    },
+    {
+      "name": "Pendo",
+      "category": "Other"
+    },
+    {
+      "name": "Perplexity AI",
+      "category": "LLMs"
+    },
+    {
+      "name": "Personio",
+      "category": "Other"
+    },
+    {
+      "name": "Pinecone",
+      "category": "Vector Databases"
+    },
+    {
+      "name": "Pinterest",
+      "category": "Other"
+    },
+    {
+      "name": "Pipedrive",
+      "category": "File Systems"
+    },
+    {
+      "name": "Playtix",
+      "category": "Other"
+    },
+    {
+      "name": "Polygon",
+      "category": "Other"
+    },
+    {
+      "name": "Porta Billing",
+      "category": "Other"
+    },
+    {
+      "name": "PostgreSQL",
+      "category": "Databases"
+    },
+    {
+      "name": "Postscript",
+      "category": "Other"
+    },
+    {
+      "name": "Productboard",
+      "category": "Other"
+    },
+    {
+      "name": "Project 44",
+      "category": "Other"
+    },
+    {
+      "name": "Proofpoint",
+      "category": "Cybersecurity"
+    },
+    {
+      "name": "Pulsedive",
+      "category": "Other"
+    },
+    {
+      "name": "Qdrant",
+      "category": "Databases"
+    },
+    {
+      "name": "Qualtrics",
+      "category": "Other"
+    },
+    {
+      "name": "Quip",
+      "category": "Other"
+    },
+    {
+      "name": "Razorpay",
+      "category": "Other"
+    },
+    {
+      "name": "Reltio",
+      "category": "Data as a Service"
+    },
+    {
+      "name": "ReSci",
+      "category": "Other"
+    },
+    {
+      "name": "Rest API",
+      "category": "Generic APIs"
+    },
+    {
+      "name": "Retool",
+      "category": "Other"
+    },
+    {
+      "name": "Rocket Fuel",
+      "category": "Other"
+    },
+    {
+      "name": "Sailthru",
+      "category": "Other"
+    },
+    {
+      "name": "Salesforce",
+      "category": "CRM"
+    },
+    {
+      "name": "Salesforce B2B Commerce Cloud",
+      "category": "CRM"
+    },
+    {
+      "name": "Salesforce B2C Commerce Cloud",
+      "category": "CRM"
+    },
+    {
+      "name": "Salesforce Marketing Cloud",
+      "category": "CRM"
+    },
+    {
+      "name": "SAP",
+      "category": "Other"
+    },
+    {
+      "name": "SAP HANA JDBC",
+      "category": "Databases"
+    },
+    {
+      "name": "Scalyr / Dataset",
+      "category": "Other"
+    },
+    {
+      "name": "Sendgrid",
+      "category": "Marketing & Advertising"
+    },
+    {
+      "name": "Sendpulse",
+      "category": "Other"
+    },
+    {
+      "name": "ServiceNow",
+      "category": "Other"
+    },
+    {
+      "name": "Sharepoint",
+      "category": "File Systems"
+    },
+    {
+      "name": "ShipBob",
+      "category": "Other"
+    },
+    {
+      "name": "ShipStation",
+      "category": "Other"
+    },
+    {
+      "name": "Shopify",
+      "category": "E-Commerce"
+    },
+    {
+      "name": "Similar Web",
+      "category": "Other"
+    },
+    {
+      "name": "Skilljar",
+      "category": "Other"
+    },
+    {
+      "name": "SkyScanner",
+      "category": "E-Commerce"
+    },
+    {
+      "name": "Slack",
+      "category": "Other"
+    },
+    {
+      "name": "SmartRecruiters",
+      "category": "Other"
+    },
+    {
+      "name": "Snapchat Ads",
+      "category": "Marketing & Advertising"
+    },
+    {
+      "name": "Snowflake",
+      "category": "Databases"
+    },
+    {
+      "name": "Snowflake Clean Room",
+      "category": "Databases"
+    },
+    {
+      "name": "SOAP API",
+      "category": "Generic APIs"
+    },
+    {
+      "name": "Sonarqube",
+      "category": "Other"
+    },
+    {
+      "name": "SplashThat",
+      "category": "Other"
+    },
+    {
+      "name": "Splunk",
+      "category": "Other"
+    },
+    {
+      "name": "Splunk SignalFX",
+      "category": "Other"
+    },
+    {
+      "name": "SpotDraft",
+      "category": "Other"
+    },
+    {
+      "name": "StarRez",
+      "category": "Other"
+    },
+    {
+      "name": "Stripe",
+      "category": "Other"
+    },
+    {
+      "name": "SurveyMonkey",
+      "category": "Other"
+    },
+    {
+      "name": "Sybase",
+      "category": "Databases"
+    },
+    {
+      "name": "Tableau",
+      "category": "Other"
+    },
+    {
+      "name": "TalkDesk",
+      "category": "Other"
+    },
+    {
+      "name": "Teamtailor",
+      "category": "Other"
+    },
+    {
+      "name": "Teradata",
+      "category": "Databases"
+    },
+    {
+      "name": "The TradeDesk",
+      "category": "Marketing & Advertising"
+    },
+    {
+      "name": "Tibco EMS",
+      "category": "Streaming"
+    },
+    {
+      "name": "Ticketmaster",
+      "category": "E-Commerce"
+    },
+    {
+      "name": "Together AI",
+      "category": "LLMs"
+    },
+    {
+      "name": "Toggl",
+      "category": "Other"
+    },
+    {
+      "name": "Totango",
+      "category": "CRM"
+    },
+    {
+      "name": "Transport For London (TFL)",
+      "category": "Other"
+    },
+    {
+      "name": "Trello",
+      "category": "Other"
+    },
+    {
+      "name": "Trip Advisor",
+      "category": "Other"
+    },
+    {
+      "name": "Tune Network",
+      "category": "Other"
+    },
+    {
+      "name": "Typeform",
+      "category": "Other"
+    },
+    {
+      "name": "UpPromote",
+      "category": "Other"
+    },
+    {
+      "name": "Upshop",
+      "category": "Other"
+    },
+    {
+      "name": "Usajobs",
+      "category": "Data as a Service"
+    },
+    {
+      "name": "Vespa",
+      "category": "Databases"
+    },
+    {
+      "name": "VinSolutions",
+      "category": "Other"
+    },
+    {
+      "name": "VirusTotal",
+      "category": "Cybersecurity"
+    },
+    {
+      "name": "Walmart",
+      "category": "E-Commerce"
+    },
+    {
+      "name": "Weaviate",
+      "category": "Databases"
+    },
+    {
+      "name": "Webdam",
+      "category": "Other"
+    },
+    {
+      "name": "WebDAV",
+      "category": "File Systems"
+    },
+    {
+      "name": "Webex",
+      "category": "Other"
+    },
+    {
+      "name": "Webhook",
+      "category": "Generic APIs"
+    },
+    {
+      "name": "Whoop",
+      "category": "Other"
+    },
+    {
+      "name": "Wicket",
+      "category": "Other"
+    },
+    {
+      "name": "Wolfram Alpha",
+      "category": "Other"
+    },
+    {
+      "name": "Workday Reporting",
+      "category": "Other"
+    },
+    {
+      "name": "Workday Web Services",
+      "category": "Other"
+    },
+    {
+      "name": "Wufoo Online Forms",
+      "category": "Other"
+    },
+    {
+      "name": "X (Twitter)",
+      "category": "Other"
+    },
+    {
+      "name": "Xero",
+      "category": "Other"
+    },
+    {
+      "name": "YouTube",
+      "category": "Other"
+    },
+    {
+      "name": "Zendesk Support",
+      "category": "CRM"
+    },
+    {
+      "name": "Zillow",
+      "category": "Other"
+    },
+    {
+      "name": "Zoho",
+      "category": "CRM"
+    },
+    {
+      "name": "Zoom",
+      "category": "Other"
+    },
+    {
+      "name": "Zscaler",
+      "category": "Cybersecurity"
+    },
+    {
+      "name": "Zuora Billing",
+      "category": "Other"
+    },
+    {
+      "name": "Zuora Revenue",
+      "category": "Other"
+    }
+  ]
+}
