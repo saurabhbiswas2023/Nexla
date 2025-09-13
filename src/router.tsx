@@ -1,7 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
-import { LandingPage } from './routes/LandingPage';
-import { ChatPage } from './routes/ChatPage';
-import { CanvasTest } from './routes/CanvasTest';
+import { LandingPage } from './pages/LandingPage';
+import { ChatPage } from './pages/ChatPage';
+import { CanvasTest } from './pages/CanvasTest';
 
 export const router = createBrowserRouter([
   { path: '/', element: <LandingPage /> },
