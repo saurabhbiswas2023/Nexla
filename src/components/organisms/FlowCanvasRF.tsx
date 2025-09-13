@@ -260,10 +260,10 @@ function InnerCanvas({
         zoomOnScroll
         minZoom={FLOW_CONSTANTS.CANVAS.minZoom}
         maxZoom={FLOW_CONSTANTS.CANVAS.maxZoom}
-        defaultViewport={{ x: 0, y: -800, zoom: 1 }}
+        defaultViewport={{ x: 0, y: 0, zoom: 1 }}
         translateExtent={[
-          [-100, -1000],
-          [1400, 400],
+          [-100, -200],
+          [1400, 800],
         ]}
         nodeExtent={[
           [0, 0],

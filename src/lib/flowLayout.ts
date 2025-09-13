@@ -45,7 +45,7 @@ export function computeResponsiveLayout(nodes: Node[], width: number, wasDragged
   }
 
   // Keep all nodes at same Y level to prevent layering issues
-  const baseY = Math.min(80, maxY); // Start near top with some gap, same for all nodes
+  const baseY = Math.min(20, maxY); // Start near top with minimal gap, same for all nodes
   const ySrc = baseY;
   const yTx = baseY; // Same level as source and destination
   const yDst = baseY;
