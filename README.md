@@ -6,6 +6,8 @@ A comprehensive data flow visualization and management application implementing 
 
 **Complete documentation is available in the [`docs/`](./docs/) folder:**
 
+> **Quality Score: 9.2/10** - Enterprise-grade standards with comprehensive testing, accessibility, and security.
+
 - **[📊 Code Quality Analysis](./docs/code-quality/COMPREHENSIVE_CODE_QUALITY_ANALYSIS.md)** - 9.2/10 quality score
 - **[📋 Code Review Process](./docs/code-quality/CODE_REVIEW_CHECKLIST.md)** - Developer guidelines
 - **[🎯 Cursor IDE Setup](./docs/cursor-setup/CURSOR_SETUP.md)** - IDE configuration
