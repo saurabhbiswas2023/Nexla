@@ -240,31 +240,22 @@ export const processPrefillFromLanding = () => {
         createdAt: Date.now(),
       },
       { id: userId, type: 'user', content: prefill, status: 'sent', createdAt: Date.now() },
-      {
-        id: aiId,
-        type: 'ai',
-        content:
-          "Great! I'll help you set up this data integration flow. Let me gather the details we need.",
-        status: 'sent',
-        createdAt: Date.now(),
-      },
     ],
-    input: prefill,
+    input: '', // Don't set input to prefill to avoid duplicate
     conversationHistory: [],
-    highlightId: null,
-    aiThinking: false,
+    highlightId: userId, // Highlight the user message
+    aiThinking: true, // Show AI thinking
   });
 
   // Process the prefill with the enhanced chatbot
   setTimeout(() => {
     const store = useChatStore.getState();
     console.log('🔄 Executing prefill timeout for:', prefill);
-    console.log('🔄 Current input state:', store.input);
 
-    // Force the input to be the prefill value and then send
+    // Set input and send - this will create the AI response
     store.setInput(prefill);
     store.sendWithCanvasUpdate();
-  }, 1500); // Increased timeout to ensure everything is loaded
+  }, 500); // Reduced timeout for faster response
 
   // Clear the prefill after processing
   localStorage.removeItem('prefillPrompt');
