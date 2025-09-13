@@ -501,4 +501,113 @@ A feature is complete when:
 
 ---
 
+## **🔄 SMART FIELD COLLECTION PATTERNS**
+
+### **Node-First Collection Flow**
+```typescript
+// ✅ REQUIRED: Always check for dummy nodes first
+const collectionPriority = [
+  'source-node-name',      // If source is dummy
+  'source-fields',         // If source is real but has empty fields
+  'transform-node-name',   // If transform is dummy
+  'transform-fields',      // If transform is real but has empty fields
+  'destination-node-name', // If destination is dummy  
+  'destination-fields'     // If destination is real but has empty fields
+];
+
+// ✅ REQUIRED: Canvas state analysis before collection
+const analyzeBeforeCollection = (canvasState: CanvasState) => {
+  const analysis = {
+    needsSourceName: canvasState.selectedSource.includes('Dummy'),
+    needsTransformName: canvasState.selectedTransform.includes('Dummy'),
+    needsDestinationName: canvasState.selectedDestination.includes('Dummy'),
+    needsSourceFields: hasEmptyMandatoryFields('source', canvasState.selectedSource),
+    needsTransformFields: hasEmptyMandatoryFields('transform', canvasState.selectedTransform),
+    needsDestinationFields: hasEmptyMandatoryFields('destination', canvasState.selectedDestination),
+  };
+  return determineFirstStep(analysis);
+};
+
+// ✅ REQUIRED: Progressive canvas updates
+const updateCanvasProgressive = (stepType: 'node-name' | 'node-fields', data: any) => {
+  if (stepType === 'node-name') {
+    canvasStore.setSelectedNode(data.nodeType, data.nodeName);
+    initializeEmptyCredentials(data.nodeType, data.nodeName);
+  } else {
+    canvasStore.updateNodeConfiguration(data.nodeType, data.fieldName, data.value);
+  }
+};
+
+// ✅ REQUIRED: Field collection orchestrator
+interface CollectionStep {
+  stepType: 'node-name' | 'node-fields';
+  nodeType: 'source' | 'transform' | 'destination';
+  systemName?: string;
+  currentField?: string;
+  question: string;
+  currentStepIndex: number;
+  totalSteps: number;
+}
+
+// ✅ REQUIRED: Smart question generation
+const generateContextualQuestion = (step: CollectionStep): string => {
+  if (step.stepType === 'node-name') {
+    return `What ${step.nodeType} system do you want to use? (e.g., ${getExamples(step.nodeType)})`;
+  } else {
+    return `What's your ${step.systemName} ${step.currentField}? ${getFieldExample(step.currentField)}`;
+  }
+};
+
+// ✅ REQUIRED: Field validation
+const validateFieldInput = (fieldName: string, value: string): ValidationResult => {
+  if (fieldName.includes('url') && !value.startsWith('http')) {
+    return { isValid: false, error: 'URL should start with http:// or https://' };
+  }
+  if (fieldName.includes('email') && !value.includes('@')) {
+    return { isValid: false, error: 'Please provide a valid email address' };
+  }
+  return { isValid: true };
+};
+```
+
+### **Smart Collection Rules**
+1. **DUMMY NODE PRIORITY** - Always collect node names before field details
+2. **CANVAS STATE ANALYSIS** - Analyze what's missing before starting collection
+3. **ONE QUESTION AT A TIME** - Never ask for multiple things simultaneously
+4. **PROGRESSIVE UPDATES** - Update canvas after each input (node name or field)
+5. **CONTEXT AWARENESS** - Questions should be specific to current step
+6. **CONNECTOR CATALOG INTEGRATION** - Use catalog for field requirements and validation
+7. **FIELD VALIDATION** - Validate input format and provide helpful error messages
+8. **COMPLETION DETECTION** - Automatically detect when collection is complete
+
+---
+
+## **🚀 POST-TASK COMPLETION PROTOCOL**
+
+### **REQUIRED: After finishing any development task**
+```bash
+# ✅ STEP 1: Run the server and check for errors
+npm run dev
+
+# ✅ STEP 2: Report server status
+# - ✅ Server running without errors
+# - ❌ Server has errors (list them)
+
+# ✅ STEP 3: Do NOT run test cases unless explicitly requested
+# ❌ Do NOT run: npm run test, npx playwright test, etc.
+
+# ✅ STEP 4: Do NOT commit unless explicitly requested  
+# ❌ Do NOT run: git add, git commit, git push
+
+# ✅ STEP 5: Wait for user instructions
+```
+
+### **User Permission Required For:**
+- Running any test cases
+- Git commits and pushes
+- Major refactoring
+- Breaking changes
+
+---
+
 **🎊 USE THIS DOCUMENT FOR EVERY CODING SESSION TO ENSURE CONSISTENCY AND QUALITY**
