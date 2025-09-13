@@ -1,3 +1,7 @@
+---
+alwaysApply: true
+---
+
 # 🔍 **CURSOR CODE REVIEW RULES**
 
 _Comprehensive code quality rules based on CODE_QUALITY_REVIEW.md analysis_
