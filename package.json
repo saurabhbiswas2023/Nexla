@@ -23,6 +23,8 @@
     "reports:serve": "node scripts/serve-reports.cjs",
     "husky:pre-commit": "npm run lint",
     "husky:pre-push": "node scripts/quality-report.cjs",
+    "husky:disable": "git config core.hooksPath /dev/null",
+    "husky:enable": "npx husky init",
     "prepare": "husky"
   },
   "dependencies": {

@@ -1,2 +1,11 @@
 #!/bin/sh
+# Multi-platform hook that works with different Git clients
+
+# Try Node.js version first (most reliable)
+if command -v node >/dev/null 2>&1; then
+    node "$(dirname "$0")/pre-commit.cjs"
+    exit $?
+fi
+
+# Fallback to npm script directly
 npm run husky:pre-commit
