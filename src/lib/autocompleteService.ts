@@ -83,7 +83,9 @@ class AutocompleteService {
       return fallbackSuggestions.slice(0, maxSuggestions);
 
     } catch (error) {
-      console.warn('Autocomplete error, using fallback:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Autocomplete error, using fallback:', error);
+      }
       
       // Emergency fallback: Local suggestions only
       const fallbackSuggestions = await this.getFallbackSuggestions(request);
@@ -188,7 +190,9 @@ RESPONSE FORMAT (JSON only):
       }));
 
     } catch (error) {
-      console.warn('LLM autocomplete failed:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('LLM autocomplete failed:', error);
+      }
       throw error; // Re-throw to trigger fallback
     }
   }

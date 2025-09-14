@@ -342,7 +342,6 @@ export const useCanvasStore = create<CanvasState>()(
         batchUpdateCanvas: (updates) => {
           const currentState = get();
           
-          console.log('🔄 Batching canvas updates:', updates);
           
           // Prepare the complete configuration in memory (no intermediate renders)
           const newFlowConfiguration = { ...currentState.flowConfiguration };
@@ -412,7 +411,6 @@ export const useCanvasStore = create<CanvasState>()(
             'batchUpdateCanvas'
           );
 
-          console.log('✅ Canvas batch update completed in single render');
         },
       }),
       {

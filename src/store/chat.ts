@@ -169,7 +169,6 @@ export const useChatStore = create<ChatState>()(
           if (result.success && result.data) {
             const canvasStore = useCanvasStore.getState();
 
-            console.log('🎯 LLM Response received, preparing batched canvas update:', result.data);
 
             // Prepare batched update object (all changes in memory, no renders yet)
             const batchedUpdates: {
@@ -204,10 +203,7 @@ export const useChatStore = create<ChatState>()(
 
             // Single atomic canvas update - only one render!
             if (Object.keys(batchedUpdates).length > 0) {
-              console.log('🚀 Executing batched canvas update:', batchedUpdates);
               canvasStore.batchUpdateCanvas(batchedUpdates);
-            } else {
-              console.log('⏭️ No canvas updates needed');
             }
 
             // Update conversation history
@@ -251,7 +247,9 @@ export const useChatStore = create<ChatState>()(
             throw new Error(result.error || 'Failed to parse flow');
           }
         } catch (error) {
-          console.error('Error in sendWithCanvasUpdate:', error);
+          if (process.env.NODE_ENV === 'development') {
+            console.error('Error in sendWithCanvasUpdate:', error);
+          }
 
           // Fallback response
           const errorResponse =
@@ -273,7 +271,6 @@ export const useChatStore = create<ChatState>()(
         const analysis = analyzeCanvasForCollection(canvasState);
         
         if (analysis.totalStepsNeeded === 0) {
-          console.log('✅ No field collection needed - all nodes configured');
           return;
         }
 
@@ -295,7 +292,6 @@ export const useChatStore = create<ChatState>()(
             isCollectingFields: true,
           }));
 
-          console.log('🔄 Started field collection:', collectionState.currentStep);
         }
       },
 
@@ -303,7 +299,9 @@ export const useChatStore = create<ChatState>()(
         const { fieldCollectionState } = get();
         
         if (!fieldCollectionState?.currentStep) {
-          console.warn('No active collection step');
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('No active collection step');
+          }
           return;
         }
 
@@ -329,7 +327,6 @@ export const useChatStore = create<ChatState>()(
 
         // Handle skipped fields
         if (result.wasSkipped) {
-          console.log(`⏭️ Skipped optional field: ${fieldCollectionState.currentStep.currentField}`);
           
           // Add confirmation message for skipped field
           const aiId = crypto.randomUUID();
@@ -360,7 +357,6 @@ export const useChatStore = create<ChatState>()(
               canvasStore.setSelectedDestination(nodeName);
             }
             
-            console.log(`✅ Updated ${nodeType} node to: ${nodeName}`);
           } else if (updateType === 'field-value' && fieldName && fieldValue) {
             // Update field value in canvas
             const currentValues = canvasStore.nodeValues[nodeType] || {};
@@ -371,7 +367,6 @@ export const useChatStore = create<ChatState>()(
               }
             });
             
-            console.log(`✅ Updated ${nodeType}.${fieldName} to: ${fieldValue}`);
           }
         }
 
@@ -421,7 +416,6 @@ export const useChatStore = create<ChatState>()(
             fieldCollectionState: updatedCollectionState,
           }));
 
-          console.log('🔄 Moving to next collection step:', nextStep);
         } else {
           // Collection complete
           get().completeFieldCollection();
@@ -444,7 +438,6 @@ export const useChatStore = create<ChatState>()(
           isCollectingFields: false,
         }));
 
-        console.log('✅ Field collection completed');
       },
 
       skipFieldCollection: () => {
@@ -453,7 +446,6 @@ export const useChatStore = create<ChatState>()(
           isCollectingFields: false,
         });
 
-        console.log('⏭️ Field collection skipped');
       },
 
       clearMessages: () =>
@@ -485,19 +477,8 @@ export const processPrefillFromLanding = () => {
   const prefill = localStorage.getItem('prefillPrompt');
   if (!prefill) return;
 
-  console.log('🔄 Processing prefill from landing:', prefill);
 
-  // Check if canvas is already in default state to avoid unnecessary reset
-  const canvasState = useCanvasStore.getState();
-  const isCanvasDefault = canvasState.selectedSource === 'Dummy Source' && 
-                         canvasState.selectedDestination === 'Dummy Destination' &&
-                         canvasState.selectedTransform === 'Dummy Transform';
-
-  if (!isCanvasDefault) {
-    console.log('🔄 Canvas not in default state, will be updated by LLM response');
-  } else {
-    console.log('✅ Canvas already in default state, ready for LLM update');
-  }
+  // Canvas state will be updated by LLM response if needed
 
   // Replace messages entirely with just the welcome message
   useChatStore.setState({
@@ -521,7 +502,6 @@ export const processPrefillFromLanding = () => {
   // Process the prefill with the enhanced chatbot
   setTimeout(() => {
     const store = useChatStore.getState();
-    console.log('🔄 Executing prefill timeout for:', prefill);
 
     // Send the prefill - this will create both user message and AI response
     store.sendWithCanvasUpdate();

@@ -196,7 +196,6 @@ function InnerCanvas({
   const layout = useCallback(() => {
     const host = hostRef.current;
     if (!host) {
-      console.log('⚠️ Layout called but host ref is null');
       return;
     }
     const w = host.getBoundingClientRect().width;

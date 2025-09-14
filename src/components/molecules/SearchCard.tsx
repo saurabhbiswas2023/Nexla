@@ -58,7 +58,7 @@ interface SearchCardProps {
  * ```tsx
  * <SearchCard
  *   placeholder="Enter your search query"
- *   onSubmit={(value) => console.log(value)}
+ *   onSubmit={(value) => handleSubmit(value)}
  * />
  * ```
  */
@@ -189,7 +189,9 @@ export const SearchCard = memo(function SearchCard({
       setShowSuggestions(newSuggestions.length > 0);
       setSelectedIndex(-1);
     } catch (error) {
-      console.warn('Autocomplete error:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Autocomplete error:', error);
+      }
       setSuggestions([]);
       setShowSuggestions(false);
     } finally {

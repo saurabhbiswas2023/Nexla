@@ -42,7 +42,9 @@ export function ErrorBoundary({ children, fallback }: Props) {
     <ReactErrorBoundary
       FallbackComponent={fallback ? () => <>{fallback}</> : ErrorFallback}
       onError={(error, errorInfo) => {
-        console.error('Flow Canvas Error:', error, errorInfo);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Flow Canvas Error:', error, errorInfo);
+        }
 
         // In production, you might want to log to an error reporting service
         if (process.env.NODE_ENV === 'production') {

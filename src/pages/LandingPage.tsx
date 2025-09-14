@@ -10,8 +10,6 @@ export function LandingPage() {
 
   // Clear stores on landing page mount - but only reset canvas if needed
   useEffect(() => {
-    console.log('🧹 Clearing Zustand stores on landing page');
-
     // Clear chat store
     useChatStore.getState().clearMessages();
     useChatStore.setState({ input: '', aiThinking: false, highlightId: null });
@@ -23,16 +21,11 @@ export function LandingPage() {
                            canvasState.selectedTransform !== 'Dummy Transform';
     
     if (hasExistingFlow) {
-      console.log('🔄 Resetting canvas from existing flow state');
       canvasState.resetToDefaultConfiguration();
-    } else {
-      console.log('⏭️ Canvas already in default state, skipping reset');
     }
 
     // Also clear localStorage to ensure fresh start
     localStorage.removeItem('prefillPrompt');
-
-    console.log('✅ Stores cleared efficiently');
   }, []);
 
   const handleSearchSubmit = (value: string) => {

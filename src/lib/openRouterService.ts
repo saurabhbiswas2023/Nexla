@@ -107,7 +107,9 @@ export async function parseFlowWithLLM(
       }
     } catch {
       // Fallback to regex parsing if JSON parsing fails
-      console.warn('JSON parsing failed, using fallback regex parsing');
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('JSON parsing failed, using fallback regex parsing');
+      }
       return parseFlowFromTextRegex(content);
     }
 
@@ -122,7 +124,9 @@ export async function parseFlowWithLLM(
       },
     };
   } catch (error) {
-    console.error('OpenRouter service error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('OpenRouter service error:', error);
+    }
 
     // Fallback to regex parsing
     return parseFlowFromTextRegex(userMessage);
