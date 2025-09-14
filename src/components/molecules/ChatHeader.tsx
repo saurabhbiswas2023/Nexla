@@ -1,5 +1,8 @@
 import { memo, forwardRef } from 'react';
-import { Bot } from 'lucide-react';
+import { Bot, Home } from 'lucide-react';
+import { useChatStore } from '../../store/chat';
+import { useCanvasStore } from '../../store/canvasStore';
+import { useProgressStore } from '../../store/progressStore';
 
 interface ChatHeaderProps {
   /**
@@ -68,6 +71,33 @@ export const ChatHeader = memo(forwardRef<HTMLElement, ChatHeaderProps>(
             aria-label="Status message"
           >
             {statusMessage}
+          </div>
+          
+          {/* Home button to reset and go back to landing */}
+          <div className="ml-auto">
+            <button
+              onClick={() => {
+                // Reset all stores before navigation
+                useChatStore.getState().resetStore();
+                useCanvasStore.getState().resetStore();
+                useProgressStore.getState().resetStore();
+                
+                // Clear localStorage
+                localStorage.removeItem('prefillPrompt');
+                localStorage.removeItem('canvas-store');
+                localStorage.removeItem('chat-store');
+                localStorage.removeItem('progress-store');
+                
+                // Navigate to home
+                window.location.href = '/';
+              }}
+              className="flex items-center gap-2 px-3 py-2 rounded-md bg-white/10 hover:bg-white/20 transition-colors text-white/90 hover:text-white text-sm font-medium min-h-[44px]"
+              aria-label="Go back to home page and start fresh"
+              title="Start Fresh - Go to Home"
+            >
+              <Home size={16} aria-hidden="true" />
+              <span className="hidden sm:inline">Home</span>
+            </button>
           </div>
         </div>
       </header>

@@ -19,6 +19,10 @@ type Props = {
 
 export function ConnectorBox({ instance, nodeId, onEditValue }: Props) {
   const { role, spec, values, status } = instance;
+  
+  // Check if this is a dummy node (should have disabled inputs)
+  const isDummyNode = spec.name === 'Dummy Source' || spec.name === 'Dummy Destination' || spec.name === 'Dummy Transform';
+  
   const [editing, setEditing] = useState<Record<string, boolean>>({});
   const [localValues, setLocalValues] = useState<Record<string, string | undefined>>({});
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -116,13 +120,26 @@ export function ConnectorBox({ instance, nodeId, onEditValue }: Props) {
                     {missing || editing[k] ? (
                       <input
                         className="mt-0.5 w-full rounded px-1.5 py-0.5 text-[12px] focus:outline-none h-6"
-                        style={{ border: '0', backgroundColor: '#f8fafc' }}
+                        style={{ 
+                          border: '0', 
+                          backgroundColor: isDummyNode ? '#f1f5f9' : '#f8fafc',
+                          cursor: isDummyNode ? 'not-allowed' : 'text'
+                        }}
                         type={k.toLowerCase().includes('password') ? 'password' : 'text'}
                         value={localValues[k] ?? (typeof raw === 'string' ? raw : (raw ?? ''))}
-                        onChange={(e) =>
-                          setLocalValues((prev) => ({ ...prev, [k]: e.target.value }))
-                        }
+                        onChange={(e) => {
+                          // Prevent editing dummy node fields
+                          if (!isDummyNode) {
+                            setLocalValues((prev) => ({ ...prev, [k]: e.target.value }))
+                          }
+                        }}
+                        disabled={isDummyNode}
+                        readOnly={isDummyNode}
+                        placeholder={isDummyNode ? 'Select a real connector first' : undefined}
                         onBlur={() => {
+                          // Don't process blur events for dummy nodes
+                          if (isDummyNode) return;
+                          
                           const finalValue =
                             localValues[k] ?? (typeof raw === 'string' ? raw : (raw ?? ''));
 
@@ -150,6 +167,9 @@ export function ConnectorBox({ instance, nodeId, onEditValue }: Props) {
                           setLocalValues((prev) => ({ ...prev, [k]: undefined }));
                         }}
                         onKeyDown={(e) => {
+                          // Don't process key events for dummy nodes
+                          if (isDummyNode) return;
+                          
                           if (e.key === 'Enter') {
                             const finalValue =
                               localValues[k] ?? (typeof raw === 'string' ? raw : (raw ?? ''));
@@ -180,18 +200,28 @@ export function ConnectorBox({ instance, nodeId, onEditValue }: Props) {
                       />
                     ) : (
                       <div
-                        className="mt-0.5 text-[12px] text-slate-800 cursor-text truncate flex items-center px-1.5 py-0.5 rounded hover:bg-slate-50 transition-colors h-6"
-                        onClick={() =>
-                          setEditing((m: Record<string, boolean>) => ({ ...m, [k]: true }))
-                        }
-                        onKeyDown={(e) =>
-                          e.key === 'Enter' &&
-                          setEditing((m: Record<string, boolean>) => ({ ...m, [k]: true }))
-                        }
-                        title={typeof value === 'string' ? value : ''}
-                        tabIndex={0}
+                        className={`mt-0.5 text-[12px] truncate flex items-center px-1.5 py-0.5 rounded transition-colors h-6 ${
+                          isDummyNode 
+                            ? 'text-slate-400 cursor-not-allowed bg-slate-100' 
+                            : 'text-slate-800 cursor-text hover:bg-slate-50'
+                        }`}
+                        onClick={() => {
+                          if (!isDummyNode) {
+                            setEditing((m: Record<string, boolean>) => ({ ...m, [k]: true }))
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (!isDummyNode && e.key === 'Enter') {
+                            setEditing((m: Record<string, boolean>) => ({ ...m, [k]: true }))
+                          }
+                        }}
+                        title={isDummyNode ? 'Select a real connector first' : (typeof value === 'string' ? value : '')}
+                        tabIndex={isDummyNode ? -1 : 0}
                         role="button"
-                        aria-label={`Edit ${k} field. Current value: ${displayValue || 'empty'}`}
+                        aria-label={isDummyNode 
+                          ? `${k} field disabled - select a real connector first`
+                          : `Edit ${k} field. Current value: ${displayValue || 'empty'}`
+                        }
                       >
                         {displayValue}
                       </div>

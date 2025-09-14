@@ -1,128 +1,129 @@
-import { Status } from '../../lib/status';
+import { memo } from 'react';
+import { useProgressStore } from '../../store/progressStore';
 
 interface ProgressIndicatorProps {
-  completionStatus: {
-    source: Status;
-    transform: Status;
-    destination: Status;
-  };
-  missingCredentials: {
-    source: string[];
-    transform: string[];
-    destination: string[];
-  };
   className?: string;
+  showLabels?: boolean;
+  showPercentage?: boolean;
 }
 
-export function ProgressIndicator({
-  completionStatus,
-  missingCredentials,
+export const ProgressIndicator = memo(function ProgressIndicator({
   className = '',
+  showLabels = true,
+  showPercentage = true,
 }: ProgressIndicatorProps) {
-  // Calculate overall progress
-  const statusValues: Record<Status, number> = { pending: 0, partial: 0.5, complete: 1, error: 0 };
-  const totalProgress = Object.values(completionStatus).reduce(
-    (sum, status) => sum + statusValues[status],
-    0
-  );
-  const overallProgress = {
-    percentage: Math.round((totalProgress / 3) * 100),
-    status: totalProgress === 3 ? 'complete' : totalProgress > 0 ? 'partial' : 'pending',
-  };
+  const { 
+    sourceProgress, 
+    transformProgress, 
+    destinationProgress, 
+    totalProgress, 
+    currentStep 
+  } = useProgressStore();
 
-  // Status configuration for styling
-  const statusConfig: Record<
-    Status,
-    {
-      bgColor: string;
-      borderColor: string;
-      textColor: string;
-      icon: string;
-      label: string;
-    }
-  > = {
-    pending: {
-      bgColor: 'bg-slate-50',
-      borderColor: 'border-slate-200',
-      textColor: 'text-slate-600',
-      icon: '⏳',
-      label: 'Pending',
-    },
-    partial: {
-      bgColor: 'bg-blue-50',
-      borderColor: 'border-blue-200',
-      textColor: 'text-blue-700',
-      icon: '🔄',
-      label: 'In Progress',
-    },
-    complete: {
-      bgColor: 'bg-green-50',
-      borderColor: 'border-green-200',
-      textColor: 'text-green-700',
-      icon: '✅',
-      label: 'Complete',
-    },
-    error: {
-      bgColor: 'bg-red-ultra-light',
-      borderColor: 'border-red-ultra-light',
-      textColor: 'text-red-700',
-      icon: '❌',
-      label: 'Error',
-    },
-  };
+  // Calculate segment widths (each segment is 33.33% of total width)
+  const segmentWidth = 33.33;
+  const sourceWidth = Math.min((sourceProgress / 33.33) * segmentWidth, segmentWidth);
+  const transformWidth = Math.min((transformProgress / 33.33) * segmentWidth, segmentWidth);
+  const destinationWidth = Math.min((destinationProgress / 33.33) * segmentWidth, segmentWidth);
 
   return (
-    <div
-      className={`bg-white rounded-lg border border-slate-200 p-3 ${className}`}
-      data-testid="progress-indicator"
-    >
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-semibold text-slate-800">Configuration Progress</h3>
-        <span className="text-xs text-slate-500">{overallProgress.percentage}% Complete</span>
-      </div>
-      <div className="w-full bg-slate-200 rounded-full h-1.5 mb-3">
-        <div
-          className="bg-gradient-to-r from-blue-500 to-green-500 h-1.5 rounded-full transition-all duration-500 ease-out"
-          style={{ width: `${overallProgress.percentage}%` }}
+    <div className={`progress-indicator ${className}`}>
+      {/* Main Progress Bar */}
+      <div className="relative w-full h-8 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+        {/* Source Segment */}
+        <div 
+          className="absolute top-0 left-0 h-full bg-blue-500 transition-all duration-500 ease-out"
+          style={{ width: `${sourceWidth}%` }}
         />
-      </div>
-      <div className="grid grid-cols-3 gap-2 mb-2">
-        {(['source', 'transform', 'destination'] as const).map((nodeType) => {
-          const status = completionStatus[nodeType];
-          const config = statusConfig[status];
-          const missing = missingCredentials[nodeType];
+        
+        {/* Transform Segment */}
+        <div 
+          className="absolute top-0 h-full bg-purple-500 transition-all duration-500 ease-out"
+          style={{ 
+            left: `${segmentWidth}%`, 
+            width: `${transformWidth}%` 
+          }}
+        />
+        
+        {/* Destination Segment */}
+        <div 
+          className="absolute top-0 h-full bg-green-500 transition-all duration-500 ease-out"
+          style={{ 
+            left: `${segmentWidth * 2}%`, 
+            width: `${destinationWidth}%` 
+          }}
+        />
 
-          return (
-            <div
-              key={nodeType}
-              className={`p-2 rounded-lg border ${config.bgColor} ${config.borderColor}`}
+        {/* Segment Dividers */}
+        <div 
+          className="absolute top-0 h-full w-px bg-gray-300"
+          style={{ left: `${segmentWidth}%` }}
+        />
+        <div 
+          className="absolute top-0 h-full w-px bg-gray-300"
+          style={{ left: `${segmentWidth * 2}%` }}
+        />
+
+        {/* Labels */}
+        {showLabels && (
+          <>
+            {/* Source Label */}
+            <div 
+              className="absolute top-0 h-full flex items-center justify-center text-xs font-medium text-white"
+              style={{ left: '0%', width: `${segmentWidth}%` }}
             >
-              <div className="flex items-center gap-1 mb-1">
-                <span className="text-xs">{config.icon}</span>
-                <span className="text-xs font-medium capitalize text-slate-700">{nodeType}</span>
-              </div>
-              <div className={`text-xs ${config.textColor} font-medium`}>{config.label}</div>
-              {missing.length > 0 && (
-                <div className="text-xs text-slate-500 mt-1">{missing.length} missing</div>
-              )}
-              {missing.length > 0 && (
-                <div className="text-xs text-amber-700 mt-1 font-medium">{missing.join(', ')}</div>
-              )}
+              <span className={`${currentStep === 'source' ? 'animate-pulse' : ''}`}>
+                Source
+              </span>
             </div>
-          );
-        })}
+            
+            {/* Transform Label */}
+            <div 
+              className="absolute top-0 h-full flex items-center justify-center text-xs font-medium text-white"
+              style={{ left: `${segmentWidth}%`, width: `${segmentWidth}%` }}
+            >
+              <span className={`${currentStep === 'transform' ? 'animate-pulse' : ''}`}>
+                Transform
+              </span>
+            </div>
+            
+            {/* Destination Label */}
+            <div 
+              className="absolute top-0 h-full flex items-center justify-center text-xs font-medium text-white"
+              style={{ left: `${segmentWidth * 2}%`, width: `${segmentWidth}%` }}
+            >
+              <span className={`${currentStep === 'destination' ? 'animate-pulse' : ''}`}>
+                Destination
+              </span>
+            </div>
+          </>
+        )}
       </div>
-      {overallProgress.percentage === 100 && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-          <div className="flex items-center gap-2">
-            <span className="text-green-600">🎉</span>
-            <span className="text-sm font-medium text-green-800">Configuration Complete!</span>
+
+      {/* Progress Percentage */}
+      {showPercentage && (
+        <div className="flex items-center justify-between mt-2 text-xs text-gray-600">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-1">
+              <div className="w-3 h-3 bg-blue-500 rounded-sm"></div>
+              <span>Source: {Math.round((sourceProgress / 33.33) * 100)}%</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="w-3 h-3 bg-purple-500 rounded-sm"></div>
+              <span>Transform: {Math.round((transformProgress / 33.33) * 100)}%</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="w-3 h-3 bg-green-500 rounded-sm"></div>
+              <span>Destination: {Math.round((destinationProgress / 33.33) * 100)}%</span>
+            </div>
           </div>
-          <div className="text-xs text-green-700 mt-1">
-            All nodes are configured and ready to deploy.
+          <div className="font-semibold text-gray-800">
+            {Math.round(totalProgress)}% Complete
           </div>
         </div>
       )}
     </div>
   );
-}
+});
+
+export default ProgressIndicator;

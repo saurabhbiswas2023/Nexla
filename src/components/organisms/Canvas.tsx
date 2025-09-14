@@ -3,6 +3,8 @@ import { connectorCatalog } from '../../lib/connectorCatalog';
 import { FlowCanvasRF } from './FlowCanvasRF';
 import { useCanvasStore } from '../../store/canvasStore';
 import { validateFlowConfiguration, sanitizeInput } from '../../lib/security';
+import { ProgressIndicator } from '../molecules/ProgressIndicator';
+import { useProgressStore } from '../../store/progressStore';
 
 type Status = 'pending' | 'partial' | 'complete' | 'error';
 
@@ -74,6 +76,9 @@ export function Canvas({
     resetToDefaultConfiguration,
     getFlowConfigurationJSON,
   } = useCanvasStore();
+
+  // Progress store for tracking completion
+  const { calculateFromCanvasState } = useProgressStore();
 
   // Note: Transition state management removed for cleaner code
 
@@ -217,6 +222,22 @@ export function Canvas({
   ]);
 
   const dynamicFlow = useMemo(() => createDynamicNodes(), [createDynamicNodes]);
+
+  // Update progress when canvas state changes
+  useEffect(() => {
+    calculateFromCanvasState({
+      selectedSource,
+      selectedDestination,
+      selectedTransform,
+      nodeValues,
+      transformByType: {
+        'Dummy Transform': {},
+        'Map & Validate': {},
+        'Cleanse': {},
+        'Enrich & Map': getTransformValuesByType('Enrich & Map'),
+      },
+    });
+  }, [selectedSource, selectedDestination, selectedTransform, nodeValues, getTransformValuesByType, calculateFromCanvasState]);
 
   // Keyboard navigation handler
   const handleKeyboardNavigation = useCallback((event: KeyboardEvent) => {
@@ -577,6 +598,12 @@ export function Canvas({
       {/* Canvas - Expanded to fill remaining space */}
       <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
         <div className="text-sm font-semibold text-slate-600 px-1 mb-3 flex-shrink-0">{title}</div>
+        
+        {/* Progress Indicator */}
+        <div className="px-1 mb-4 flex-shrink-0">
+          <ProgressIndicator />
+        </div>
+        
         <div className="flex-1 min-h-0 overflow-hidden">
           <FlowCanvasRF
             nodes={dynamicFlow.nodes as unknown as import('./FlowCanvasRF').FlowNodeInput[]}

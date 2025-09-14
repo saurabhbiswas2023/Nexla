@@ -78,6 +78,9 @@ export interface CanvasState {
     destination?: { name: string; credentials?: Record<string, string | undefined> };
     transform?: { name: string; credentials?: Record<string, string | undefined> };
   }) => void;
+  
+  // Reset all store data to initial state
+  resetStore: () => void;
 }
 
 const defaultNodeValues: NodeValues = {
@@ -411,6 +414,29 @@ export const useCanvasStore = create<CanvasState>()(
             'batchUpdateCanvas'
           );
 
+        },
+
+        // Reset all store data to initial state (for landing page navigation)
+        resetStore: () => {
+          set(
+            {
+              selectedSource: 'Dummy Source',
+              selectedDestination: 'Dummy Destination',
+              selectedTransform: 'Dummy Transform',
+              nodeValues: {
+                ...defaultNodeValues,
+                transformByType: {
+                  'Dummy Transform': {},
+                  'Map & Validate': {},
+                  Cleanse: {},
+                  'Enrich & Map': {},
+                },
+              },
+              flowConfiguration: defaultFlowConfiguration,
+            },
+            false,
+            'resetStore'
+          );
         },
       }),
       {

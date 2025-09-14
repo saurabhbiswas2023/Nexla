@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useChatStore } from '../store/chat';
 import { useCanvasStore } from '../store/canvasStore';
+import { useProgressStore } from '../store/progressStore';
 import { Footer } from '../components/atoms/Footer';
 import { SearchCard } from '../components/molecules/SearchCard';
 import { ExampleCard } from '../components/molecules/ExampleCard';
@@ -8,24 +9,20 @@ import { HeroSection } from '../components/organisms/HeroSection';
 
 export function LandingPage() {
 
-  // Clear stores on landing page mount - but only reset canvas if needed
+  // Reset ALL stores on landing page mount for clean slate
   useEffect(() => {
-    // Clear chat store
-    useChatStore.getState().clearMessages();
-    useChatStore.setState({ input: '', aiThinking: false, highlightId: null });
-
-    // Only reset canvas if we're coming from a completed flow (not dummy state)
-    const canvasState = useCanvasStore.getState();
-    const hasExistingFlow = canvasState.selectedSource !== 'Dummy Source' || 
-                           canvasState.selectedDestination !== 'Dummy Destination' ||
-                           canvasState.selectedTransform !== 'Dummy Transform';
-    
-    if (hasExistingFlow) {
-      canvasState.resetToDefaultConfiguration();
-    }
+    // Reset all stores to initial state
+    useChatStore.getState().resetStore();
+    useCanvasStore.getState().resetStore();
+    useProgressStore.getState().resetStore();
 
     // Also clear localStorage to ensure fresh start
     localStorage.removeItem('prefillPrompt');
+    
+    // Clear any other potential localStorage items
+    localStorage.removeItem('canvas-store');
+    localStorage.removeItem('chat-store');
+    localStorage.removeItem('progress-store');
   }, []);
 
   const handleSearchSubmit = (value: string) => {

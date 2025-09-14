@@ -1,13 +1,95 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { parseFlowWithLLM } from '../lib/openRouterService';
+import { parseFlowWithLLM, detectUserIntent, type FlowParseResult } from '../lib/openRouterService';
 import { useCanvasStore } from './canvasStore';
+import { connectorCatalog } from '../lib/connectorCatalog';
 import { 
   FieldCollectionOrchestrator, 
   type CollectionState,
   analyzeCanvasForCollection 
 } from '../lib/fieldCollectionService';
 import { logger } from '../lib/logger';
+import { useProgressStore } from './progressStore';
+
+// Removed complex regex-based detection functions - now using LLM-based intent detection
+
+/**
+ * PRE-LLM: Detect if user input is a single connector name that needs role clarification
+ * This runs BEFORE the LLM to catch obvious cases deterministically
+ */
+function detectSingleConnectorName(userInput: string): string | null {
+  const input = userInput.toLowerCase().trim();
+  
+  // Skip if input has clear directional words
+  const hasDirectionalWords = /\b(from|to|source|destination|connect\s+.*\s+to|sync\s+.*\s+to|get.*from|send.*to|as\s+(my\s+)?(source|destination))\b/i.test(input);
+  if (hasDirectionalWords) return null;
+  
+  // Skip if input is too long (likely a sentence, not just a connector name)
+  if (input.split(' ').length > 3) return null;
+  
+  // Check for exact or close matches with connector names
+  const connectorNames = Object.keys(connectorCatalog);
+  
+  // First pass: exact matches (case insensitive)
+  for (const connectorName of connectorNames) {
+    if (input === connectorName.toLowerCase()) {
+      return connectorName;
+    }
+  }
+  
+  // Second pass: partial matches (input contains connector or vice versa)
+  for (const connectorName of connectorNames) {
+    const connectorLower = connectorName.toLowerCase();
+    
+    // Check if input is a substring of connector name or vice versa
+    if ((input.length >= 3 && connectorLower.includes(input)) || 
+        (connectorLower.length >= 3 && input.includes(connectorLower))) {
+      return connectorName;
+    }
+  }
+  
+  // Third pass: word-based matching for multi-word connectors
+  const inputWords = input.split(/\s+/);
+  for (const connectorName of connectorNames) {
+    const connectorWords = connectorName.toLowerCase().split(/\s+/);
+    
+    // Check if all input words match connector words
+    if (inputWords.every(word => 
+      connectorWords.some(connectorWord => 
+        connectorWord.includes(word) || word.includes(connectorWord)
+      )
+    )) {
+      return connectorName;
+    }
+  }
+  
+  return null;
+}
+
+/**
+ * POST-LLM: Fallback check to ensure we ask for role clarity when LLM doesn't
+ * This catches cases that the pre-LLM check and LLM both missed
+ */
+function checkIfShouldAskForRoleClarity(
+  llmResult: NonNullable<FlowParseResult['data']>, 
+  userInput: string
+): string | null {
+  // If LLM already set needsRoleClarity, don't override
+  if (llmResult.needsRoleClarity) return null;
+  
+  // If both source and destination are set, no clarity needed
+  if (llmResult.source && llmResult.destination) return null;
+  
+  // If only one role is set and it's clear from context, no clarity needed
+  if (llmResult.source || llmResult.destination) {
+    // Check if the input has clear directional words
+    const hasDirectionalWords = /\b(from|to|source|destination|connect\s+\w+\s+to|sync\s+\w+\s+to|get.*from|send.*to)\b/i.test(userInput);
+    if (hasDirectionalWords) return null;
+  }
+  
+  // Use the same detection logic as pre-LLM check
+  return detectSingleConnectorName(userInput);
+}
 
 type Message = {
   id: string;
@@ -33,11 +115,17 @@ type ChatState = {
   fieldCollectionState: CollectionState | null;
   isCollectingFields: boolean;
   
+  // Role Clarification State
+  pendingRoleClarity: string | null; // Connector name waiting for role clarification
+  
   // Field Collection Methods
   startSmartCollection: () => void;
   processCollectionInput: (input: string) => void;
   completeFieldCollection: () => void;
   skipFieldCollection: () => void;
+  
+  // Reset all chat data to initial state
+  resetStore: () => void;
 };
 
 export const useChatStore = create<ChatState>()(
@@ -63,6 +151,9 @@ export const useChatStore = create<ChatState>()(
       // Field Collection State
       fieldCollectionState: null,
       isCollectingFields: false,
+      
+      // Role Clarification State
+      pendingRoleClarity: null,
 
       // Basic send method (legacy)
       send: () => {
@@ -107,8 +198,437 @@ export const useChatStore = create<ChatState>()(
 
       // Enhanced send method with LLM integration and canvas updates
       sendWithCanvasUpdate: async () => {
-        const { input, messages, conversationHistory, isCollectingFields } = get();
+        const { input, messages, conversationHistory, isCollectingFields, pendingRoleClarity } = get();
         if (!input.trim()) return;
+
+        // If we're waiting for role clarification, use LLM to understand intent
+        if (pendingRoleClarity) {
+          const userInput = input.trim();
+          const userInputLower = userInput.toLowerCase();
+          
+          console.log('🔍 SIMPLE INTENT CHECK:', {
+            userInput,
+            pendingRoleClarity,
+            userInputLower
+          });
+          
+          // DEAD SIMPLE LOGIC FIRST - NO LLM BULLSHIT FOR OBVIOUS CASES
+          
+          // 1. COMPLEX ROLE + DESTINATION DETECTION
+          // Handle cases like "source and I need to send data to postgres"
+          if (userInputLower.includes('source') || userInputLower.includes('destination')) {
+            console.log('🎯 ROLE DETECTED IN COMPLEX MESSAGE:', userInput);
+            
+            // Extract role
+            const isSource = userInputLower.includes('source');
+            const role = isSource ? 'source' : 'destination';
+            
+            // Check if user also mentions destination connector
+            let destinationConnector = null;
+            const destinationPatterns = [
+              /(?:send|to|into|destination)\s+(?:data\s+)?(?:to\s+)?(\w+)/gi,
+              /(?:and|then|also)\s+(?:send|to|into)\s+(?:data\s+)?(?:to\s+)?(\w+)/gi,
+              /postgres|postgresql|bigquery|snowflake|salesforce|shopify/gi
+            ];
+            
+            for (const pattern of destinationPatterns) {
+              const matches = [...userInput.matchAll(pattern)];
+              for (const match of matches) {
+                const candidate = match[1] || match[0];
+                if (candidate) {
+                  // Find matching connector
+                  const allConnectors = Object.keys(connectorCatalog);
+                  const matchedConnector = allConnectors.find(connector => 
+                    connector.toLowerCase().includes(candidate.toLowerCase()) ||
+                    candidate.toLowerCase().includes(connector.toLowerCase())
+                  );
+                  if (matchedConnector) {
+                    destinationConnector = matchedConnector;
+                    break;
+                  }
+                }
+              }
+              if (destinationConnector) break;
+            }
+            
+            console.log('🔍 Detected:', { role, destinationConnector });
+            
+            const userId = crypto.randomUUID();
+            const userMsg: Message = {
+              id: userId,
+              type: 'user',
+              content: userInput,
+              status: 'sent',
+              createdAt: Date.now(),
+            };
+
+            set((state) => ({
+              messages: [...state.messages, userMsg],
+              input: '',
+              highlightId: userId,
+            }));
+
+            setTimeout(() => set({ highlightId: null }), 900);
+            
+            // Handle role selection
+            const canvasStore = useCanvasStore.getState();
+            
+            if (role === 'source') {
+              canvasStore.setSelectedSource(pendingRoleClarity);
+              if (destinationConnector) {
+                canvasStore.setSelectedDestination(destinationConnector);
+              }
+            } else {
+              canvasStore.setSelectedDestination(pendingRoleClarity);
+              if (destinationConnector) {
+                canvasStore.setSelectedSource(destinationConnector);
+              }
+            }
+
+            // Update progress
+            const progressStore = useProgressStore.getState();
+            const updatedCanvasState = useCanvasStore.getState();
+            progressStore.calculateFromCanvasState({
+              selectedSource: updatedCanvasState.selectedSource,
+              selectedDestination: updatedCanvasState.selectedDestination,
+              selectedTransform: updatedCanvasState.selectedTransform,
+              nodeValues: updatedCanvasState.nodeValues,
+              transformByType: {
+                'Dummy Transform': {},
+                'Map & Validate': {},
+                'Cleanse': {},
+                'Enrich & Map': updatedCanvasState.getTransformValuesByType('Enrich & Map'),
+              },
+            });
+
+            const aiId = crypto.randomUUID();
+            let confirmationContent = `Perfect! I've set ${pendingRoleClarity} as your ${role}.`;
+            
+            if (destinationConnector) {
+              confirmationContent += ` I also detected that you want to send data to ${destinationConnector}, so I've set that as your destination.`;
+            }
+            
+            confirmationContent += ` Now let's configure the connections.`;
+            
+            const confirmationMessage: Message = {
+              id: aiId,
+              type: 'ai',
+              content: confirmationContent,
+              status: 'sent',
+              createdAt: Date.now(),
+            };
+
+            set((state) => ({
+              messages: [...state.messages, confirmationMessage],
+              pendingRoleClarity: null,
+            }));
+
+            setTimeout(() => {
+              get().startSmartCollection();
+            }, 500);
+            
+            return;
+          }
+          
+          // 2. SIMPLE CORRECTION DETECTION - "no its [connector]" OR "no its not"
+          if (userInputLower.startsWith('no')) {
+            console.log('🚨 REJECTION DETECTED - SIMPLE LOGIC');
+            
+            // Case 1: "no its [connector]" - user specifying new connector
+            const correctionMatch = userInputLower.match(/no\s+it'?s\s+(.+)/);
+            if (correctionMatch) {
+              const suggestedConnector = correctionMatch[1].trim();
+              
+              // Skip if it's just "not" - handle separately
+              if (suggestedConnector !== 'not') {
+                console.log('🔍 Suggested connector:', suggestedConnector);
+                
+                // Find matching connector from catalog
+                const allConnectors = Object.keys(connectorCatalog);
+                const matchedConnector = allConnectors.find(connector => 
+                  connector.toLowerCase().includes(suggestedConnector) ||
+                  suggestedConnector.includes(connector.toLowerCase())
+                );
+                
+                if (matchedConnector) {
+                  console.log('✅ MATCHED CONNECTOR:', matchedConnector);
+                  
+                  const userId = crypto.randomUUID();
+                  const userMsg: Message = {
+                    id: userId,
+                    type: 'user',
+                    content: userInput,
+                    status: 'sent',
+                    createdAt: Date.now(),
+                  };
+
+                  const aiId = crypto.randomUUID();
+                  const clarificationMsg: Message = {
+                    id: aiId,
+                    type: 'ai',
+                    content: `Got it! Is ${matchedConnector} your source (where you get data from) or destination (where you send data to)?`,
+                    status: 'sent',
+                    createdAt: Date.now(),
+                  };
+
+                  set((state) => ({
+                    messages: [...state.messages, userMsg, clarificationMsg],
+                    input: '',
+                    pendingRoleClarity: matchedConnector,
+                    conversationHistory: [...conversationHistory, userInput],
+                  }));
+                  
+                  return;
+                }
+              }
+            }
+            
+            // Case 2: "no its not" or just "no" - ask what they meant
+            if (userInputLower.includes('not') || userInputLower.trim() === 'no') {
+              console.log('🤔 USER REJECTED - ASKING WHAT THEY MEANT');
+              
+              const userId = crypto.randomUUID();
+              const userMsg: Message = {
+                id: userId,
+                type: 'user',
+                content: userInput,
+                status: 'sent',
+                createdAt: Date.now(),
+              };
+
+              const aiId = crypto.randomUUID();
+              const clarificationMsg: Message = {
+                id: aiId,
+                type: 'ai',
+                content: `I understand that's not the right connector. What connector did you mean? Please tell me the name of the system you want to connect.`,
+                status: 'sent',
+                createdAt: Date.now(),
+              };
+
+              set((state) => ({
+                messages: [...state.messages, userMsg, clarificationMsg],
+                input: '',
+                // Keep pendingRoleClarity null so next input is treated as new connector
+                pendingRoleClarity: null,
+                conversationHistory: [...conversationHistory, userInput],
+              }));
+              
+              return;
+            }
+          }
+          
+          // 3. ONLY NOW TRY LLM AS FALLBACK
+          console.log('🤖 Trying LLM as fallback...');
+          
+          const fullContext = [
+            ...conversationHistory,
+            ...messages.slice(-4).map(m => m.content)
+          ];
+          
+          try {
+            const intent = await detectUserIntent(userInput, {
+              pendingRoleClarity,
+              conversationHistory: fullContext
+            });
+            
+            console.log('🎯 Intent Detection Result:', intent);
+
+            const userId = crypto.randomUUID();
+            const userMsg: Message = {
+              id: userId,
+              type: 'user',
+              content: userInput,
+              status: 'sent',
+              createdAt: Date.now(),
+            };
+
+            set((state) => ({
+              messages: [...state.messages, userMsg],
+              input: '',
+              highlightId: userId,
+            }));
+
+            setTimeout(() => set({ highlightId: null }), 900);
+
+            // CRITICAL FIX: Add simple fallback for basic role words if LLM fails
+            const userInputLower = userInput.toLowerCase().trim();
+            const isSimpleRole = userInputLower === 'source' || userInputLower === 'destination' || 
+                               userInputLower === 'src' || userInputLower === 'dest';
+            
+            if (isSimpleRole && (!intent.intent || intent.intent !== 'role_clarification')) {
+              console.log('🚨 LLM FAILED - Using fallback for simple role:', userInputLower);
+              intent.intent = 'role_clarification';
+              intent.role = userInputLower === 'source' || userInputLower === 'src' ? 'source' : 'destination';
+              intent.confidence = 0.99;
+            }
+
+            if (intent.intent === 'connector_correction' && intent.connectorName) {
+              // User wants to correct the connector name
+              const aiId = crypto.randomUUID();
+              const clarificationMsg: Message = {
+                id: aiId,
+                type: 'ai',
+                content: `Got it! Is ${intent.connectorName} your source (where you get data from) or destination (where you send data to)?`,
+                status: 'sent',
+                createdAt: Date.now(),
+              };
+
+              set((state) => ({
+                messages: [...state.messages, clarificationMsg],
+                pendingRoleClarity: intent.connectorName,
+                conversationHistory: [...conversationHistory, userInput],
+              }));
+
+            } else if (intent.intent === 'role_clarification' && intent.role) {
+              // User is specifying the role
+              const canvasStore = useCanvasStore.getState();
+              if (intent.role === 'source') {
+                canvasStore.setSelectedSource(pendingRoleClarity);
+              } else {
+                canvasStore.setSelectedDestination(pendingRoleClarity);
+              }
+
+              // Update progress
+              const progressStore = useProgressStore.getState();
+              const updatedCanvasState = useCanvasStore.getState();
+              progressStore.calculateFromCanvasState({
+                selectedSource: updatedCanvasState.selectedSource,
+                selectedDestination: updatedCanvasState.selectedDestination,
+                selectedTransform: updatedCanvasState.selectedTransform,
+                nodeValues: updatedCanvasState.nodeValues,
+                transformByType: {
+                  'Dummy Transform': {},
+                  'Map & Validate': {},
+                  'Cleanse': {},
+                  'Enrich & Map': updatedCanvasState.getTransformValuesByType('Enrich & Map'),
+                },
+              });
+
+              // Confirmation and start field collection
+              const aiId = crypto.randomUUID();
+              const confirmationMessage: Message = {
+                id: aiId,
+                type: 'ai',
+                content: `Perfect! I've set ${pendingRoleClarity} as your ${intent.role}. Now let's configure the connections.`,
+                status: 'sent',
+                createdAt: Date.now(),
+              };
+
+              set((state) => ({
+                messages: [...state.messages, confirmationMessage],
+                pendingRoleClarity: null,
+              }));
+
+              setTimeout(() => {
+                get().startSmartCollection();
+              }, 500);
+
+            } else {
+              // Unclear intent, ask for clarification
+              const aiId = crypto.randomUUID();
+              const clarificationMsg: Message = {
+                id: aiId,
+                type: 'ai',
+                content: `Please specify if ${pendingRoleClarity} is your "source" (where you get data from) or "destination" (where you send data to).`,
+                status: 'sent',
+                createdAt: Date.now(),
+              };
+
+              set((state) => ({
+                messages: [...state.messages, clarificationMsg],
+              }));
+            }
+
+            return;
+          } catch (error) {
+            console.error('🚨 LLM Intent Detection FAILED:', error);
+            logger.error('Intent detection failed', error, 'chat-store');
+            
+            // Add user message first (CRITICAL - was missing!)
+            const userId = crypto.randomUUID();
+            const userMsg: Message = {
+              id: userId,
+              type: 'user',
+              content: userInput,
+              status: 'sent',
+              createdAt: Date.now(),
+            };
+
+            set((state) => ({
+              messages: [...state.messages, userMsg],
+              input: '',
+              highlightId: userId,
+            }));
+
+            setTimeout(() => set({ highlightId: null }), 900);
+            
+            // ROBUST FALLBACK: Handle common role words
+            const userInputLower = userInput.toLowerCase().trim();
+            const isSource = userInputLower === 'source' || userInputLower === 'src' || userInputLower.includes('source');
+            const isDestination = userInputLower === 'destination' || userInputLower === 'dest' || userInputLower.includes('destination');
+            
+            if (isSource || isDestination) {
+              console.log('✅ Using FALLBACK role detection:', isSource ? 'source' : 'destination');
+              
+              // Handle role selection with fallback logic
+              const canvasStore = useCanvasStore.getState();
+              if (isSource) {
+                canvasStore.setSelectedSource(pendingRoleClarity);
+              } else {
+                canvasStore.setSelectedDestination(pendingRoleClarity);
+              }
+
+              // Update progress
+              const progressStore = useProgressStore.getState();
+              const updatedCanvasState = useCanvasStore.getState();
+              progressStore.calculateFromCanvasState({
+                selectedSource: updatedCanvasState.selectedSource,
+                selectedDestination: updatedCanvasState.selectedDestination,
+                selectedTransform: updatedCanvasState.selectedTransform,
+                nodeValues: updatedCanvasState.nodeValues,
+                transformByType: {
+                  'Dummy Transform': {},
+                  'Map & Validate': {},
+                  'Cleanse': {},
+                  'Enrich & Map': updatedCanvasState.getTransformValuesByType('Enrich & Map'),
+                },
+              });
+
+              const aiId = crypto.randomUUID();
+              const confirmationMessage: Message = {
+                id: aiId,
+                type: 'ai',
+                content: `Perfect! I've set ${pendingRoleClarity} as your ${isSource ? 'source' : 'destination'}. Now let's configure the connections.`,
+                status: 'sent',
+                createdAt: Date.now(),
+              };
+
+              set((state) => ({
+                messages: [...state.messages, confirmationMessage],
+                pendingRoleClarity: null,
+              }));
+
+              setTimeout(() => {
+                get().startSmartCollection();
+              }, 500);
+            } else {
+              // Ask for clarification
+              const aiId = crypto.randomUUID();
+              const clarificationMsg: Message = {
+                id: aiId,
+                type: 'ai',
+                content: `Please specify if ${pendingRoleClarity} is your "source" or "destination".`,
+                status: 'sent',
+                createdAt: Date.now(),
+              };
+
+              set((state) => ({
+                messages: [...state.messages, clarificationMsg],
+              }));
+            }
+            return;
+          }
+        }
 
         // If we're in field collection mode, handle it differently
         if (isCollectingFields) {
@@ -133,6 +653,38 @@ export const useChatStore = create<ChatState>()(
           // Process the field collection input
           get().processCollectionInput(input.trim());
           return;
+        }
+
+        // PRE-LLM CHECK: Detect single connector names before going to LLM
+        const singleConnectorDetected = detectSingleConnectorName(input.trim());
+        if (singleConnectorDetected) {
+          const userId = crypto.randomUUID();
+          const aiId = crypto.randomUUID();
+          const userMsg: Message = {
+            id: userId,
+            type: 'user',
+            content: input.trim(),
+            status: 'sent',
+            createdAt: Date.now(),
+          };
+          const clarificationMsg: Message = {
+            id: aiId,
+            type: 'ai',
+            content: `Is ${singleConnectorDetected} your source (where you get data from) or destination (where you send data to)?`,
+            status: 'sent',
+            createdAt: Date.now(),
+          };
+
+          set((state) => ({
+            messages: [...state.messages, userMsg, clarificationMsg],
+            input: '',
+            highlightId: userId,
+            pendingRoleClarity: singleConnectorDetected,
+            conversationHistory: [...conversationHistory, input.trim()],
+          }));
+
+          setTimeout(() => set({ highlightId: null }), 900);
+          return; // Skip LLM entirely for single connector names
         }
 
         const userId = crypto.randomUUID();
@@ -170,6 +722,30 @@ export const useChatStore = create<ChatState>()(
           if (result.success && result.data) {
             const canvasStore = useCanvasStore.getState();
 
+            // FALLBACK: Check if we should ask for role clarity even if LLM didn't set it
+            const shouldAskForRoleClarity = checkIfShouldAskForRoleClarity(result.data, input.trim());
+            
+            // Handle role clarity needed - don't update canvas yet, just ask for clarification
+            if (result.data.needsRoleClarity || shouldAskForRoleClarity) {
+              const connectorName = result.data.needsRoleClarity || shouldAskForRoleClarity;
+              // Update conversation history
+              const newHistory = [...conversationHistory, input.trim()];
+              
+              // Generate role clarification response
+              const clarificationResponse = result.data.followUpQuestion || 
+                `Is ${connectorName} your source (where you get data from) or destination (where you send data to)?`;
+
+              set((s) => ({
+                messages: s.messages.map((m) =>
+                  m.id === aiId ? { ...m, content: clarificationResponse, status: 'sent' } : m
+                ),
+                aiThinking: false,
+                isProcessingLLM: false,
+                conversationHistory: newHistory,
+                pendingRoleClarity: connectorName, // Store connector name waiting for role
+              }));
+              return; // Don't proceed with canvas updates
+            }
 
             // Prepare batched update object (all changes in memory, no renders yet)
             const batchedUpdates: {
@@ -205,6 +781,22 @@ export const useChatStore = create<ChatState>()(
             // Single atomic canvas update - only one render!
             if (Object.keys(batchedUpdates).length > 0) {
               canvasStore.batchUpdateCanvas(batchedUpdates);
+              
+              // Update progress after LLM canvas changes
+              const progressStore = useProgressStore.getState();
+              const updatedCanvasState = useCanvasStore.getState();
+              progressStore.calculateFromCanvasState({
+                selectedSource: updatedCanvasState.selectedSource,
+                selectedDestination: updatedCanvasState.selectedDestination,
+                selectedTransform: updatedCanvasState.selectedTransform,
+                nodeValues: updatedCanvasState.nodeValues,
+                transformByType: {
+                  'Dummy Transform': {},
+                  'Map & Validate': {},
+                  'Cleanse': {},
+                  'Enrich & Map': updatedCanvasState.getTransformValuesByType('Enrich & Map'),
+                },
+              });
             }
 
             // Update conversation history
@@ -384,6 +976,22 @@ export const useChatStore = create<ChatState>()(
               });
             }
           }
+
+          // Update progress after canvas changes
+          const progressStore = useProgressStore.getState();
+          const updatedCanvasState = canvasStore;
+          progressStore.calculateFromCanvasState({
+            selectedSource: updatedCanvasState.selectedSource,
+            selectedDestination: updatedCanvasState.selectedDestination,
+            selectedTransform: updatedCanvasState.selectedTransform,
+            nodeValues: updatedCanvasState.nodeValues,
+            transformByType: {
+              'Dummy Transform': {},
+              'Map & Validate': {},
+              'Cleanse': {},
+              'Enrich & Map': updatedCanvasState.getTransformValuesByType('Enrich & Map'),
+            },
+          });
         }
 
         // Get next step
@@ -480,6 +1088,30 @@ export const useChatStore = create<ChatState>()(
           highlightId: null,
           fieldCollectionState: null,
           isCollectingFields: false,
+          pendingRoleClarity: null,
+        }),
+
+      // Reset all chat data to initial state (for landing page navigation)
+      resetStore: () =>
+        set({
+          messages: [
+            {
+              id: 'm1',
+              type: 'ai',
+              content:
+                'Welcome! I can help you build data integration flows. What systems would you like to connect?',
+              status: 'sent',
+              createdAt: Date.now(),
+            },
+          ],
+          input: '',
+          conversationHistory: [],
+          aiThinking: false,
+          highlightId: null,
+          isProcessingLLM: false,
+          fieldCollectionState: null,
+          isCollectingFields: false,
+          pendingRoleClarity: null,
         }),
     }),
     { name: 'chat-store' }

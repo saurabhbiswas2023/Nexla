@@ -38,6 +38,11 @@ export function computeNodeStatus(
   mandatory: string[],
   values: Record<string, string> | undefined
 ): Status {
+  // ALL DUMMY NODES MUST ALWAYS BE PENDING - NEVER COMPLETE
+  if (name === 'Dummy Source' || name === 'Dummy Destination' || name === 'Dummy Transform') {
+    return 'pending';
+  }
+
   if (role === 'transform') {
     // These transforms are complete when selected (no additional config needed)
     if (name === 'Map & Validate' || name === 'Cleanse') {
