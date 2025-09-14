@@ -16,6 +16,7 @@ export function MessageBubble({ type, content, status, createdAt, highlight }: P
     : '';
   return (
     <div
+      data-testid={`message-${type}-${crypto.randomUUID()}`}
       className={`${isUser ? 'ml-auto max-w-[90%]' : 'max-w-[80%]'} w-full ${highlight ? 'ring-2 ring-violet-300 rounded-2xl transition-[box-shadow] duration-700' : ''}`}
     >
       <div

@@ -28,7 +28,48 @@ import {
  */
 function detectPatternFallback(input: string): { source?: string; destination?: string; transform?: string } | null {
   
-  // PATTERN 1: "Analyze X in Y" - X is source, Y is destination, transform is analysis
+  // PATTERN 1: "Source = X, Transform = Y, Destination = Z" format
+  const structuredMatch = /source\s*=\s*([^,]+).*?(?:transform|transformation)\s*=\s*([^,]+).*?destination\s*=\s*([^,]+)/i.exec(input);
+  if (structuredMatch) {
+    const sourceText = structuredMatch[1].trim();
+    const transformText = structuredMatch[2].trim();
+    const destinationText = structuredMatch[3].trim();
+    
+    // Map source patterns
+    let detectedSource: string | undefined;
+    if (/stripe/i.test(sourceText)) detectedSource = 'Stripe';
+    else if (/shopify/i.test(sourceText)) detectedSource = 'Shopify';
+    else if (/salesforce/i.test(sourceText)) detectedSource = 'Salesforce';
+    else if (/postgresql|postgres/i.test(sourceText)) detectedSource = 'PostgreSQL';
+    else if (/mysql/i.test(sourceText)) detectedSource = 'MySQL';
+    else if (/bigquery/i.test(sourceText)) detectedSource = 'Google BigQuery';
+    else if (/snowflake/i.test(sourceText)) detectedSource = 'Snowflake';
+    
+    // Map destination patterns
+    let detectedDestination: string | undefined;
+    if (/bigquery/i.test(destinationText)) detectedDestination = 'Google BigQuery';
+    else if (/snowflake/i.test(destinationText)) detectedDestination = 'Snowflake';
+    else if (/webhook/i.test(destinationText)) detectedDestination = 'Webhook';
+    else if (/postgresql|postgres/i.test(destinationText)) detectedDestination = 'PostgreSQL';
+    else if (/mysql/i.test(destinationText)) detectedDestination = 'MySQL';
+    
+    // Map transform patterns
+    let detectedTransform: string | undefined;
+    if (/data\s+analysis|analyze/i.test(transformText)) detectedTransform = 'Data Analysis';
+    else if (/cleanse|clean|format/i.test(transformText)) detectedTransform = 'Cleanse';
+    else if (/map.*validate|validate.*map/i.test(transformText)) detectedTransform = 'Map & Validate';
+    else if (/enrich.*map|map.*enrich/i.test(transformText)) detectedTransform = 'Enrich & Map';
+    
+    if (detectedSource || detectedDestination || detectedTransform) {
+      return {
+        source: detectedSource,
+        destination: detectedDestination,
+        transform: detectedTransform
+      };
+    }
+  }
+  
+  // PATTERN 2: "Analyze X in Y" - X is source, Y is destination, transform is analysis
   const analyzeMatch = /analyze\s+(.+?)\s+(?:in|into|using)\s+(.+)/i.exec(input);
   if (analyzeMatch) {
     const sourceText = analyzeMatch[1].trim();
@@ -105,7 +146,7 @@ function detectPatternFallback(input: string): { source?: string; destination?: 
     }
   }
   
-  // If webhook is mentioned and we have directional words, it's likely the destination
+  // If webhook is mentioned, check if it's likely the destination
   const toWebhookPatterns = [
     /send.*to.*webhook/i,
     /send.*webhook/i,
@@ -117,19 +158,40 @@ function detectPatternFallback(input: string): { source?: string; destination?: 
     /to.*rest\s+endpoint/i,
     /to.*http\s+endpoint/i,
     /send.*to.*web\s+hook/i,
-    /to.*web\s+hook/i
+    /to.*web\s+hook/i,
+    /destination.*webhook/i,
+    /destination.*=.*webhook/i,
+    /dest.*webhook/i
   ];
   
   if (toWebhookPatterns.some(pattern => pattern.test(input))) {
     detectedDestination = 'Webhook';
   }
   
+  // Detect transformation patterns
+  let detectedTransform: string | undefined;
+  const transformPatterns = [
+    { pattern: /format|cleanse|clean/i, transform: 'Cleanse' },
+    { pattern: /map.*validate|validate.*map/i, transform: 'Map & Validate' },
+    { pattern: /enrich.*map|map.*enrich/i, transform: 'Enrich & Map' },
+    { pattern: /data\s+analysis|analyze/i, transform: 'Data Analysis' },
+    { pattern: /transformation.*=.*cleanse/i, transform: 'Cleanse' },
+    { pattern: /transform.*=.*cleanse/i, transform: 'Cleanse' }
+  ];
+  
+  for (const { pattern, transform } of transformPatterns) {
+    if (pattern.test(input)) {
+      detectedTransform = transform;
+      break;
+    }
+  }
+  
   // Only return if we detected at least one connector
-  if (detectedSource || detectedDestination) {
+  if (detectedSource || detectedDestination || detectedTransform) {
     return {
       source: detectedSource,
       destination: detectedDestination,
-      transform: undefined // No transform for webhook patterns
+      transform: detectedTransform
     };
   }
   
@@ -871,8 +933,22 @@ export const useChatStore = create<ChatState>()(
             // Update conversation history
             const newHistory = [...conversationHistory, input.trim()];
             
-            // Generate success response
-            const successResponse = `Perfect! I've identified your systems. Now let's configure the connections.`;
+            // Generate intelligent success response
+            const userBehavior = analyzeUserBehavior(messages);
+            const updatedCanvasState = useCanvasStore.getState();
+            
+            // Create a canvas change event for the pattern detection
+            const canvasEvent: CanvasChangeEvent = {
+              type: 'node-selected',
+              nodeType: patternFallback.source ? 'source' : 
+                       patternFallback.destination ? 'destination' : 'transform',
+              changes: {
+                nodeName: patternFallback.source || patternFallback.destination || patternFallback.transform
+              },
+              completionStatus: 'partial'
+            };
+            
+            const successResponse = handleCanvasChange(canvasEvent, updatedCanvasState, userBehavior);
 
             // Calculate remaining thinking time
             const elapsedTime = Date.now() - thinkingStartTime;

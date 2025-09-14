@@ -19,20 +19,20 @@ test.describe('Thinking Animation E2E Tests', () => {
     await page.getByPlaceholder('Describe your data flow…').fill(testInput);
     await page.getByRole('button', { name: 'Send' }).click();
 
-    // Verify thinking animation appears immediately
-    await expect(page.getByText('✨ Thinking...')).toBeVisible({ timeout: 1000 });
+    // Verify thinking animation appears immediately (look for bouncing dots)
+    await expect(page.locator('.thinking-bounce').first()).toBeVisible({ timeout: 1000 });
     console.log('✅ Thinking animation appeared');
 
     // Verify animation is still visible after 400ms (should still be showing)
     await page.waitForTimeout(400);
-    await expect(page.getByText('✨ Thinking...')).toBeVisible();
+    await expect(page.locator('.thinking-bounce').first()).toBeVisible();
     console.log('✅ Animation still visible at 400ms');
 
     // Wait for response to appear (animation should disappear)
     await expect(page.getByText('Perfect! I\'ve identified your systems')).toBeVisible({ timeout: 10000 });
     
     // Verify animation has disappeared after response
-    await expect(page.getByText('✨ Thinking...')).not.toBeVisible();
+    await expect(page.locator('.thinking-bounce').first()).not.toBeVisible();
     console.log('✅ Animation disappeared after response');
 
     // Check that minimum 500ms elapsed
@@ -63,7 +63,7 @@ test.describe('Thinking Animation E2E Tests', () => {
     await page.getByRole('button', { name: 'Send' }).click();
 
     // Verify thinking animation appears
-    await expect(page.getByText('✨ Thinking...')).toBeVisible({ timeout: 1000 });
+    await expect(page.locator('.thinking-bounce').first()).toBeVisible({ timeout: 1000 });
     console.log('✅ Thinking animation appeared for pattern fallback');
 
     // Wait for response
@@ -97,7 +97,7 @@ test.describe('Thinking Animation E2E Tests', () => {
     await page.getByRole('button', { name: 'Send' }).click();
 
     // Verify thinking animation appears for second message
-    await expect(page.getByText('✨ Thinking...')).toBeVisible({ timeout: 1000 });
+    await expect(page.locator('.thinking-bounce').first()).toBeVisible({ timeout: 1000 });
     console.log('✅ Second message: Thinking animation appeared');
 
     // Wait for second response
@@ -118,11 +118,11 @@ test.describe('Thinking Animation E2E Tests', () => {
     await page.getByRole('button', { name: 'Send' }).click();
 
     // Wait for thinking animation
-    await expect(page.getByText('✨ Thinking...')).toBeVisible({ timeout: 1000 });
+    await expect(page.locator('.thinking-bounce').first()).toBeVisible({ timeout: 1000 });
 
-    // Check for animation elements (brain icon, bouncing dots)
-    const thinkingContainer = page.locator('div:has-text("✨ Thinking...")');
-    await expect(thinkingContainer).toBeVisible();
+    // Check for animation elements (bouncing dots)
+    const thinkingContainer = page.locator('.thinking-bounce');
+    await expect(thinkingContainer.first()).toBeVisible();
 
     // Verify enhanced animation classes are present
     const animationElements = page.locator('.thinking-animation, .thinking-glow, .thinking-bounce');
@@ -154,7 +154,7 @@ test.describe('Thinking Animation E2E Tests', () => {
 
     // Check if thinking animation appears
     try {
-      await expect(page.getByText('✨ Thinking...')).toBeVisible({ timeout: 2000 });
+      await expect(page.locator('.thinking-bounce').first()).toBeVisible({ timeout: 2000 });
       const animationStartTime = Date.now();
       console.log(`Animation appeared at: ${animationStartTime - startTime}ms`);
       
@@ -162,7 +162,7 @@ test.describe('Thinking Animation E2E Tests', () => {
       await page.waitForTimeout(3000);
       
       // Check if animation disappeared
-      const animationVisible = await page.getByText('✨ Thinking...').isVisible();
+      const animationVisible = await page.locator('.thinking-bounce').first().isVisible();
       const endTime = Date.now();
       console.log(`Animation visible at end: ${animationVisible}`);
       console.log(`Total time: ${endTime - startTime}ms`);
