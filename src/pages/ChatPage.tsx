@@ -5,7 +5,7 @@ import { ChatHeader } from '../components/molecules/ChatHeader';
 import { ChatInput } from '../components/molecules/ChatInput';
 import { MessageArea } from '../components/organisms/MessageArea';
 import { ScrollIndicator } from '../components/atoms/ScrollIndicator';
-import { BackToTopButton } from '../components/atoms/BackToTopButton';
+import { Button } from '../components/atoms/Button';
 import { useEffect, useRef, useState } from 'react';
 
 export function ChatPage() {
@@ -137,11 +137,16 @@ export function ChatPage() {
       <Footer className="border-t" />
       
       {/* Back to Top Button - Mobile Only */}
-      <BackToTopButton
-        text="Back to Chat"
+      <Button
+        variant="floating"
+        position="fixed-bottom-right"
+        icon="chevron-up"
         visible={showBackToTop}
         className="lg:hidden"
-      />
+        onClick={() => setShowBackToTop(false)}
+      >
+        Back to Chat
+      </Button>
     </div>
   );
 }

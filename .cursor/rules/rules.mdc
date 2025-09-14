@@ -1,280 +1,271 @@
 ---
 alwaysApply: true
 ---
-## **🎨 ATOMIC DESIGN - STRICT HIERARCHY**
 
-### **Atoms** (`src/components/atoms/`)
+# 🎯 **NEXLA DEVELOPMENT RULES**
+
+*React, TypeScript, and modern web development standards*
+
+---
+
+## **🏗️ ARCHITECTURE**
+
+### **Atomic Design Hierarchy:**
+- **Atoms** (`atoms/`): Button, Input, Label - single responsibility, no business logic
+- **Molecules** (`molecules/`): FormField, MessageBubble - combine 2-3 atoms
+- **Organisms** (`organisms/`): ChatInterface, Canvas - complex business logic
+
 ```typescript
-// ✅ Single responsibility, no business logic
+// ✅ Atom: Simple, reusable
 export const Button = ({ variant = 'primary', size = 'md', ...props }) => (
   <button className={`btn btn-${variant} btn-${size} min-h-[44px] min-w-[44px]`} {...props} />
 );
-```
 
-### **Molecules** (`src/components/molecules/`)
-```typescript
-// ✅ Combine 2-3 atoms with specific purpose
-export const MessageBubble = ({ message, sender, timestamp }) => (
-  <div className={`flex gap-3 ${sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-    <Avatar type={sender} />
-    <div className="flex flex-col">
-      <Typography variant="body">{message}</Typography>
-      <Typography variant="caption">{formatTime(timestamp)}</Typography>
-    </div>
+// ✅ Molecule: Combines atoms
+export const FormField = ({ label, input, error }) => (
+  <div>
+    <Label htmlFor={input.id}>{label}</Label>
+    <Input {...input} error={error} />
+    {error && <div role="alert">{error}</div>}
   </div>
 );
 ```
 
-### **Organisms** (`src/components/organisms/`)
+### **File Structure:**
+```
+src/
+├── components/atoms/     ← Button, Input, Label
+├── components/molecules/ ← FormField, MessageBubble  
+├── components/organisms/ ← ChatInterface, Canvas
+├── hooks/               ← useChat, useCanvas
+├── lib/                 ← utils, security, validation
+├── store/               ← Zustand stores
+├── types/               ← TypeScript interfaces
+└── pages/               ← Route components
+```
+
+### **Zustand Store Pattern:**
 ```typescript
-// ✅ Complex components with business logic
-export const ChatInterface = () => {
-  const { messages, sendMessage } = useChat();
-  return (
-    <div className="flex flex-col h-full">
-      <MessageList messages={messages} />
-      <InputArea onSend={sendMessage} />
-    </div>
-  );
-};
+interface CanvasStore {
+  nodes: FlowNode[];
+  selectedNodeId: string | null;
+  addNode: (node: FlowNode) => void;
+  updateNode: (id: string, updates: Partial<FlowNode>) => void;
+  selectNode: (id: string | null) => void;
+  selectedNode: FlowNode | null;
+}
+
+export const useCanvasStore = create<CanvasStore>()(
+  devtools(persist((set, get) => ({
+    nodes: [],
+    selectedNodeId: null,
+    addNode: (node) => set((state) => ({ nodes: [...state.nodes, node] })),
+    updateNode: (id, updates) => set((state) => ({
+      nodes: state.nodes.map((n) => n.id === id ? { ...n, ...updates } : n)
+    })),
+    selectNode: (id) => set({ selectedNodeId: id }),
+    get selectedNode() {
+      return get().nodes.find((n) => n.id === get().selectedNodeId) || null;
+    },
+  }), { name: 'canvas-store' }))
+);
 ```
 
 ---
 
-## **📱 MOBILE-FIRST RESPONSIVE**
+## **💻 CODE QUALITY**
 
+### **TypeScript Standards:**
 ```typescript
-// ✅ REQUIRED: Always mobile-first with Tailwind breakpoints
-<div className="
-  /* Mobile base (0-639px) */
-  flex flex-col gap-4 p-4 text-sm
-  
-  /* sm: Large Mobile (640px+) */
-  sm:gap-6 sm:p-6 sm:text-base
-  
-  /* md: Tablet (768px+) */
-  md:grid md:grid-cols-2 md:gap-8 md:p-8
-  
-  /* lg: Desktop (1024px+) */
-  lg:max-w-6xl lg:mx-auto lg:p-10
-  
-  /* xl: Large Desktop (1280px+) */
-  xl:p-12 xl:max-w-7xl
-">
-
-// ✅ REQUIRED: Minimum 44px touch targets
-<button className="min-h-[44px] min-w-[44px] flex items-center justify-center">
-```
-
----
-
-## **♿ ACCESSIBILITY REQUIREMENTS**
-
-```typescript
-// ✅ REQUIRED: Comprehensive ARIA support
-<select
-  value={selectedSource}
-  onChange={handleSourceChange}
-  aria-label="Select source connector"
-  aria-describedby="source-help"
-  aria-required="true"
-  aria-invalid={hasError}
->
-  {options.map(option => (
-    <option key={option.value} value={option.value}>{option.label}</option>
-  ))}
-</select>
-<div id="source-help" className="sr-only">Choose the data source for your flow</div>
-
-// ✅ REQUIRED: Keyboard navigation
-<div
-  onClick={() => setEditing(true)}
-  onKeyDown={(e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      setEditing(true);
-    }
-  }}
-  tabIndex={0}
-  role="button"
-  aria-label="Edit field value"
->
-
-// ✅ REQUIRED: Live regions for dynamic content
-<div aria-live="polite" aria-atomic="true">
-  {status === 'thinking' && (
-    <div>
-      <Loader />
-      <span className="sr-only">AI is processing your request</span>
-    </div>
-  )}
-</div>
-```
-
----
-
-## **🔒 SECURITY PATTERNS**
-
-```typescript
-// ✅ REQUIRED: Input validation & sanitization
-import { validateFieldValue, sanitizeInput } from '../lib/security';
-
-const handleInputChange = (value: string, fieldName: string) => {
-  const sanitized = sanitizeInput(value);
-  const validation = validateFieldValue(fieldName, sanitized);
-  
-  if (validation.isValid) {
-    updateField(fieldName, sanitized);
-  } else {
-    setFieldError(fieldName, validation.error);
-  }
-};
-
-// ✅ REQUIRED: Credential masking
-const displayValue = (key: string, value: string): string => {
-  const sensitiveKeys = ['password', 'token', 'secret', 'key', 'apiKey'];
-  if (sensitiveKeys.some((k) => key.toLowerCase().includes(k))) {
-    return maskCredentialValue(key, value);
-  }
-  return value;
-};
-```
-
----
-
-## **⚡ PERFORMANCE PATTERNS**
-
-```typescript
-// ✅ REQUIRED: Memoization for expensive operations
-const ExpensiveComponent = React.memo(({ data, onAction }) => {
-  const processedData = useMemo(() => {
-    return data.map(item => processItem(item));
-  }, [data]);
-
-  const handleAction = useCallback((id: string) => {
-    onAction(id);
-  }, [onAction]);
-
-  return <div>{/* Component JSX */}</div>;
-});
-
-// ✅ REQUIRED: Proper hook dependencies
-useEffect(() => {
-  // Effect logic
-}, [dependency1, dependency2]); // All dependencies included
-
-// ✅ REQUIRED: Debounced inputs
-const debouncedValue = useDebounce(inputValue, 300);
-```
-
----
-
-## **🎯 TYPESCRIPT STANDARDS**
-
-```typescript
-// ✅ REQUIRED: No 'any' types - use specific interfaces
+// ✅ Strict typing - NO 'any'
 interface FlowNode {
   id: string;
   type: 'source' | 'transform' | 'destination';
-  title: string;
   status: 'pending' | 'partial' | 'complete' | 'error';
   position: { x: number; y: number };
   configuration: Record<string, string | number | boolean>;
 }
 
-// ✅ REQUIRED: Discriminated unions for type safety
-type NodeStatus =
-  | { status: 'pending'; progress?: never }
-  | { status: 'partial'; progress: number }
-  | { status: 'complete'; progress?: never }
-  | { status: 'error'; error: string };
+// ✅ Discriminated unions
+type ApiResponse<T> =
+  | { success: true; data: T; error?: never }
+  | { success: false; data?: never; error: string };
 
-// ✅ REQUIRED: Proper error handling with types
-const handleApiCall = async <T>(
-  apiCall: () => Promise<T>
-): Promise<{ data?: T; error?: string }> => {
+// ✅ Error handling
+const handleApiCall = async <T>(apiCall: () => Promise<T>): Promise<ApiResponse<T>> => {
   try {
     const data = await apiCall();
-    return { data };
+    return { success: true, data };
   } catch (error) {
-    return { error: error instanceof Error ? error.message : 'Unknown error' };
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+};
+```
+
+### **Performance Optimization:**
+```typescript
+// ✅ Memoization
+const ExpensiveComponent = React.memo(({ data, onAction }) => {
+  const processedData = useMemo(() => data.map(processItem), [data]);
+  const handleAction = useCallback((id: string) => onAction(id), [onAction]);
+  return <div>{/* JSX */}</div>;
+});
+
+// ✅ Proper dependencies
+useEffect(() => {
+  fetchData();
+}, [dependency1, dependency2]);
+
+// ✅ Debounced inputs
+const debouncedSearch = useCallback(debounce((query) => search(query), 300), []);
+```
+
+---
+
+## **🎨 UI/UX STANDARDS**
+
+### **Mobile-First Responsive:**
+```typescript
+// ✅ Mobile-first classes
+<div className="
+  flex flex-col gap-4 p-4 text-sm
+  sm:gap-6 sm:p-6 sm:text-base
+  md:grid md:grid-cols-2 md:gap-8
+  lg:max-w-6xl lg:mx-auto lg:p-10
+">
+
+// ✅ Touch targets 44px minimum
+<button className="min-h-[44px] min-w-[44px] flex items-center justify-center">
+```
+
+### **Accessibility (WCAG 2.1 AA):**
+```typescript
+// ✅ ARIA support
+<select
+  aria-label="Select source connector"
+  aria-describedby="source-help"
+  aria-required="true"
+>
+<div id="source-help" className="sr-only">Help text</div>
+
+// ✅ Keyboard navigation
+<div
+  onClick={() => setEditing(true)}
+  onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setEditing(true)}
+  tabIndex={0}
+  role="button"
+/>
+
+// ✅ Live regions
+<div aria-live="polite">
+  {loading && <span className="sr-only">Loading...</span>}
+</div>
+```
+
+### **Design System:**
+```typescript
+// ✅ Color system
+const colors = {
+  primary: 'bg-violet-600 text-white hover:bg-violet-500',
+  secondary: 'bg-gray-600 text-white hover:bg-gray-500',
+  success: 'bg-green-600 text-white hover:bg-green-500',
+  error: 'bg-red-600 text-white hover:bg-red-500',
+};
+
+// ✅ Spacing scale
+const spacing = {
+  xs: 'gap-1 p-1',    // 4px
+  sm: 'gap-2 p-2',    // 8px  
+  md: 'gap-4 p-4',    // 16px
+  lg: 'gap-6 p-6',    // 24px
+  xl: 'gap-8 p-8',    // 32px
+};
+```
+
+---
+
+## **🔒 SECURITY & DATA FLOW**
+
+### **Input Validation:**
+```typescript
+// ✅ Validate and sanitize
+const validateInput = (key: string, value: string) => {
+  if (key.includes('email')) return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  if (key.includes('url')) return /^https?:\/\/.+/.test(value);
+  return value.trim().length > 0;
+};
+
+const sanitizeInput = (input: string) => 
+  input.replace(/[<>]/g, '').replace(/javascript:/gi, '').trim();
+
+// ✅ Credential masking
+const displayValue = (key: string, value: string) => {
+  const sensitiveKeys = ['password', 'token', 'secret', 'key'];
+  return sensitiveKeys.some(k => key.toLowerCase().includes(k)) 
+    ? '***'.repeat(Math.min(value.length, 8)) 
+    : value;
+};
+```
+
+### **Smart Field Collection:**
+```typescript
+// ✅ Collection step interface
+interface CollectionStep {
+  stepType: 'node-name' | 'node-fields';
+  nodeType: 'source' | 'transform' | 'destination';
+  question: string;
+  currentStepIndex: number;
+  totalSteps: number;
+}
+
+// ✅ Progressive updates
+const updateCanvasProgressive = (stepType: CollectionStep['stepType'], data: any) => {
+  if (stepType === 'node-name') {
+    canvasStore.setSelectedNode(data.nodeType, data.nodeName);
+  } else {
+    canvasStore.updateNodeConfiguration(data.nodeType, data.fieldName, data.value);
   }
 };
 ```
 
 ---
 
-## **🗃️ ZUSTAND STORE PATTERNS**
+## **🧪 TESTING & ERROR HANDLING**
 
+### **Component Testing:**
 ```typescript
-// ✅ REQUIRED: Zustand store structure
-interface CanvasStore {
-  // State
-  nodes: FlowNode[];
-  selectedNodeId: string | null;
-  
-  // Actions
-  addNode: (node: FlowNode) => void;
-  updateNode: (id: string, updates: Partial<FlowNode>) => void;
-  selectNode: (id: string | null) => void;
-  
-  // Computed values
-  selectedNode: FlowNode | null;
-}
+describe('Button', () => {
+  it('renders with variant classes', () => {
+    render(<Button variant="primary">Click</Button>);
+    expect(screen.getByRole('button')).toHaveClass('btn-primary');
+  });
 
-export const useCanvasStore = create<CanvasStore>()(
-  devtools(
-    persist(
-      (set, get) => ({
-        nodes: [],
-        selectedNodeId: null,
-        
-        addNode: (node) =>
-          set((state) => ({ nodes: [...state.nodes, node] })),
-          
-        updateNode: (id, updates) =>
-          set((state) => ({
-            nodes: state.nodes.map((node) => 
-              node.id === id ? { ...node, ...updates } : node
-            ),
-          })),
-          
-        selectNode: (id) => set({ selectedNodeId: id }),
-        
-        get selectedNode() {
-          const state = get();
-          return state.nodes.find((node) => node.id === state.selectedNodeId) || null;
-        },
-      }),
-      { name: 'canvas-store', version: 1 }
-    ),
-    { name: 'canvas-store' }
-  )
-);
+  it('handles keyboard navigation', () => {
+    const onClick = jest.fn();
+    render(<Button onClick={onClick}>Click</Button>);
+    fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
+    expect(onClick).toHaveBeenCalled();
+  });
+
+  it('meets accessibility requirements', async () => {
+    const { container } = render(<Button>Test</Button>);
+    expect(await axe(container)).toHaveNoViolations();
+  });
+});
 ```
 
----
-
-## **🛡️ ERROR HANDLING**
-
+### **Error Boundaries:**
 ```typescript
-// ✅ REQUIRED: Functional error boundary using react-error-boundary
 import { ErrorBoundary } from 'react-error-boundary';
 
 const ErrorFallback = ({ error, resetErrorBoundary }) => (
-  <div role="alert" className="p-4 border border-red-200 rounded-lg bg-red-50">
-    <h2 className="text-lg font-semibold text-red-800">Something went wrong</h2>
-    <p className="text-red-600 mt-2">{error.message}</p>
-    <button
-      onClick={resetErrorBoundary}
-      className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-    >
-      Try again
-    </button>
+  <div role="alert" className="error-boundary">
+    <h2>Something went wrong</h2>
+    <pre>{error.message}</pre>
+    <button onClick={resetErrorBoundary}>Try again</button>
   </div>
 );
 
-// Usage
 <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => window.location.reload()}>
   <App />
 </ErrorBoundary>
@@ -282,434 +273,84 @@ const ErrorFallback = ({ error, resetErrorBoundary }) => (
 
 ---
 
-## **🧪 TESTING REQUIREMENTS**
+## **🔄 WORKFLOW & QUALITY**
 
-```typescript
-// ✅ REQUIRED: Comprehensive component tests
-describe('Button Component', () => {
-  it('renders with correct variant classes', () => {
-    render(<Button variant="primary">Click me</Button>);
-    expect(screen.getByRole('button')).toHaveClass('btn-primary');
-  });
-
-  it('handles keyboard navigation', () => {
-    const handleClick = jest.fn();
-    render(<Button onClick={handleClick}>Click me</Button>);
-    
-    fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
-    expect(handleClick).toHaveBeenCalled();
-  });
-
-  it('meets accessibility requirements', async () => {
-    const { container } = render(<Button>Accessible Button</Button>);
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-
-  it('has proper touch target size', () => {
-    render(<Button>Touch me</Button>);
-    const button = screen.getByRole('button');
-    const styles = window.getComputedStyle(button);
-    
-    expect(parseInt(styles.minHeight)).toBeGreaterThanOrEqual(44);
-    expect(parseInt(styles.minWidth)).toBeGreaterThanOrEqual(44);
-  });
-});
-```
-
----
-
-## **📁 FILE STRUCTURE**
-
-```
-src/
-├── components/
-│   ├── atoms/              ← Single-purpose components
-│   ├── molecules/          ← 2-3 atom combinations  
-│   └── organisms/          ← Complex business logic components
-├── hooks/                  ← Custom React hooks
-├── lib/                    ← Utility functions
-├── store/                  ← Zustand stores
-├── types/                  ← TypeScript type definitions
-└── routes/                 ← Page components
-```
-
----
-
-## **🎨 STYLING RULES**
-
-```typescript
-// ✅ REQUIRED: Mobile-first utility classes
-<div className="
-  /* Mobile base styles */
-  flex flex-col gap-4 p-4 text-sm
-  
-  /* Small screens (640px+) */
-  sm:gap-6 sm:p-6 sm:text-base
-  
-  /* Medium screens (768px+) */
-  md:grid md:grid-cols-2 md:gap-8 md:p-8
-  
-  /* Large screens (1024px+) */
-  lg:max-w-6xl lg:mx-auto lg:p-10
-">
-
-// ✅ REQUIRED: Consistent spacing using Tailwind scale
-const spacingClasses = {
-  xs: 'gap-1 p-1',      // 4px
-  sm: 'gap-2 p-2',      // 8px  
-  md: 'gap-4 p-4',      // 16px
-  lg: 'gap-6 p-6',      // 24px
-  xl: 'gap-8 p-8',      // 32px
-};
-
-// ✅ REQUIRED: Color system using design tokens
-const colorClasses = {
-  primary: 'bg-blue-600 text-white hover:bg-blue-500',
-  secondary: 'bg-purple-500 text-white hover:bg-purple-400', 
-  success: 'bg-green-500 text-white hover:bg-green-400',
-  warning: 'bg-orange-500 text-white hover:bg-orange-400',
-  error: 'bg-red-500 text-white hover:bg-red-400',
-};
-```
-
----
-
-## **🔄 DATA FLOW PATTERNS**
-
-```typescript
-// ✅ REQUIRED: Node type definitions
-interface FlowNode {
-  id: string;
-  type: 'source' | 'transform' | 'destination';
-  title: string;
-  status: 'pending' | 'partial' | 'complete' | 'error';
-  position: { x: number; y: number };
-  configuration: Record<string, unknown>;
-}
-
-// ✅ REQUIRED: Status color mapping
-const getNodeColor = (type: FlowNode['type'], status: FlowNode['status']) => {
-  const typeColors = {
-    source: 'blue',      // Blue for data sources
-    transform: 'purple', // Purple for transformations  
-    destination: 'green', // Green for destinations
-  };
-  
-  const statusColors = {
-    pending: 'orange',   // Orange for pending
-    partial: 'blue',     // Blue for partial
-    complete: 'green',   // Green for complete
-    error: 'red',        // Red for error
-  };
-  
-  return status === 'pending' ? statusColors[status] : typeColors[type];
-};
-
-// ✅ REQUIRED: Auto-scroll behavior
-const useAutoScroll = (messages: Message[]) => {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-  
-  return messagesEndRef;
-};
-```
-
----
-
-## **📊 QUALITY GATES**
-
+### **Post-Task Protocol:**
 ```bash
-# ✅ REQUIRED: All checks must pass before commit
-npm run lint          # ESLint: 0 errors, 0 warnings
-npm run build         # TypeScript: 0 compilation errors  
-npm run test:unit     # Unit tests: All passing
-npm run test:e2e      # E2E tests: Critical flows passing
-npm audit             # Security: No high/critical vulnerabilities
-```
-
----
-
-## **🔧 GIT COMMIT STANDARDS**
-
-```bash
-# ✅ REQUIRED: Conventional commit format
-feat: add drag and drop functionality to canvas nodes
-fix: resolve accessibility issue with keyboard navigation  
-docs: update component documentation for Button
-style: improve mobile responsiveness for chat interface
-refactor: extract common validation logic to utility function
-test: add E2E tests for flow creation workflow
-```
-
----
-
-## **📖 DOCUMENTATION REQUIREMENTS**
-
-```typescript
-/**
- * Button component following atomic design principles
- *
- * @example
- * ```tsx
- * <Button variant="primary" size="lg" onClick={handleClick}>
- *   Click me
- * </Button>
- * ```
- *
- * @param variant - Visual style variant
- * @param size - Size of the button (affects padding and font size)  
- * @param children - Button content
- * @param onClick - Click handler function
- */
-interface ButtonProps {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'destructive';
-  size?: 'sm' | 'md' | 'lg';
-  children: React.ReactNode;
-  onClick?: () => void;
-}
-```
-
----
-
-## **🎯 DEFINITION OF DONE**
-
-A feature is complete when:
-
-- [ ] **Functionality**: All requirements implemented and working
-- [ ] **Quality**: Passes all automated quality checks  
-- [ ] **Accessibility**: WCAG 2.1 AA compliant
-- [ ] **Performance**: Meets performance targets
-- [ ] **Security**: Input validation and sanitization implemented
-- [ ] **Testing**: Unit and E2E tests passing
-- [ ] **Documentation**: Component and API documentation complete
-- [ ] **Review**: Code review approved by team member
-
----
-
-## **📏 QUALITY METRICS**
-
-- **ESLint**: 0 errors, 0 warnings
-- **TypeScript**: 0 compilation errors
-- **Test Coverage**: > 80%
-- **Accessibility**: 100% axe-core compliance  
-- **Performance**: Lighthouse score > 90
-- **Bundle Size**: < 500KB gzipped
-
----
-
-## **🔄 SMART FIELD COLLECTION PATTERNS**
-
-### **Node-First Collection Flow**
-```typescript
-// ✅ REQUIRED: Always check for dummy nodes first
-const collectionPriority = [
-  'source-node-name',      // If source is dummy
-  'source-fields',         // If source is real but has empty fields
-  'transform-node-name',   // If transform is dummy
-  'transform-fields',      // If transform is real but has empty fields
-  'destination-node-name', // If destination is dummy  
-  'destination-fields'     // If destination is real but has empty fields
-];
-
-// ✅ REQUIRED: Canvas state analysis before collection
-const analyzeBeforeCollection = (canvasState: CanvasState) => {
-  const analysis = {
-    needsSourceName: canvasState.selectedSource.includes('Dummy'),
-    needsTransformName: canvasState.selectedTransform.includes('Dummy'),
-    needsDestinationName: canvasState.selectedDestination.includes('Dummy'),
-    needsSourceFields: hasEmptyMandatoryFields('source', canvasState.selectedSource),
-    needsTransformFields: hasEmptyMandatoryFields('transform', canvasState.selectedTransform),
-    needsDestinationFields: hasEmptyMandatoryFields('destination', canvasState.selectedDestination),
-  };
-  return determineFirstStep(analysis);
-};
-
-// ✅ REQUIRED: Progressive canvas updates
-const updateCanvasProgressive = (stepType: 'node-name' | 'node-fields', data: any) => {
-  if (stepType === 'node-name') {
-    canvasStore.setSelectedNode(data.nodeType, data.nodeName);
-    initializeEmptyCredentials(data.nodeType, data.nodeName);
-  } else {
-    canvasStore.updateNodeConfiguration(data.nodeType, data.fieldName, data.value);
-  }
-};
-
-// ✅ REQUIRED: Field collection orchestrator
-interface CollectionStep {
-  stepType: 'node-name' | 'node-fields';
-  nodeType: 'source' | 'transform' | 'destination';
-  systemName?: string;
-  currentField?: string;
-  question: string;
-  currentStepIndex: number;
-  totalSteps: number;
-}
-
-// ✅ REQUIRED: Smart question generation
-const generateContextualQuestion = (step: CollectionStep): string => {
-  if (step.stepType === 'node-name') {
-    return `What ${step.nodeType} system do you want to use? (e.g., ${getExamples(step.nodeType)})`;
-  } else {
-    return `What's your ${step.systemName} ${step.currentField}? ${getFieldExample(step.currentField)}`;
-  }
-};
-
-// ✅ REQUIRED: Field validation
-const validateFieldInput = (fieldName: string, value: string): ValidationResult => {
-  if (fieldName.includes('url') && !value.startsWith('http')) {
-    return { isValid: false, error: 'URL should start with http:// or https://' };
-  }
-  if (fieldName.includes('email') && !value.includes('@')) {
-    return { isValid: false, error: 'Please provide a valid email address' };
-  }
-  return { isValid: true };
-};
-```
-
-### **Smart Collection Rules**
-1. **DUMMY NODE PRIORITY** - Always collect node names before field details
-2. **CANVAS STATE ANALYSIS** - Analyze what's missing before starting collection
-3. **ONE QUESTION AT A TIME** - Never ask for multiple things simultaneously
-4. **PROGRESSIVE UPDATES** - Update canvas after each input (node name or field)
-5. **CONTEXT AWARENESS** - Questions should be specific to current step
-6. **CONNECTOR CATALOG INTEGRATION** - Use catalog for field requirements and validation
-7. **FIELD VALIDATION** - Validate input format and provide helpful error messages
-8. **COMPLETION DETECTION** - Automatically detect when collection is complete
-
----
-
-## **🚀 POST-TASK COMPLETION PROTOCOL**
-
-### **REQUIRED: After finishing any development task**
-```bash
-# ✅ STEP 1: Run the server and check for errors
+# ✅ Run development server
 npm run dev
 
-# ✅ STEP 2: Report server status
-# - ✅ Server running without errors
-# - ❌ Server has errors (list them)
-
-# ✅ STEP 3: Do NOT run test cases unless explicitly requested
-# ❌ Do NOT run: npm run test, npx playwright test, etc.
-
-# ✅ STEP 4: Do NOT commit unless explicitly requested  
-# ❌ Do NOT run: git add, git commit, git push
-
-# ✅ STEP 5: Wait for user instructions
+# ✅ Report server status (✅ running / ❌ errors)
+# ✅ Quality report auto-generated on commit
+# ✅ Wait for user instructions (no tests/commits unless requested)
 ```
 
-### **User Permission Required For:**
-- Running any test cases
+### **Testing Protocol (When Requested):**
+```bash
+taskkill /f /im node.exe          # Close servers
+cd Nexla && npm run dev           # Fresh server
+npm run lint                      # ESLint check
+npm run build                     # TypeScript check
+npm audit                         # Security check
+npm run reports:serve             # Quality dashboard
+```
+
+### **Git Standards:**
+```bash
+feat: add drag and drop to canvas nodes
+fix: resolve accessibility keyboard navigation
+docs: update Button component documentation
+style: improve mobile responsiveness
+refactor: extract validation logic
+test: add E2E tests for flow creation
+```
+
+### **Quality Gates (Must Pass):**
+- **ESLint**: 0 errors, 0 warnings
+- **TypeScript**: 0 compilation errors, no 'any' types
+- **Accessibility**: 100% axe-core compliance
+- **Performance**: Lighthouse > 90, bundle < 500KB
+- **Security**: No high/critical vulnerabilities
+- **Mobile**: Responsive 320px-1024px+
+
+### **Definition of Done:**
+- [ ] Functionality implemented and working
+- [ ] Code quality passes (ESLint, TypeScript)
+- [ ] Accessibility WCAG 2.1 AA compliant
+- [ ] Performance targets met
+- [ ] Security validation implemented
+- [ ] Unit tests >80% coverage
+- [ ] Mobile responsive verified
+- [ ] Documentation complete
+
+---
+
+## **🎊 SMART COLLECTION RULES**
+
+1. **DUMMY NODE PRIORITY** - Collect node names before fields
+2. **CANVAS STATE ANALYSIS** - Analyze missing components first
+3. **ONE QUESTION AT A TIME** - Never ask multiple things
+4. **PROGRESSIVE UPDATES** - Update canvas after each input
+5. **CONTEXT AWARENESS** - Questions specific to current step
+6. **FIELD VALIDATION** - Validate format with helpful errors
+7. **COMPLETION DETECTION** - Auto-detect when complete
+
+---
+
+## **🎯 FINAL REMINDERS**
+
+### **User Permission Required:**
+- Running tests or quality checks
 - Git commits and pushes
 - Major refactoring
-- Breaking changes
+- Installing dependencies
 
----
+### **Always Remember:**
+- **Mobile-first**: 320px screens first
+- **Accessibility**: ARIA labels required
+- **Performance**: Memoize expensive operations
+- **Security**: Validate all inputs
+- **TypeScript**: No 'any' types
+- **Atomic Design**: Correct component hierarchy
 
-## **🧪 MANDATORY TESTING PROTOCOL**
-
-### **REQUIRED: After ANY development task**
-```bash
-# ✅ STEP 1: Close all servers first
-taskkill /f /im node.exe
-
-# ✅ STEP 2: Start fresh development server
-cd Nexla; npm run dev
-
-# ✅ STEP 3: Quality report is auto-generated on commit
-# No manual action needed - happens automatically during git commit
-
-# ✅ STEP 4: View quality dashboard (optional)
-npm run reports:serve   # Serves dashboard at http://localhost:3001
-
-# ✅ STEP 5: Individual checks (if needed)
-npm run lint          # ESLint: 0 errors, 0 warnings
-npm run build         # TypeScript: 0 compilation errors
-npm audit             # Security: No high/critical vulnerabilities
-```
-
-### **🔍 ACCESSIBILITY TESTING REQUIREMENTS**
-```bash
-# ✅ REQUIRED: Test with axe-core
-npm run test:a11y
-
-# ✅ REQUIRED: Manual accessibility checks
-# - Keyboard navigation (Tab, Enter, Space, Arrow keys)
-# - Screen reader compatibility (NVDA/JAWS simulation)
-# - Color contrast ratio 4.5:1 minimum
-# - Touch targets 44px minimum
-# - Focus indicators visible
-# - ARIA labels and roles present
-```
-
-### **📊 PERFORMANCE TESTING REQUIREMENTS**
-```bash
-# ✅ REQUIRED: Bundle analysis
-npm run build:analyze
-
-# ✅ REQUIRED: Performance metrics
-# - Time to Interactive < 3s
-# - Cumulative Layout Shift < 0.1
-# - Memory usage monitoring
-# - React DevTools Profiler analysis
-```
-
-### **🔒 SECURITY TESTING REQUIREMENTS**
-```bash
-# ✅ REQUIRED: Security audit
-npm audit --audit-level=moderate
-
-# ✅ REQUIRED: Input validation tests
-# - XSS prevention validation
-# - CSRF protection verification
-# - Input sanitization testing
-# - Content Security Policy validation
-```
-
-### **📱 MOBILE TESTING REQUIREMENTS**
-```bash
-# ✅ REQUIRED: Responsive design validation
-# - Test on mobile viewport (320px-768px)
-# - Test on tablet viewport (768px-1024px)
-# - Test on desktop viewport (1024px+)
-# - Touch interaction testing
-# - Scroll behavior validation
-```
-
-### **⚠️ TESTING FAILURE PROTOCOL**
-```bash
-# ❌ IF ANY TEST FAILS:
-# 1. STOP development immediately
-# 2. Fix the failing test
-# 3. Re-run ALL tests
-# 4. Only proceed when ALL tests pass
-# 5. Document the fix in commit message
-```
-
-### **🎯 QUALITY GATES (MUST PASS)**
-- **ESLint**: 0 errors, 0 warnings
-- **TypeScript**: 0 compilation errors
-- **Accessibility**: 100% axe-core compliance
-- **Performance**: Lighthouse score > 90
-- **Security**: No high/critical vulnerabilities
-- **Mobile**: Responsive on all breakpoints
-- **Bundle Size**: < 500KB gzipped
-
-### **📋 PRE-COMMIT CHECKLIST**
-- [ ] All servers closed and restarted
-- [ ] ESLint passes with 0 errors/warnings
-- [ ] TypeScript compiles without errors
-- [ ] Accessibility tests pass (axe-core)
-- [ ] Performance metrics meet targets
-- [ ] Security audit passes
-- [ ] Mobile responsiveness verified
-- [ ] Manual testing completed
-- [ ] Code review completed
-
----
-
-**🎊 USE THIS DOCUMENT FOR EVERY CODING SESSION TO ENSURE CONSISTENCY AND QUALITY**
+**🎊 USE FOR EVERY CODING SESSION TO ENSURE QUALITY**

@@ -2,528 +2,186 @@
 alwaysApply: true
 ---
 
-# 🔍 **CURSOR CODE REVIEW RULES**
+# 🔍 **CODE REVIEW RULES**
 
-_Comprehensive code quality rules based on CODE_QUALITY_REVIEW.md analysis_
+Expert code reviewer for React, TypeScript, and modern web development.
 
-## **📋 GENERAL PRINCIPLES**
+---
 
-You are an expert code reviewer specializing in React, TypeScript, and modern web development best practices. When reviewing code, apply these comprehensive quality standards derived from our codebase analysis.
+## **🏗️ ATOMIC DESIGN**
 
-## **🏗️ 1. ATOMIC DESIGN PRINCIPLES**
+### **Component Classification:**
+- **ATOMS**: Button, Input, Label (single responsibility, no business logic)
+- **MOLECULES**: FormField, MessageBubble (2-3 atoms, single purpose)
+- **ORGANISMS**: ChatInterface, Canvas (complex logic, multiple components)
 
-### **Component Classification Rules:**
-
-- **ATOMS**: Basic building blocks (Button, Input, Label, Icon, StatusPill)
-  - Single responsibility
-  - No business logic
-  - Highly reusable
-  - No dependencies on other components
-
-- **MOLECULES**: Simple combinations of atoms (FormField, NodeHeader, StatusBezierEdge)
-  - Combine 2-3 atoms
-  - Single functional purpose
-  - Reusable across contexts
-
-- **ORGANISMS**: Complex components (SourceNode, TransformNode, Canvas, FlowCanvasRF)
-  - Business logic containers
-  - Multiple molecules/atoms
-  - Context-specific functionality
-
-### **Review Checklist:**
+### **Review Actions:**
+1. Verify component placement in correct atomic category
+2. Check for missing atomic components
+3. Ensure proper separation of concerns
+4. Validate reusability
 
 ```typescript
 // ✅ GOOD: Proper atomic structure
-// atoms/Button.tsx - Simple, reusable
-export function Button({ variant, children, ...props }) {
-  return <button className={getVariantClasses(variant)} {...props}>{children}</button>;
-}
+export const Button = ({ variant, children, ...props }) => (
+  <button className={getVariantClasses(variant)} {...props}>{children}</button>
+);
 
-// molecules/FormField.tsx - Combines atoms
-export function FormField({ label, input, error }) {
-  return (
-    <div>
-      <Label>{label}</Label>
-      <Input {...input} />
-      {error && <ErrorMessage>{error}</ErrorMessage>}
-    </div>
-  );
-}
-
-// ❌ BAD: Complex component in wrong category
-// atoms/ComplexForm.tsx - Should be organism
-export function ComplexForm() {
-  // Multiple business logic, API calls, state management
-}
+// ❌ BAD: Complex component in atoms
+export function ComplexForm() { /* business logic */ }
 ```
-
-### **Required Actions:**
-
-1. **Verify component placement** in correct atomic category
-2. **Check for missing atomic components** (Input, Label, FormField)
-3. **Ensure proper separation of concerns**
-4. **Validate component reusability**
 
 ---
 
-## **📱 2. MOBILE-FIRST RESPONSIVE DESIGN**
+## **📱 RESPONSIVE & ACCESSIBILITY**
 
-### **CSS Class Rules:**
+### **Mobile-First Requirements:**
+- Use mobile-first CSS classes: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`
+- Minimum 44px touch targets: `min-h-[44px] min-w-[44px]`
+- Test breakpoints: 320px, 640px, 768px, 1024px+
 
+### **WCAG 2.1 AA Compliance:**
 ```typescript
-// ✅ GOOD: Mobile-first approach
-<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-
-// ❌ BAD: Desktop-first approach
-<div className="grid grid-cols-3 md:grid-cols-1">
-```
-
-### **Touch Target Requirements:**
-
-- **Minimum 44px** for all interactive elements
-- **Proper spacing** between touch targets
-- **Visual feedback** for touch interactions
-
-```typescript
-// ✅ GOOD: Proper touch targets
-<button className="min-h-[44px] min-w-[44px] flex items-center justify-center">
-
-// ❌ BAD: Too small for touch
-<button className="text-sm p-1">
-```
-
-### **Breakpoint Strategy:**
-
-- **xs**: 320px (Mobile small)
-- **sm**: 640px (Mobile large)
-- **md**: 768px (Tablet)
-- **lg**: 1024px (Desktop)
-- **xl**: 1280px (Large desktop)
-- **2xl**: 1536px (Extra large)
-
-### **Review Checklist:**
-
-1. **All CSS classes use mobile-first approach**
-2. **Touch targets meet 44px minimum**
-3. **Responsive behavior tested across breakpoints**
-4. **No horizontal scrolling on mobile**
-
----
-
-## **♿ 3. ACCESSIBILITY (WCAG 2.1 AA)**
-
-### **ARIA Requirements:**
-
-```typescript
-// ✅ GOOD: Comprehensive ARIA support
+// ✅ REQUIRED: ARIA support
 <select
-  value={selectedSource}
-  onChange={handleSourceChange}
   aria-label="Select source connector"
   aria-describedby="source-help"
-  id="source-selector"
+  aria-required="true"
 >
-  <option value="">Choose a source</option>
-  {connectors.map(name => (
-    <option key={name} value={name}>{name}</option>
-  ))}
-</select>
-<div id="source-help" className="sr-only">
-  Choose the data source for your flow
-</div>
+<div id="source-help" className="sr-only">Help text</div>
 
-// ❌ BAD: No accessibility attributes
-<select value={selectedSource} onChange={handleSourceChange}>
-  {connectors.map(name => <option key={name} value={name}>{name}</option>)}
-</select>
-```
-
-### **Keyboard Navigation:**
-
-```typescript
-// ✅ GOOD: Full keyboard support
+// ✅ REQUIRED: Keyboard navigation
 <div
   onClick={() => setEditing(true)}
   onKeyDown={(e) => e.key === 'Enter' && setEditing(true)}
   tabIndex={0}
   role="button"
-  aria-label="Edit field value"
->
+/>
 
-// ❌ BAD: Mouse-only interaction
-<div onClick={() => setEditing(true)}>
-```
-
-### **Screen Reader Support:**
-
-```typescript
-// ✅ GOOD: Live regions for dynamic content
-<div aria-live="polite" aria-atomic="true">
-  {status === 'thinking' && (
-    <div>
-      <Loader />
-      <span className="sr-only">AI is processing your request</span>
-    </div>
-  )}
+// ✅ REQUIRED: Live regions
+<div aria-live="polite">
+  {loading && <span className="sr-only">Loading...</span>}
 </div>
-
-// ❌ BAD: No screen reader feedback
-{status === 'thinking' && <Loader />}
 ```
-
-### **Review Checklist:**
-
-1. **All interactive elements have ARIA labels**
-2. **Proper focus management and tab order**
-3. **Screen reader announcements for dynamic content**
-4. **Color contrast meets 4.5:1 ratio**
-5. **Full keyboard navigation support**
-6. **Form validation accessible to screen readers**
 
 ---
 
-## **🔒 4. SECURITY & VULNERABILITY PREVENTION**
+## **🔒 SECURITY & PERFORMANCE**
 
 ### **Input Validation:**
-
 ```typescript
-// ✅ GOOD: Proper input validation and sanitization
-const validateInput = (key: string, value: string): boolean => {
+// ✅ REQUIRED: Validate and sanitize
+const validateInput = (key: string, value: string) => {
   if (key.includes('email')) return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   if (key.includes('url')) return /^https?:\/\/.+/.test(value);
-  if (key.includes('password')) return value.length >= 8;
   return value.trim().length > 0;
 };
 
-const sanitizeInput = (input: string): string => {
-  return input
-    .replace(/[<>]/g, '') // Remove HTML tags
-    .replace(/javascript:/gi, '') // Remove javascript: protocol
-    .replace(/on\w+\s*=/gi, '') // Remove event handlers
-    .trim();
-};
-
-// ❌ BAD: No validation or sanitization
-onEditValue?.(nodeId, k, finalValue); // Direct use of user input
+const sanitizeInput = (input: string) => 
+  input.replace(/[<>]/g, '').replace(/javascript:/gi, '').trim();
 ```
 
-### **JSON Parsing Security:**
-
+### **Performance Optimization:**
 ```typescript
-// ✅ GOOD: Safe JSON parsing with validation
-onChange={(e) => {
-  try {
-    const parsed = JSON.parse(e.target.value);
-    const sanitized = sanitizeFlowConfiguration(parsed);
-    if (validateFlowConfiguration(sanitized)) {
-      loadFlowConfiguration(sanitized);
-    } else {
-      setError('Invalid configuration format');
-    }
-  } catch (error) {
-    setError('Invalid JSON format');
-  }
-}}
+// ✅ REQUIRED: Memoization
+const ExpensiveComponent = React.memo(({ data, onAction }) => {
+  const processedData = useMemo(() => data.map(processItem), [data]);
+  const handleAction = useCallback((id) => onAction(id), [onAction]);
+  return <div>{/* JSX */}</div>;
+});
 
-// ❌ BAD: Unsafe JSON parsing
-onChange={(e) => {
-  try {
-    const parsed = JSON.parse(e.target.value);
-    loadFlowConfiguration(parsed); // No validation!
-  } catch {}
-}}
+// ✅ REQUIRED: Proper dependencies
+useEffect(() => {
+  fetchData();
+}, [dependency1, dependency2]);
 ```
-
-### **Credential Protection:**
-
-```typescript
-// ✅ GOOD: Credential masking in UI
-const displayCredentials = (value: string, key: string) => {
-  const sensitiveKeys = ['password', 'token', 'secret', 'key'];
-  if (sensitiveKeys.some((k) => key.toLowerCase().includes(k))) {
-    return '***'.repeat(Math.min(value.length, 8));
-  }
-  return value;
-};
-
-// ❌ BAD: Plain text credentials
-const testData = {
-  password: 'mypassword123', // Exposed in code/UI
-  apiKey: 'sk-1234567890abcdef',
-};
-```
-
-### **Review Checklist:**
-
-1. **All user inputs are validated and sanitized**
-2. **JSON parsing includes schema validation**
-3. **Sensitive data is masked in UI**
-4. **No credentials hardcoded in source**
-5. **CSP headers implemented**
-6. **XSS prevention measures in place**
 
 ---
 
-## **📏 5. CODE QUALITY & TYPESCRIPT**
+## **📏 CODE QUALITY**
 
-### **ESLint Compliance:**
-
+### **TypeScript Standards:**
 ```typescript
-// ✅ GOOD: Clean, properly typed code
+// ✅ GOOD: Proper typing
 interface CanvasProps {
   onSourceChange?: (value: string) => void;
-  onDestinationChange?: (value: string) => void;
   showControls?: boolean;
   className?: string;
 }
 
-export function Canvas({
-  onSourceChange,
-  onDestinationChange,
-  showControls = true,
-  className = '',
-}: CanvasProps) {
-  // All props used, proper typing
-}
-
-// ❌ BAD: Unused variables, any types
-export function Canvas(props: any) {
-  const { onSourceChange, unusedProp, anotherUnused } = props; // Unused variables
-  // Missing type safety
-}
+// ❌ BAD: Any types
+export function Canvas(props: any) { }
 ```
 
-### **React Hooks Rules:**
-
-```typescript
-// ✅ GOOD: Proper hook dependencies
-const createDynamicNodes = useCallback(() => {
-  // Implementation using selectedSource, nodeValues
-}, [selectedSource, selectedDestination, selectedTransform, nodeValues]);
-
-useEffect(() => {
-  // Effect using createDynamicNodes
-}, [createDynamicNodes]);
-
-// ❌ BAD: Missing or incorrect dependencies
-const createDynamicNodes = useCallback(() => {
-  // Uses selectedSource but not in deps
-}, []); // Missing dependencies!
-```
-
-### **TypeScript Best Practices:**
-
-```typescript
-// ✅ GOOD: Proper interfaces and types
-interface FlowConfiguration {
-  nodes: {
-    source: NodeConfig;
-    destination: NodeConfig;
-    transform: NodeConfig;
-  };
-}
-
-// ❌ BAD: Using any types
-const config: any = getConfiguration(); // Avoid any!
-```
-
-### **Review Checklist:**
-
-1. **Zero ESLint errors and warnings**
-2. **No unused variables or imports**
-3. **Proper React Hook dependencies**
-4. **TypeScript strict mode compliance**
-5. **No `any` types unless absolutely necessary**
-6. **Consistent code formatting**
+### **ESLint Requirements:**
+- Zero errors and warnings
+- No unused variables or imports
+- Proper React Hook dependencies
+- No `any` types unless necessary
 
 ---
 
-## **⚡ 6. PERFORMANCE OPTIMIZATION**
+## **🧪 TESTING**
 
-### **Memoization Rules:**
-
+### **Required Tests:**
 ```typescript
-// ✅ GOOD: Proper memoization of expensive calculations
-const sourceConnectors = useMemo(
-  () => [
-    'Dummy Source',
-    ...Object.keys(connectorCatalog).filter((name) => connectorCatalog[name].roles?.source),
-  ],
-  [connectorCatalog]
-);
-
-const memoizedNodes = useMemo(() => dynamicFlow.nodes as FlowNodeInput[], [dynamicFlow.nodes]);
-
-// ❌ BAD: Expensive calculations in render
-const sourceConnectors = [
-  'Dummy Source',
-  ...Object.keys(connectorCatalog).filter((name) => connectorCatalog[name].roles?.source),
-]; // Recalculated every render!
-```
-
-### **Component Optimization:**
-
-```typescript
-// ✅ GOOD: Memoized component
-const MessageBubble = React.memo(({ message, type, highlight }) => {
-  return (
-    <div className={`message ${type} ${highlight ? 'highlight' : ''}`}>
-      {message}
-    </div>
-  );
-});
-
-// ❌ BAD: Unnecessary re-renders
-const MessageBubble = ({ message, type, highlight }) => {
-  // Re-renders on every parent update
-  return <div className={`message ${type} ${highlight ? 'highlight' : ''}`}>{message}</div>;
-};
-```
-
-### **Review Checklist:**
-
-1. **Expensive calculations are memoized**
-2. **Components use React.memo where appropriate**
-3. **Proper useCallback for event handlers**
-4. **No object/array creation in render**
-5. **Lazy loading for routes and large components**
-
----
-
-## **🧪 7. TESTING REQUIREMENTS**
-
-### **Unit Test Standards:**
-
-```typescript
-// ✅ GOOD: Comprehensive component testing
-describe('Button Component', () => {
-  it('renders with correct variant classes', () => {
-    render(<Button variant="primary">Click me</Button>);
-    expect(screen.getByRole('button')).toHaveClass('bg-violet-600');
+describe('Button', () => {
+  it('renders with variant classes', () => {
+    render(<Button variant="primary">Click</Button>);
+    expect(screen.getByRole('button')).toHaveClass('btn-primary');
   });
 
   it('handles keyboard navigation', () => {
-    const handleClick = jest.fn();
-    render(<Button onClick={handleClick}>Click me</Button>);
+    const onClick = jest.fn();
+    render(<Button onClick={onClick}>Click</Button>);
     fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
-    expect(handleClick).toHaveBeenCalled();
+    expect(onClick).toHaveBeenCalled();
   });
 
   it('meets accessibility requirements', async () => {
-    const { container } = render(<Button>Accessible Button</Button>);
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-});
-
-// ❌ BAD: Missing or inadequate tests
-describe('Button', () => {
-  it('renders', () => {
-    render(<Button />); // Minimal test coverage
+    const { container } = render(<Button>Test</Button>);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });
 ```
 
-### **Review Checklist:**
-
-1. **Unit tests for all components**
-2. **Integration tests for user flows**
-3. **Accessibility testing with axe-core**
-4. **Performance testing for critical paths**
-5. **Security testing for input validation**
-
 ---
 
-## **🛠️ 8. DEVELOPMENT WORKFLOW**
+## **📋 REVIEW CHECKLIST**
 
-### **Pre-commit Requirements:**
+### **🔥 Critical (Block PR):**
+- [ ] ESLint: 0 errors/warnings
+- [ ] Security: Input validation
+- [ ] Accessibility: ARIA labels, keyboard nav
+- [ ] TypeScript: No `any` types
 
-```json
-// package.json - Required tooling setup
-{
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "pre-push": "npm run test:unit && npm run lint"
-    }
-  },
-  "lint-staged": {
-    "*.{ts,tsx}": ["eslint --fix", "prettier --write"],
-    "*.{css,scss}": ["stylelint --fix"],
-    "*.{json,md}": ["prettier --write"]
-  }
-}
-```
+### **⚠️ High Priority:**
+- [ ] Atomic Design: Correct component categories
+- [ ] Mobile-First: Responsive CSS
+- [ ] Performance: Memoization
+- [ ] Testing: Unit tests for new components
 
-### **Review Checklist:**
-
-1. **Husky pre-commit hooks configured**
-2. **lint-staged for automatic formatting**
-3. **Stylelint for CSS/Tailwind validation**
-4. **Prettier for consistent formatting**
-5. **Automated dependency updates**
-
----
-
-## **📋 9. CODE REVIEW CHECKLIST**
-
-When reviewing any code changes, verify ALL of the following:
-
-### **🔥 Critical Issues (Block PR):**
-
-- [ ] **ESLint**: Zero errors and warnings
-- [ ] **Security**: Input validation and sanitization
-- [ ] **Accessibility**: ARIA labels and keyboard navigation
-- [ ] **TypeScript**: No `any` types, proper interfaces
-
-### **⚠️ High Priority (Request Changes):**
-
-- [ ] **Atomic Design**: Components in correct categories
-- [ ] **Mobile-First**: Proper responsive CSS classes
-- [ ] **Performance**: Memoization for expensive operations
-- [ ] **Testing**: Unit tests for new components
-
-### **📈 Medium Priority (Suggest Improvements):**
-
-- [ ] **Documentation**: Component props and usage
-- [ ] **Error Handling**: Proper error boundaries
-- [ ] **Code Organization**: Logical file structure
-- [ ] **Consistency**: Follows established patterns
-
-### **✅ Nice to Have (Optional):**
-
-- [ ] **Performance**: Bundle size optimization
-- [ ] **UX**: Loading states and transitions
-- [ ] **Monitoring**: Error tracking integration
-- [ ] **Analytics**: User interaction tracking
+### **📈 Medium Priority:**
+- [ ] Documentation: Component props
+- [ ] Error Handling: Boundaries
+- [ ] Code Organization: File structure
+- [ ] Consistency: Established patterns
 
 ---
 
 ## **🎯 QUALITY GATES**
 
-### **Minimum Standards (Must Pass):**
+### **Must Pass:**
+- Code Quality: 9/10 (Zero ESLint errors)
+- Security: 8/10 (Input validation, XSS prevention)
+- Accessibility: 8/10 (WCAG 2.1 AA)
+- Mobile-First: 8/10 (Responsive, touch targets)
 
-1. **Code Quality**: 9/10 (Zero ESLint errors)
-2. **Security**: 8/10 (Input validation, XSS prevention)
-3. **Accessibility**: 8/10 (WCAG 2.1 AA compliance)
-4. **Mobile-First**: 8/10 (Responsive design, touch targets)
+### **Review Process:**
+1. Automated: ESLint, TypeScript, Tests
+2. Security: Input validation, XSS prevention
+3. Accessibility: ARIA, keyboard navigation
+4. Performance: Memoization, bundle size
+5. Manual: Cross-browser, mobile testing
 
-### **Target Standards (Goal):**
-
-1. **Code Quality**: 10/10 (Perfect linting, TypeScript)
-2. **Security**: 9/10 (Comprehensive protection)
-3. **Accessibility**: 9/10 (Full WCAG compliance)
-4. **Performance**: 9/10 (Optimized rendering)
-
----
-
-## **🚀 REVIEW PROCESS**
-
-1. **Automated Checks**: ESLint, TypeScript, Tests
-2. **Security Review**: Input validation, XSS prevention
-3. **Accessibility Audit**: ARIA, keyboard navigation
-4. **Performance Analysis**: Memoization, bundle size
-5. **Code Quality**: Atomic design, best practices
-6. **Manual Testing**: Cross-browser, mobile devices
-
-**Remember: Quality is not negotiable. Every line of code should meet these standards before merging.**
+**Quality is not negotiable. Every line must meet standards before merging.**
