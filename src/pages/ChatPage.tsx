@@ -1,20 +1,24 @@
 import { useChatStore, processPrefillFromLanding } from '../store/chat';
-import { MessageBubble } from '../components/molecules/MessageBubble';
 import { Canvas } from '../components/organisms/Canvas';
 import { Footer } from '../components/atoms/Footer';
-import { Bot, SendHorizontal } from 'lucide-react';
+import { ChatHeader } from '../components/molecules/ChatHeader';
+import { ChatInput } from '../components/molecules/ChatInput';
+import { MessageArea } from '../components/organisms/MessageArea';
+import { ScrollIndicator } from '../components/atoms/ScrollIndicator';
+import { BackToTopButton } from '../components/atoms/BackToTopButton';
 import { useEffect, useRef, useState } from 'react';
 
 export function ChatPage() {
   const { messages, input, setInput, sendWithCanvasUpdate, aiThinking, highlightId } =
     useChatStore();
-  const endRef = useRef<HTMLDivElement | null>(null);
-  const composerRef = useRef<HTMLTextAreaElement | null>(null);
   const headerRef = useRef<HTMLElement | null>(null);
   const inputAreaRef = useRef<HTMLFormElement | null>(null);
   
   // State for dynamic message area height
   const [messageAreaMaxHeight, setMessageAreaMaxHeight] = useState<string>('calc(100vh - 280px)');
+  
+  // State for showing back to top button
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   // Process prefill from landing page on mount
   useEffect(() => {
@@ -57,136 +61,83 @@ export function ChatPage() {
     return () => clearTimeout(timeoutId);
   }, [input]);
 
-  // Auto-scroll to last message on mount and when messages change
+  // Show/hide back to top button based on scroll position
   useEffect(() => {
-    // Use setTimeout to ensure DOM has updated
-    const timeoutId = setTimeout(() => {
-      endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    }, 50);
-    return () => clearTimeout(timeoutId);
-  }, [messages.length]);
-  
-  // Initial scroll on mount
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      endRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
-    }, 100);
-    return () => clearTimeout(timeoutId);
+    const handleScroll = () => {
+      // Show button when user has scrolled down more than one viewport height
+      setShowBackToTop(window.scrollY > window.innerHeight);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  
-  // Auto-resize textarea and maintain scroll position
-  useEffect(() => {
-    const el = composerRef.current;
-    if (!el) return;
-    
-    // Reset height to calculate new height
-    el.style.height = 'auto';
-    const newHeight = Math.min(el.scrollHeight, 120); // Max height of 120px
-    el.style.height = newHeight + 'px';
-    
-    // Keep last message visible as composer grows
-    setTimeout(() => {
-      endRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
-    }, 10);
-  }, [input]);
 
   return (
-    <div className="h-screen w-screen grid grid-rows-[auto_1fr_auto] overflow-hidden">
-      {/* Chat header */}
-      <header ref={headerRef} className="border-b bg-violet-600 text-white">
-        <div className="w-full px-4 py-3 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-white/10 grid place-items-center">
-            <Bot size={18} />
-          </div>
-          <div className="font-semibold">NexBot</div>
-          <div className="ml-2 text-white/70 text-sm">How can I help you today?</div>
-        </div>
-      </header>
+    <div className="min-h-screen w-screen grid grid-rows-[auto_1fr_auto] lg:h-screen lg:overflow-hidden">
+      {/* Chat Header - Molecule */}
+      <ChatHeader 
+        ref={headerRef}
+        botName="NexBot"
+        statusMessage="How can I help you today?"
+      />
 
-      {/* 40/60 content - Full screen */}
-      <main className="w-full h-full overflow-hidden grid grid-cols-[40%_60%]">
-        {/* Left: chat column (40%) */}
-        <div
-          className="flex flex-col h-full border-r border-gray-200 bg-white"
-          data-testid="chat-interface"
-        >
-          {/* Messages container - Dynamic max-height with thin scrollbar */}
+      {/* Mobile-first responsive content */}
+      <main className="w-full h-full overflow-hidden">
+        {/* Mobile: Vertical stack, Desktop: Horizontal grid */}
+        <div className="h-full flex flex-col lg:grid lg:grid-cols-[40%_60%] lg:overflow-hidden">
+          {/* Chat Section */}
           <div
-            className="flex-1 overflow-y-auto p-4 space-y-6 min-h-0 scrollbar-thin"
-            role="log"
-            aria-live="polite"
-            aria-relevant="additions"
-            aria-busy={aiThinking}
-            style={{ 
-              scrollBehavior: 'smooth',
-              maxHeight: messageAreaMaxHeight
-            }}
+            className="flex flex-col h-screen lg:h-full border-r-0 lg:border-r border-gray-200 bg-white"
+            data-testid="chat-interface"
           >
-            {messages.map((m) => (
-              <MessageBubble
-                key={m.id}
-                type={m.type}
-                content={m.content}
-                status={m.status}
-                createdAt={m.createdAt}
-                highlight={m.id === highlightId}
-              />
-            ))}
-            <div ref={endRef} />
+            {/* Message Area - Organism */}
+            <MessageArea
+              messages={messages}
+              aiThinking={aiThinking}
+              highlightId={highlightId}
+              maxHeight={messageAreaMaxHeight}
+            />
+            
+            {/* Chat Input - Molecule */}
+            <ChatInput
+              ref={inputAreaRef}
+              value={input}
+              onChange={setInput}
+              onSubmit={sendWithCanvasUpdate}
+              placeholder="Describe your data flow…"
+              disabled={aiThinking}
+            />
+            
+            {/* Scroll Indicator - Mobile Only */}
+            <ScrollIndicator
+              text="Scroll down to see canvas"
+              className="lg:hidden"
+              visible={messages.length > 0}
+            />
           </div>
-          {/* Input area - Fixed at bottom */}
-          <form
-            ref={inputAreaRef}
-            onSubmit={(e) => {
-              e.preventDefault();
-              sendWithCanvasUpdate();
-            }}
-            className="flex-shrink-0 p-4 border-t border-gray-200 bg-gray-50"
-          >
-            <div className="flex items-end gap-3">
-              <textarea
-                data-testid="chat-input"
-                aria-multiline="true"
-                rows={1}
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-300 resize-none overflow-y-auto min-h-[44px] max-h-[120px] scrollbar-invisible"
-                placeholder="Describe your data flow…"
-                value={input}
-                ref={composerRef}
-                onChange={(e) => {
-                  setInput(e.target.value);
-                  const el = e.currentTarget;
-                  el.style.height = 'auto';
-                  el.style.height = el.scrollHeight + 'px';
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendWithCanvasUpdate();
-                  }
-                }}
-              />
-              <button
-                type="submit"
-                data-testid="send-button"
-                className="rounded-2xl bg-violet-600 text-white px-4 py-3 font-semibold hover:bg-violet-500 min-h-[44px] min-w-[44px] flex items-center justify-center"
-                aria-label="Send message"
-              >
-                <SendHorizontal size={20} />
-                <span className="font-semibold">Send</span>
-              </button>
+          
+          {/* Canvas Section - Scrollable on mobile, fixed on desktop */}
+          <div className="h-screen lg:h-full bg-gray-50 p-4" data-testid="canvas-container">
+            <div className="h-full bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="lg:hidden mb-4 text-center">
+                <h2 className="text-lg font-semibold text-gray-800">Data Flow Canvas</h2>
+                <p className="text-sm text-gray-600">Your data flow visualization appears here</p>
+              </div>
+              <Canvas showControls={false} showJsonPanel={false} />
             </div>
-          </form>
-        </div>
-        {/* Right: canvas column (60%) */}
-        <div className="h-full bg-gray-50 p-4" data-testid="canvas-container">
-          <div className="h-full bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <Canvas showControls={false} showJsonPanel={false} />
           </div>
         </div>
       </main>
 
       {/* Footer - Reusable Footer Atom */}
       <Footer className="border-t" />
+      
+      {/* Back to Top Button - Mobile Only */}
+      <BackToTopButton
+        text="Back to Chat"
+        visible={showBackToTop}
+        className="lg:hidden"
+      />
     </div>
   );
 }
