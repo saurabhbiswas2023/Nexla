@@ -822,13 +822,33 @@ export class FieldCollectionOrchestrator {
       return ['Map & Validate', 'Cleanse', 'Enrich & Map'];
     }
 
+    // Prioritize well-known connectors for examples
+    const popularConnectors = [
+      'PostgreSQL', 'MySQL', 'Salesforce', 'Shopify', 'Stripe', 
+      'Google BigQuery', 'Snowflake', 'Amazon S3', 'Hubspot', 
+      'Mailchimp', 'Webhook', 'Google Analytics', 'Microsoft SQLServer'
+    ];
+
     const connectorNames = Object.keys(connectorCatalog);
     const filtered = connectorNames.filter(name => {
       const connector = connectorCatalog[name];
       return nodeType === 'source' ? connector.roles.source : connector.roles.destination;
     });
 
-    return filtered.slice(0, 10); // Return first 10 examples
+    // Sort to prioritize popular connectors first, then alphabetical
+    const sorted = filtered.sort((a, b) => {
+      const aPopular = popularConnectors.includes(a);
+      const bPopular = popularConnectors.includes(b);
+      
+      if (aPopular && !bPopular) return -1;
+      if (!aPopular && bPopular) return 1;
+      if (aPopular && bPopular) {
+        return popularConnectors.indexOf(a) - popularConnectors.indexOf(b);
+      }
+      return a.localeCompare(b);
+    });
+
+    return sorted.slice(0, 10); // Return first 10 examples
   }
 
   /**
