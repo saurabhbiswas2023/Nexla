@@ -81,29 +81,32 @@ git commit --no-verify -m "emergency commit"
 ### **Pre-Commit:**
 - ✅ ESLint (code quality)
 - ✅ TypeScript compilation
-- ✅ Zero warnings policy
-
-### **Pre-Push:**
-- ✅ All pre-commit checks
 - ✅ Security audit
 - ✅ Performance analysis  
 - ✅ Accessibility validation
-- ✅ Production build test
-- ✅ Quality score generation
+- ✅ Quality report generation
+- ✅ Zero warnings policy
+
+### **Pre-Push:**
+- ✅ Production build verification
+- ✅ Lightweight check to ensure code compiles
 
 ## 🎉 Success Indicators
 
 When working correctly, you'll see:
+
+**For commits:**
 ```
 🔍 Running pre-commit checks...
-✅ Pre-commit checks passed!
+📊 Generating quality report...
+📊 Overall Score: 100%
+✅ Pre-commit checks and quality report completed!
 ```
 
-And for pushes:
+**For pushes:**
 ```
-🚀 Running pre-push quality checks...
-📊 Overall Score: 100%
-✅ Pre-push checks passed!
+🚀 Running pre-push build verification...
+✅ Build verification passed! Ready to push.
 ```
 
 ## 🤝 GitHub Copilot + Claude Integration

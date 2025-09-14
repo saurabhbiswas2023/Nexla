@@ -21,8 +21,8 @@
     "quality:check": "npm run lint && npm run build && npm audit --audit-level=moderate",
     "reports:clean": "rimraf reports/*",
     "reports:serve": "node scripts/serve-reports.cjs",
-    "husky:pre-commit": "npm run lint",
-    "husky:pre-push": "node scripts/quality-report.cjs",
+    "husky:pre-commit": "npm run lint && node scripts/quality-report.cjs",
+    "husky:pre-push": "npm run build",
     "husky:disable": "git config core.hooksPath /dev/null",
     "husky:enable": "npx husky init",
     "prepare": "husky"

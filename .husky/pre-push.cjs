@@ -3,10 +3,10 @@
 const { execSync } = require('child_process');
 
 try {
-  console.log('🚀 Running pre-push quality checks...');
+  console.log('🚀 Running pre-push build verification...');
   execSync('npm run husky:pre-push', { stdio: 'inherit', cwd: process.cwd() });
-  console.log('✅ Pre-push checks passed!');
+  console.log('✅ Build verification passed! Ready to push.');
 } catch (error) {
-  console.error('❌ Pre-push checks failed:', error.message);
+  console.error('❌ Build verification failed:', error.message);
   process.exit(1);
 }
