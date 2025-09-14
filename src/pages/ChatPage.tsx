@@ -118,12 +118,16 @@ export function ChatPage() {
           
           {/* Canvas Section - Scrollable on mobile, fixed on desktop */}
           <div className="h-screen lg:h-full bg-gray-50 p-4" data-testid="canvas-container">
-            <div className="h-full bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="lg:hidden mb-4 text-center">
+            <div className="h-full bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col overflow-hidden">
+              <div className="lg:hidden mb-4 text-center flex-shrink-0">
                 <h2 className="text-lg font-semibold text-gray-800">Data Flow Canvas</h2>
                 <p className="text-sm text-gray-600">Your data flow visualization appears here</p>
               </div>
-              <Canvas showControls={false} showJsonPanel={false} />
+              <div className="flex-1 min-h-0 overflow-hidden">
+                <div className="h-full w-full">
+                  <Canvas showControls={false} showJsonPanel={false} />
+                </div>
+              </div>
             </div>
           </div>
         </div>

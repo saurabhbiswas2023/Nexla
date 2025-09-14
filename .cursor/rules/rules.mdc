@@ -620,17 +620,16 @@ taskkill /f /im node.exe
 # ✅ STEP 2: Start fresh development server
 cd Nexla; npm run dev
 
-# ✅ STEP 3: Run comprehensive quality checks
+# ✅ STEP 3: Generate comprehensive quality report
+npm run quality:report  # Generates full quality report with score
+
+# ✅ STEP 4: View quality dashboard (optional)
+npm run reports:serve   # Serves dashboard at http://localhost:3001
+
+# ✅ STEP 5: Individual checks (if needed)
 npm run lint          # ESLint: 0 errors, 0 warnings
 npm run build         # TypeScript: 0 compilation errors
-npm run test:a11y     # Accessibility: WCAG 2.1 AA compliance
 npm audit             # Security: No high/critical vulnerabilities
-
-# ✅ STEP 4: Performance validation
-# - Lighthouse score > 90
-# - Bundle size < 500KB gzipped
-# - First Contentful Paint < 2s
-# - Largest Contentful Paint < 2.5s
 ```
 
 ### **🔍 ACCESSIBILITY TESTING REQUIREMENTS**

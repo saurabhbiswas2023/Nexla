@@ -17,7 +17,13 @@
     "lint:css:fix": "stylelint \"**/*.{css,scss}\" --fix",
     "test:unit": "vitest run",
     "build:connectors": "node scripts/build-connectors.cjs",
-    "prepare": "echo 'Husky disabled'"
+    "quality:report": "node scripts/quality-report.cjs",
+    "quality:check": "npm run lint && npm run build && npm audit --audit-level=moderate",
+    "reports:clean": "rimraf reports/*",
+    "reports:serve": "node scripts/serve-reports.cjs",
+    "husky:pre-commit": "npm run lint",
+    "husky:pre-push": "node scripts/quality-report.cjs",
+    "prepare": "husky"
   },
   "dependencies": {
     "@xyflow/react": "^12.8.4",
