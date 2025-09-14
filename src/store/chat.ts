@@ -10,6 +10,16 @@ import {
 } from '../lib/fieldCollectionService';
 import { logger } from '../lib/logger';
 import { useProgressStore } from './progressStore';
+import { 
+  generateAcknowledgment,
+  analyzeUserBehavior,
+  getNextBestQuestion,
+  handleCanvasChange,
+  determineAcknowledmentType,
+  analyzeCompletionGaps,
+  type AcknowledmentContext,
+  type CanvasChangeEvent
+} from '../lib/intelligentAcknowledgment';
 
 // Removed complex regex-based detection functions - now using LLM-based intent detection
 
@@ -204,7 +214,7 @@ function checkIfShouldAskForRoleClarity(
   return detectSingleConnectorName(userInput);
 }
 
-type Message = {
+export type Message = {
   id: string;
   type: 'user' | 'ai';
   content: string;
@@ -239,6 +249,10 @@ type ChatState = {
   
   // Helper method for adding AI responses with thinking animation
   addAIResponseWithThinking: (content: string, additionalUpdates?: Record<string, unknown>) => void;
+  
+  // Intelligent acknowledgment methods
+  handleCanvasChangeEvent: (event: CanvasChangeEvent) => void;
+  generateIntelligentResponse: (context: AcknowledmentContext) => string;
   
   // Reset all chat data to initial state
   resetStore: () => void;
@@ -1093,6 +1107,34 @@ export const useChatStore = create<ChatState>()(
         }, 0);
       },
 
+      // Intelligent acknowledgment methods
+      handleCanvasChangeEvent: (event: CanvasChangeEvent) => {
+        const { isCollectingFields, messages } = get();
+        
+        // Only respond during active field collection
+        if (!isCollectingFields) return;
+        
+        const canvasState = useCanvasStore.getState();
+        const userBehavior = analyzeUserBehavior(messages);
+        const response = handleCanvasChange(event, canvasState, userBehavior);
+        
+        get().addAIResponseWithThinking(response);
+      },
+
+      generateIntelligentResponse: (context: AcknowledmentContext) => {
+        const acknowledgmentType = determineAcknowledmentType({
+          type: 'field-updated',
+          nodeType: context.nodeType,
+          changes: {
+            fieldName: context.fieldName,
+            fieldValue: context.fieldValue
+          },
+          completionStatus: context.nodeProgress.percentage === 100 ? 'complete' : 'partial'
+        });
+        
+        return generateAcknowledgment(acknowledgmentType, context);
+      },
+
       // Field Collection Methods
       startSmartCollection: () => {
         console.log('🚀 startSmartCollection called');
@@ -1124,7 +1166,7 @@ export const useChatStore = create<ChatState>()(
       },
 
       processCollectionInput: (input: string) => {
-        const { fieldCollectionState } = get();
+        const { fieldCollectionState, messages } = get();
         
         if (!fieldCollectionState?.currentStep) {
       logger.warn('No active collection step', undefined, 'field-collection');
@@ -1140,13 +1182,18 @@ export const useChatStore = create<ChatState>()(
           return;
         }
 
-        // Handle skipped fields
+        // Analyze user behavior for intelligent responses
+        const userBehavior = analyzeUserBehavior(messages);
+
+        // Handle skipped fields with intelligent acknowledgment
         if (result.wasSkipped) {
-          // Add confirmation message for skipped field with thinking animation
-          get().addAIResponseWithThinking(`Okay, I'll skip the ${fieldCollectionState.currentStep.currentField} field.`);
+          const skipMessage = userBehavior.prefersBriefResponses 
+            ? `✓ Skipped ${fieldCollectionState.currentStep.currentField}`
+            : `Okay, I'll skip the ${fieldCollectionState.currentStep.currentField} field.`;
+          get().addAIResponseWithThinking(skipMessage);
         }
 
-        // Apply canvas update (only if not skipped)
+        // Apply canvas update and generate intelligent acknowledgment
         if (result.canvasUpdate) {
           const { nodeType, updateType, nodeName, fieldName, fieldValue } = result.canvasUpdate;
           
@@ -1159,6 +1206,17 @@ export const useChatStore = create<ChatState>()(
             } else if (nodeType === 'destination') {
               canvasStore.setSelectedDestination(nodeName);
             }
+            
+            // Generate intelligent acknowledgment for node selection
+            const canvasEvent: CanvasChangeEvent = {
+              type: 'node-selected',
+              nodeType,
+              changes: { nodeName },
+              completionStatus: 'partial'
+            };
+            
+            const acknowledgment = handleCanvasChange(canvasEvent, canvasStore, userBehavior);
+            get().addAIResponseWithThinking(acknowledgment);
             
           } else if (updateType === 'field-value' && fieldName && fieldValue) {
             // Update field value in canvas
@@ -1189,6 +1247,24 @@ export const useChatStore = create<ChatState>()(
                 }
               });
             }
+            
+            // Generate intelligent acknowledgment for field update
+            const updatedCanvasState = useCanvasStore.getState();
+            
+            // Check if node is now complete
+            const gaps = analyzeCompletionGaps(updatedCanvasState);
+            const nodeGaps = gaps.filter(gap => gap.nodeType === nodeType);
+            const completionStatus = nodeGaps.length === 0 ? 'complete' : 'partial';
+            
+            const canvasEvent: CanvasChangeEvent = {
+              type: 'field-updated',
+              nodeType,
+              changes: { fieldName, fieldValue },
+              completionStatus
+            };
+            
+            const acknowledgment = handleCanvasChange(canvasEvent, updatedCanvasState, userBehavior);
+            get().addAIResponseWithThinking(acknowledgment);
           }
 
           // Update progress after canvas changes
@@ -1208,7 +1284,7 @@ export const useChatStore = create<ChatState>()(
           });
         }
 
-        // Get next step
+        // Get next step using intelligent questioning
         const updatedCanvasState = useCanvasStore.getState();
         const nextStep = FieldCollectionOrchestrator.getNextStep(fieldCollectionState, updatedCanvasState);
         
@@ -1218,9 +1294,11 @@ export const useChatStore = create<ChatState>()(
           const nextNodeType = nextStep.nodeType;
           const isNodeTransition = currentNodeType !== nextNodeType;
           
-          let messageContent = nextStep.question;
+          // Generate intelligent next question
+          const intelligentQuestion = getNextBestQuestion(updatedCanvasState, userBehavior);
+          let messageContent = intelligentQuestion;
           
-          // Add node completion message if transitioning
+          // Add node completion celebration if transitioning
           if (isNodeTransition) {
             const nodeTypeNames = {
               source: 'source system',
@@ -1229,9 +1307,12 @@ export const useChatStore = create<ChatState>()(
             };
             
             const completedNodeName = nodeTypeNames[currentNodeType];
-            const nextNodeName = nodeTypeNames[nextNodeType];
             
-            messageContent = `Great! Your ${completedNodeName} is fully configured. Now let's set up your ${nextNodeName}.\n\n${nextStep.question}`;
+            const celebrationMessage = userBehavior.prefersBriefResponses
+              ? `✅ ${completedNodeName} complete!`
+              : `Great! Your ${completedNodeName} is fully configured.`;
+            
+            messageContent = `${celebrationMessage}\n\n${intelligentQuestion}`;
           }
           
           const updatedCollectionState: CollectionState = {
@@ -1248,8 +1329,15 @@ export const useChatStore = create<ChatState>()(
           );
 
         } else {
-          // Collection complete
-          get().completeFieldCollection();
+          // Collection complete - intelligent celebration
+          const completionMessage = userBehavior.prefersBriefResponses
+            ? "🎉 All done! Your data flow is ready."
+            : "🎉 Perfect! Your data flow is now fully configured and ready to go! Is there anything else you'd like to adjust?";
+          
+          get().addAIResponseWithThinking(completionMessage, {
+            fieldCollectionState: null,
+            isCollectingFields: false,
+          });
         }
       },
 
