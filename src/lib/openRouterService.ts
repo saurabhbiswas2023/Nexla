@@ -14,10 +14,8 @@ export interface FlowParseResult {
   error?: string;
 }
 
-const OPENROUTER_API_KEY =
-  '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';
-const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-
+const OPEN_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || '';
+const OPEN_API_URL = 'https://api.openai.com/v1/chat/completions';
 const systemPrompt = `You are an AI assistant that helps users build data integration flows. Your primary job is to identify systems and transformations from user messages.
 
 FOCUS ON SYSTEM IDENTIFICATION:
@@ -155,13 +153,12 @@ Respond with JSON only:
 }`;
 
   try {
-    const response = await fetch(OPENROUTER_API_URL, {
+    const response = await fetch(OPEN_API_URL, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        Authorization: `Bearer ${OPEN_API_KEY}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://nexla-data-flow.com',
-        'X-Title': 'Nexla Intent Detection',
+       
       },
       body: JSON.stringify({
         model: 'openai/gpt-4o-mini', // BEST INTENT PARSING LLM
@@ -227,10 +224,10 @@ export async function parseFlowWithLLM(
       { role: 'user', content: userMessage },
     ];
 
-    const response = await fetch(OPENROUTER_API_URL, {
+    const response = await fetch(OPEN_API_URL, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        Authorization: `Bearer ${OPEN_API_KEY}`,
         'Content-Type': 'application/json',
         'HTTP-Referer': 'https://nexla-data-flow.com',
         'X-Title': 'Nexla Data Flow Architect',

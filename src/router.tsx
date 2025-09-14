@@ -1,10 +1,35 @@
 import { createBrowserRouter } from 'react-router-dom';
-import { LandingPage } from './pages/LandingPage';
-import { ChatPage } from './pages/ChatPage';
+import { lazy, Suspense } from 'react';
 
+// Lazy load pages for code splitting
+const LandingPage = lazy(() => import('./pages/LandingPage').then(module => ({ default: module.LandingPage })));
+const ChatPage = lazy(() => import('./pages/ChatPage').then(module => ({ default: module.ChatPage })));
+
+// Loading component for suspense
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-900">
+    <div className="flex flex-col items-center gap-4">
+      <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+    </div>
+  </div>
+);
 
 export const router = createBrowserRouter([
-  { path: '/', element: <LandingPage /> },
-  { path: '/chat', element: <ChatPage /> },
-  
+  { 
+    path: '/', 
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <LandingPage />
+      </Suspense>
+    )
+  },
+  { 
+    path: '/chat', 
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <ChatPage />
+      </Suspense>
+    )
+  },
 ]);

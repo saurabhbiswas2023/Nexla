@@ -50,8 +50,11 @@ export function TransformBox({
           <StatusPill status={status} />
         </div>
         <div className="text-xs text-slate-500 mt-0.5">Category: Transform</div>
-        <div className="mt-2 text-xs text-slate-600">Configure transform parameters</div>
-        {name !== 'Map & Validate' ? (
+        {/* Only show configuration section for transforms that need it - NEVER for autocomplete transforms or dummy transforms */}
+        {name !== 'Map & Validate' && name !== 'Cleanse' && name !== 'Data Analysis' && name !== 'Dummy Transform' && (
+          <div className="mt-2 text-xs text-slate-600">Configure transform parameters</div>
+        )}
+        {name !== 'Map & Validate' && name !== 'Cleanse' && name !== 'Data Analysis' && name !== 'Dummy Transform' ? (
           <>
             <button
               type="button"

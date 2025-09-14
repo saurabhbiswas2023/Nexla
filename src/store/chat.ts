@@ -398,18 +398,12 @@ export const useChatStore = create<ChatState>()(
           const userInput = input.trim();
           const userInputLower = userInput.toLowerCase();
           
-          console.log('🔍 SIMPLE INTENT CHECK:', {
-            userInput,
-            pendingRoleClarity,
-            userInputLower
-          });
           
           // DEAD SIMPLE LOGIC FIRST - NO LLM BULLSHIT FOR OBVIOUS CASES
           
           // 1. COMPLEX ROLE + DESTINATION DETECTION
           // Handle cases like "source and I need to send data to postgres"
           if (userInputLower.includes('source') || userInputLower.includes('destination')) {
-            console.log('🎯 ROLE DETECTED IN COMPLEX MESSAGE:', userInput);
             
             // Extract role
             const isSource = userInputLower.includes('source');
@@ -443,7 +437,6 @@ export const useChatStore = create<ChatState>()(
               if (destinationConnector) break;
             }
             
-            console.log('🔍 Detected:', { role, destinationConnector });
             
             const userId = crypto.randomUUID();
             const userMsg: Message = {
@@ -525,7 +518,6 @@ export const useChatStore = create<ChatState>()(
           
           // 2. SIMPLE CORRECTION DETECTION - "no its [connector]" OR "no its not"
           if (userInputLower.startsWith('no')) {
-            console.log('🚨 REJECTION DETECTED - SIMPLE LOGIC');
             
             // Case 1: "no its [connector]" - user specifying new connector
             const correctionMatch = userInputLower.match(/no\s+it'?s\s+(.+)/);
@@ -534,7 +526,6 @@ export const useChatStore = create<ChatState>()(
               
               // Skip if it's just "not" - handle separately
               if (suggestedConnector !== 'not') {
-                console.log('🔍 Suggested connector:', suggestedConnector);
                 
                 // Find matching connector from catalog
                 const allConnectors = Object.keys(connectorCatalog);
@@ -544,7 +535,6 @@ export const useChatStore = create<ChatState>()(
                 );
                 
                 if (matchedConnector) {
-                  console.log('✅ MATCHED CONNECTOR:', matchedConnector);
                   
                   const userId = crypto.randomUUID();
                   const userMsg: Message = {
@@ -578,7 +568,6 @@ export const useChatStore = create<ChatState>()(
             
             // Case 2: "no its not" or just "no" - ask what they meant
             if (userInputLower.includes('not') || userInputLower.trim() === 'no') {
-              console.log('🤔 USER REJECTED - ASKING WHAT THEY MEANT');
               
               const userId = crypto.randomUUID();
               const userMsg: Message = {
@@ -611,7 +600,6 @@ export const useChatStore = create<ChatState>()(
           }
           
           // 3. ONLY NOW TRY LLM AS FALLBACK
-          console.log('🤖 Trying LLM as fallback...');
           
           const fullContext = [
             ...conversationHistory,
@@ -624,7 +612,6 @@ export const useChatStore = create<ChatState>()(
               conversationHistory: fullContext
             });
             
-            console.log('🎯 Intent Detection Result:', intent);
 
             const userId = crypto.randomUUID();
             const userMsg: Message = {
@@ -649,7 +636,6 @@ export const useChatStore = create<ChatState>()(
                                userInputLower === 'src' || userInputLower === 'dest';
             
             if (isSimpleRole && (!intent.intent || intent.intent !== 'role_clarification')) {
-              console.log('🚨 LLM FAILED - Using fallback for simple role:', userInputLower);
               intent.intent = 'role_clarification';
               intent.role = userInputLower === 'source' || userInputLower === 'src' ? 'source' : 'destination';
               intent.confidence = 0.99;
@@ -761,7 +747,6 @@ export const useChatStore = create<ChatState>()(
             const isDestination = userInputLower === 'destination' || userInputLower === 'dest' || userInputLower.includes('destination');
             
             if (isSource || isDestination) {
-              console.log('✅ Using FALLBACK role detection:', isSource ? 'source' : 'destination');
               
               // Handle role selection with fallback logic
               const canvasStore = useCanvasStore.getState();
@@ -912,7 +897,6 @@ export const useChatStore = create<ChatState>()(
           // FALLBACK DETECTION: Handle obvious patterns before LLM
           const patternFallback = detectPatternFallback(input.trim());
           if (patternFallback) {
-            console.log('🎯 PATTERN FALLBACK DETECTED:', patternFallback);
             
             // MINIMUM THINKING ANIMATION: Ensure at least 500ms of thinking animation
             const thinkingStartTime = Date.now();
@@ -981,8 +965,6 @@ export const useChatStore = create<ChatState>()(
           // Parse the user input with LLM
           const result = await parseFlowWithLLM(input.trim(), conversationHistory);
           
-          // DEBUG: Log LLM response to see what it's actually returning
-          console.log('🤖 LLM Response:', JSON.stringify(result, null, 2));
 
           // Calculate remaining thinking time
           const elapsedTime = Date.now() - thinkingStartTime;
@@ -1078,11 +1060,26 @@ export const useChatStore = create<ChatState>()(
             const analysis = analyzeCanvasForCollection(updatedCanvasState);
             
             if (analysis.totalStepsNeeded > 0) {
-              // Start field collection instead of generic response
+              // Use intelligent acknowledgment for pattern fallback response
+              const canvasState = useCanvasStore.getState();
+              const userBehavior = analyzeUserBehavior(messages);
+              
+              // Create a mock canvas change event for the pattern fallback
+              const mockEvent: CanvasChangeEvent = {
+                type: 'node-selected',
+                nodeType: 'source', // Will be adjusted by handleCanvasChange
+                changes: {
+                  nodeName: 'pattern-detected'
+                },
+                completionStatus: 'partial'
+              };
+              
+              const intelligentResponse = handleCanvasChange(mockEvent, canvasState, userBehavior);
+              
               setTimeout(() => {
                 set((s) => ({
                   messages: s.messages.map((m) =>
-                    m.id === aiId ? { ...m, content: "Perfect! I've identified your systems. Now let's configure the connections.", status: 'sent' } : m
+                    m.id === aiId ? { ...m, content: intelligentResponse, status: 'sent' } : m
                   ),
                   aiThinking: false,
                   isProcessingLLM: false,
@@ -1095,15 +1092,17 @@ export const useChatStore = create<ChatState>()(
                 }, 500);
               }, remainingTime);
             } else {
-              // Generate standard AI response
-              const aiResponse =
-                result.data.followUpQuestion ||
-                "Great! I've updated your flow. What would you like to configure next?";
-
+              // No field collection needed, use intelligent completion message
+              const userBehavior = analyzeUserBehavior(messages);
+              
+              const completionMessage = userBehavior.prefersBriefResponses
+                ? "🎉 All set! Your data flow is ready."
+                : "🎉 Perfect! I've identified and configured your complete data flow. Everything looks good to go!";
+              
               setTimeout(() => {
                 set((s) => ({
                   messages: s.messages.map((m) =>
-                    m.id === aiId ? { ...m, content: aiResponse, status: 'sent' } : m
+                    m.id === aiId ? { ...m, content: completionMessage, status: 'sent' } : m
                   ),
                   aiThinking: false,
                   isProcessingLLM: false,
@@ -1138,7 +1137,6 @@ export const useChatStore = create<ChatState>()(
 
       // Helper function to add thinking animation to any AI response
       addAIResponseWithThinking: (content: string, additionalUpdates?: Record<string, unknown>) => {
-        console.log('🤖 addAIResponseWithThinking called with:', content.substring(0, 50) + '...');
         const aiId = crypto.randomUUID();
         
         // FIRST: Create thinking message
@@ -1150,7 +1148,6 @@ export const useChatStore = create<ChatState>()(
           createdAt: Date.now(),
         };
 
-        console.log('💭 Adding thinking message with ID:', aiId);
         set((state) => ({
           messages: [...state.messages, thinkingMessage],
           aiThinking: true,
@@ -1165,10 +1162,8 @@ export const useChatStore = create<ChatState>()(
           const elapsedTime = Date.now() - thinkingStartTime;
           const remainingTime = Math.max(0, minThinkingDuration - elapsedTime);
           
-          console.log(`⏱️ Elapsed: ${elapsedTime}ms, Remaining: ${remainingTime}ms`);
           
           setTimeout(() => {
-            console.log('✅ Updating message to sent status');
             set((state) => ({
               messages: state.messages.map((m) =>
                 m.id === aiId ? { 
@@ -1185,16 +1180,95 @@ export const useChatStore = create<ChatState>()(
 
       // Intelligent acknowledgment methods
       handleCanvasChangeEvent: (event: CanvasChangeEvent) => {
-        const { isCollectingFields, messages } = get();
+        const { isCollectingFields, messages, fieldCollectionState } = get();
+        
         
         // Only respond during active field collection
-        if (!isCollectingFields) return;
+        if (!isCollectingFields || !fieldCollectionState?.currentStep) {
+          return;
+        }
         
         const canvasState = useCanvasStore.getState();
         const userBehavior = analyzeUserBehavior(messages);
-        const response = handleCanvasChange(event, canvasState, userBehavior);
+        const fieldValue = event.changes.fieldValue || event.changes.nodeName || '';
         
-        get().addAIResponseWithThinking(response);
+        // Generate intelligent acknowledgment for the field change
+        const acknowledgmentResponse = handleCanvasChange(event, canvasState, userBehavior);
+        
+        // Process the field collection input directly without double acknowledgment
+        // We'll modify processCollectionInput to skip acknowledgment for canvas inputs
+        const result = FieldCollectionOrchestrator.processInput(fieldValue, fieldCollectionState.currentStep);
+        
+        if (!result.success) {
+          // Show error message
+          get().addAIResponseWithThinking(result.error || 'Please provide a valid input.');
+          return;
+        }
+
+        // Apply canvas update if needed (processCollectionInput logic)
+        if (result.canvasUpdate) {
+          const { nodeType, updateType, nodeName, fieldName, fieldValue: updateValue } = result.canvasUpdate;
+          const canvasStore = useCanvasStore.getState();
+          
+          if (updateType === 'node-name' && nodeName) {
+            if (nodeType === 'source') canvasStore.setSelectedSource(nodeName);
+            else if (nodeType === 'transform') canvasStore.setSelectedTransform(nodeName);
+            else if (nodeType === 'destination') canvasStore.setSelectedDestination(nodeName);
+          } else if (updateType === 'field-value' && fieldName && updateValue) {
+            if (nodeType === 'transform') {
+              const currentTransformValues = canvasStore.nodeValues.transform || {};
+              canvasStore.updateNodeValues({
+                transform: { ...currentTransformValues, [fieldName]: updateValue }
+              });
+              const currentTransformName = canvasStore.selectedTransform;
+              if (currentTransformName) {
+                canvasStore.updateTransformValuesByType(currentTransformName, { [fieldName]: updateValue });
+              }
+            } else {
+              const currentValues = canvasStore.nodeValues[nodeType] || {};
+              canvasStore.updateNodeValues({
+                [nodeType]: { ...currentValues, [fieldName]: updateValue }
+              });
+            }
+          }
+        }
+
+        // Get next step and ask next question
+        const updatedCanvasState = useCanvasStore.getState();
+        const nextStep = FieldCollectionOrchestrator.getNextStep(fieldCollectionState, updatedCanvasState);
+        
+        if (nextStep) {
+          const intelligentQuestion = getNextBestQuestion(updatedCanvasState, userBehavior);
+          const updatedCollectionState = {
+            ...fieldCollectionState,
+            currentStep: nextStep,
+            completedSteps: [...fieldCollectionState.completedSteps, fieldCollectionState.currentStep]
+          };
+
+          // Combine acknowledgment with next question
+          const combinedMessage = `${acknowledgmentResponse}\n\n${intelligentQuestion}`;
+
+          // Add combined message after a delay
+          setTimeout(() => {
+            get().addAIResponseWithThinking(combinedMessage, {
+              fieldCollectionState: updatedCollectionState,
+            });
+          }, 800);
+        } else {
+          // Collection complete - combine acknowledgment with completion message
+          const completionMessage = userBehavior.prefersBriefResponses
+            ? "🎉 All done! Your data flow is ready."
+            : "🎉 Perfect! Your data flow is now fully configured and ready to go!";
+          
+          const combinedMessage = `${acknowledgmentResponse}\n\n${completionMessage}`;
+          
+          setTimeout(() => {
+            get().addAIResponseWithThinking(combinedMessage, {
+              fieldCollectionState: null,
+              isCollectingFields: false,
+            });
+          }, 800);
+        }
       },
 
       generateIntelligentResponse: (context: AcknowledmentContext) => {
@@ -1213,22 +1287,17 @@ export const useChatStore = create<ChatState>()(
 
       // Field Collection Methods
       startSmartCollection: () => {
-        console.log('🚀 startSmartCollection called');
         const canvasState = useCanvasStore.getState();
         const analysis = analyzeCanvasForCollection(canvasState);
         
-        console.log('📊 Analysis:', analysis);
         
         if (analysis.totalStepsNeeded === 0) {
-          console.log('⚠️ No steps needed, returning early');
           return;
         }
 
         const collectionState = FieldCollectionOrchestrator.createCollectionPlan(canvasState);
-        console.log('📋 Collection state:', collectionState);
         
         if (collectionState.currentStep) {
-          console.log('✨ Adding AI response with thinking for:', collectionState.currentStep.question);
           get().addAIResponseWithThinking(
             collectionState.currentStep.question,
             {
@@ -1236,8 +1305,6 @@ export const useChatStore = create<ChatState>()(
               isCollectingFields: true,
             }
           );
-        } else {
-          console.log('⚠️ No current step found');
         }
       },
 
@@ -1245,7 +1312,6 @@ export const useChatStore = create<ChatState>()(
         const { fieldCollectionState, messages } = get();
         
         if (!fieldCollectionState?.currentStep) {
-      logger.warn('No active collection step', undefined, 'field-collection');
           return;
         }
 

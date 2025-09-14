@@ -400,7 +400,8 @@ export const prioritizeActions = (
 // Pure function to generate next question based on gaps
 export const generateNextQuestion = (
   gaps: readonly CompletionGap[],
-  userBehavior: UserBehavior
+  userBehavior: UserBehavior,
+  canvasState: CanvasState
 ): string => {
   if (gaps.length === 0) {
     return "🎉 Perfect! Your data flow is complete. Is there anything else you'd like to adjust?";
@@ -413,7 +414,7 @@ export const generateNextQuestion = (
   }
   
   if (nextGap.missingFields && nextGap.missingFields.length > 0) {
-    return generateFieldQuestion(nextGap.nodeType, nextGap.missingFields[0], userBehavior);
+    return generateFieldQuestionWithContext(nextGap.nodeType, nextGap.missingFields[0], canvasState, userBehavior);
   }
   
   return userBehavior.prefersBriefResponses ? "What's next?" : "What would you like to configure next?";
@@ -447,19 +448,33 @@ const generateNodeNameQuestion = (
   }
 };
 
-const generateFieldQuestion = (
+const generateFieldQuestionWithContext = (
   nodeType: 'source' | 'transform' | 'destination',
   fieldName: string,
+  canvasState: CanvasState,
   userBehavior: UserBehavior
 ): string => {
-  if (userBehavior.prefersBriefResponses) {
-    return `${fieldName}?`;
-  }
+  // Get the specific connector name for better context
+  const getConnectorName = (nodeType: 'source' | 'transform' | 'destination'): string => {
+    switch (nodeType) {
+      case 'source':
+        return canvasState.selectedSource || 'source';
+      case 'destination':
+        return canvasState.selectedDestination || 'destination';
+      case 'transform':
+        return canvasState.selectedTransform || 'transform';
+    }
+  };
   
+  const connectorName = getConnectorName(nodeType);
   const examples = getFieldExamples(fieldName);
   const exampleText = examples ? ` (e.g., ${examples})` : '';
   
-  return `What's your ${fieldName}?${exampleText}`;
+  if (userBehavior.prefersBriefResponses) {
+    return `${connectorName} ${fieldName}?${exampleText}`;
+  }
+  
+  return `What's your ${connectorName} ${fieldName}?${exampleText}`;
 };
 
 // Helper function to get examples for node type (simplified version)
@@ -500,5 +515,5 @@ export const getNextBestQuestion = (
 ): string => {
   const gaps = analyzeCompletionGaps(canvasState);
   const prioritizedGaps = prioritizeActions(gaps, userBehavior);
-  return generateNextQuestion(prioritizedGaps, userBehavior);
+  return generateNextQuestion(prioritizedGaps, userBehavior, canvasState);
 };

@@ -23,6 +23,22 @@ A comprehensive data flow visualization and management application implementing 
 - React Router
 - Zustand (chat state)
 
+## 🔧 Setup
+
+### Environment Variables
+
+1. Create a `.env` file in the root directory:
+```bash
+cp .env.example .env
+```
+
+2. Add your OpenRouter API key:
+```bash
+VITE_OPENROUTER_API_KEY=your_openrouter_api_key_here
+```
+
+Get your API key from [OpenRouter](https://openrouter.ai/keys).
+
 ## Commands
 
 ```

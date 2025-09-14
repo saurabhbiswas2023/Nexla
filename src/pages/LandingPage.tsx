@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useChatStore } from '../store/chat';
 import { useCanvasStore } from '../store/canvasStore';
 import { useProgressStore } from '../store/progressStore';
@@ -7,9 +7,11 @@ import { SearchCard } from '../components/molecules/SearchCard';
 import { ExampleCard } from '../components/molecules/ExampleCard';
 import { HeroSection } from '../components/organisms/HeroSection';
 import { ThemeToggle } from '../components/atoms/ThemeToggle';
-import nexbVideo from '../assets/video/nexb.mp4';
+import nexbVideoWebm from '../assets/video/nexb.webm';
 
 export function LandingPage() {
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   // Reset ALL stores on landing page mount for clean slate
   useEffect(() => {
@@ -25,6 +27,13 @@ export function LandingPage() {
     localStorage.removeItem('canvas-store');
     localStorage.removeItem('chat-store');
     localStorage.removeItem('progress-store');
+
+    // Delay video loading for better initial page load
+    const timer = setTimeout(() => {
+      setShouldLoadVideo(true);
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const handleSearchSubmit = (value: string) => {
@@ -39,16 +48,20 @@ export function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col relative bg-white dark:bg-transparent">
       {/* Full-Screen Video Background - Desktop Only (Both Light & Dark) */}
-      <video
-        className="hidden lg:block fixed top-0 left-0 w-full h-full object-cover z-0"
-        autoPlay
-        muted
-        loop
-        playsInline
-      >
-        <source src={nexbVideo} type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
+      {shouldLoadVideo && (
+        <video
+          ref={videoRef}
+          className="hidden lg:block fixed top-0 left-0 w-full h-full object-cover z-0"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+        >
+          <source src={nexbVideoWebm} type="video/webm" />
+          Your browser does not support the video tag.
+        </video>
+      )}
 
       {/* Dark overlay for better text readability - Desktop Only */}
       <div className="hidden lg:block fixed top-0 left-0 w-full h-full bg-black bg-opacity-30 dark:bg-opacity-40 z-10"></div>

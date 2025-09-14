@@ -46,7 +46,7 @@ export const ChatHeader = memo(forwardRef<HTMLElement, ChatHeaderProps>(
     botName = 'NexBot',
     statusMessage = 'How can I help you today?',
     className = '',
-    backgroundClassName = 'bg-violet-600 dark:bg-slate-800',
+    backgroundClassName = 'bg-blue-600 dark:bg-slate-800',
   }, ref) {
     return (
       <header 
@@ -74,7 +74,7 @@ export const ChatHeader = memo(forwardRef<HTMLElement, ChatHeaderProps>(
           </div>
           
           {/* Home button to reset and go back to landing */}
-          <div className="ml-auto mr-12">
+          <div className="ml-auto mr-14">
             <button
               onClick={() => {
                 // Reset all stores before navigation

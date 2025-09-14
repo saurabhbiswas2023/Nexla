@@ -1,5 +1,4 @@
 import { useChatStore, processPrefillFromLanding } from '../store/chat';
-import { Canvas } from '../components/organisms/Canvas';
 import { Footer } from '../components/atoms/Footer';
 import { ChatHeader } from '../components/molecules/ChatHeader';
 import { ChatInput, type ChatInputRef } from '../components/molecules/ChatInput';
@@ -7,11 +6,32 @@ import { MessageArea } from '../components/organisms/MessageArea';
 import { ScrollIndicator } from '../components/atoms/ScrollIndicator';
 import { Button } from '../components/atoms/Button';
 import { ThemeToggle } from '../components/atoms/ThemeToggle';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, lazy, Suspense } from 'react';
+
+// Lazy load heavy Canvas component
+const Canvas = lazy(() => import('../components/organisms/Canvas').then(module => ({ default: module.Canvas })));
+
+// Canvas loading component
+const CanvasLoader = () => (
+  <div className="h-full flex items-center justify-center">
+    <div className="flex flex-col items-center gap-4">
+      <div className="w-6 h-6 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      <p className="text-gray-600 dark:text-gray-400 text-sm">Loading Canvas...</p>
+    </div>
+  </div>
+);
 
 export function ChatPage() {
-  const { messages, input, setInput, sendWithCanvasUpdate, aiThinking, highlightId } =
-    useChatStore();
+  const { 
+    messages, 
+    input, 
+    setInput, 
+    sendWithCanvasUpdate, 
+    aiThinking, 
+    highlightId,
+    handleCanvasChangeEvent,
+    isCollectingFields 
+  } = useChatStore();
   const headerRef = useRef<HTMLElement | null>(null);
   const chatInputRef = useRef<ChatInputRef | null>(null);
   
@@ -36,6 +56,39 @@ export function ChatPage() {
       return () => clearTimeout(timer);
     }
   }, [aiThinking, messages.length]);
+
+  // Handle canvas field changes - trigger intelligent acknowledgment
+  const handleCanvasFieldChange = (values: {
+    source?: Record<string, string | undefined>;
+    destination?: Record<string, string | undefined>;
+    transform?: Record<string, string | undefined>;
+  }) => {
+    // Only respond during active field collection
+    if (!isCollectingFields) return;
+
+    // Find which field was changed by comparing with current values
+    // This is a simplified approach - in a real app you'd want more sophisticated change detection
+    Object.entries(values).forEach(([nodeType, nodeValues]) => {
+      if (nodeValues) {
+        Object.entries(nodeValues).forEach(([fieldName, fieldValue]) => {
+          if (fieldValue && fieldValue.trim() !== '') {
+            // Create canvas change event for intelligent acknowledgment
+            const canvasEvent = {
+              type: 'field-updated' as const,
+              nodeType: nodeType as 'source' | 'transform' | 'destination',
+              changes: {
+                fieldName,
+                fieldValue
+              },
+              completionStatus: 'partial' as const // Will be determined by the intelligent system
+            };
+            
+            handleCanvasChangeEvent(canvasEvent);
+          }
+        });
+      }
+    });
+  };
 
   // Calculate dynamic message area height
   useEffect(() => {
@@ -141,7 +194,13 @@ export function ChatPage() {
               </div>
               <div className="flex-1 min-h-0 overflow-hidden">
                 <div className="h-full w-full">
-                  <Canvas showControls={false} showJsonPanel={false} />
+                  <Suspense fallback={<CanvasLoader />}>
+                    <Canvas 
+                      showControls={false} 
+                      showJsonPanel={false}
+                      onNodeValuesChange={handleCanvasFieldChange}
+                    />
+                  </Suspense>
                 </div>
               </div>
             </div>

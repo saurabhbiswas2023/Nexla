@@ -761,6 +761,7 @@ export class FieldCollectionOrchestrator {
       const match = transformTypes.find(type => 
         type.toLowerCase().includes(lowerInput) || lowerInput.includes(type.toLowerCase())
       );
+      
       return match || null;
     }
 
