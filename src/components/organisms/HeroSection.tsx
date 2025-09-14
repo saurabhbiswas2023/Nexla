@@ -47,11 +47,11 @@ export const HeroSection = memo(function HeroSection({
   subtitle = 'AI‑Powered Orchestration for Your Data Flows',
   logo = 'N',
   className = '',
-  backgroundClassName = 'bg-gradient-to-b from-violet-700 to-blue-500',
+  backgroundClassName = 'lg:bg-none bg-gradient-to-b from-violet-700 to-blue-500',
 }: HeroSectionProps) {
   return (
-    <div className={`${backgroundClassName} text-white pb-24 ${className}`}>
-      <div className="container-narrow py-10 text-center">
+    <div className={`${backgroundClassName} text-white pb-6 ${className}`}>
+      <div className="container-narrow py-6 text-center">
         <div 
           className="mx-auto w-14 h-14 rounded-full bg-white/95 text-blue-600 grid place-items-center font-bold text-xl"
           role="img"
@@ -59,10 +59,10 @@ export const HeroSection = memo(function HeroSection({
         >
           {logo}
         </div>
-        <h1 className="mt-4 text-4xl font-bold sm:text-5xl lg:text-6xl">
+        <h1 className="mt-3 text-4xl font-bold sm:text-5xl lg:text-6xl">
           {title}
         </h1>
-        <p className="mt-2 text-lg text-blue-100 sm:text-xl lg:text-2xl max-w-2xl mx-auto">
+        <p className="mt-1 text-lg text-blue-100 sm:text-xl lg:text-2xl max-w-2xl mx-auto">
           {subtitle}
         </p>
       </div>

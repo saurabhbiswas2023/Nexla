@@ -6,6 +6,7 @@ import { Footer } from '../components/atoms/Footer';
 import { SearchCard } from '../components/molecules/SearchCard';
 import { ExampleCard } from '../components/molecules/ExampleCard';
 import { HeroSection } from '../components/organisms/HeroSection';
+import nexbVideo from '../assets/video/nexb.mp4';
 
 export function LandingPage() {
 
@@ -35,44 +36,64 @@ export function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Hero Section - Organism */}
-      <HeroSection />
+    <div className="min-h-screen flex flex-col relative">
+      {/* Full-Screen Video Background - Desktop Only */}
+      <video
+        className="hidden lg:block fixed top-0 left-0 w-full h-full object-cover z-0"
+        autoPlay
+        muted
+        loop
+        playsInline
+      >
+        <source src={nexbVideo} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
 
-      {/* Search Section */}
-      <div className="-mt-14 container-narrow flex-1">
-        <SearchCard
-          placeholder="e.g., Connect Shopify orders to Snowflake"
-          onSubmit={handleSearchSubmit}
-          inputTestId="landing-input"
-          submitTestId="landing-submit"
-          enableAutocomplete={true}
-          debounceMs={300}
-          maxSuggestions={5}
-        />
+      {/* Dark overlay for better text readability - Desktop Only */}
+      <div className="hidden lg:block fixed top-0 left-0 w-full h-full bg-black bg-opacity-40 z-10"></div>
 
-        {/* Examples */}
-        <div className="text-center mt-10 text-slate-500 text-sm">OR TRY ONE OF THESE EXAMPLES</div>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          {[
-            'Connect Shopify to BigQuery',
-            'Sync Salesforce contacts to Mailchimp',
-            'Get PostgreSQL users and send to a webhook',
-            'Analyze Stripe payments in Google Sheets',
-          ].map((label) => (
+      {/* Mobile/Tablet Background - Clean gradient */}
+      <div className="lg:hidden fixed top-0 left-0 w-full h-full bg-gradient-to-br from-violet-600 via-blue-600 to-indigo-700 z-0"></div>
+
+      {/* Content over video */}
+      <div className="relative z-20 flex flex-col min-h-screen">
+        {/* Hero Section - Organism */}
+        <HeroSection />
+
+        {/* Search Section */}
+        <div className="-mt-4 container-narrow flex-1">
+          <SearchCard
+            placeholder="e.g., Connect Shopify orders to Snowflake"
+            onSubmit={handleSearchSubmit}
+            inputTestId="landing-input"
+            submitTestId="landing-submit"
+            enableAutocomplete={true}
+            debounceMs={300}
+            maxSuggestions={5}
+          />
+
+          {/* Examples */}
+          <div className="text-center mt-10 text-slate-500 text-sm">OR TRY ONE OF THESE EXAMPLES</div>
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            {[
+              'Connect Shopify to BigQuery',
+              'Sync Salesforce contacts to Mailchimp',
+              'Get PostgreSQL users and send to a webhook',
+              'Analyze Stripe payments in Google Sheets',
+            ].map((label) => (
             <ExampleCard
               key={label}
               label={label}
-              icon="⚡"
               onClick={() => handleExampleClick(label)}
               testId={`example-${label.toLowerCase().replace(/\s+/g, '-')}`}
             />
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Footer - Reusable Footer Atom */}
-      <Footer className="mt-auto" />
+        {/* Footer - Reusable Footer Atom */}
+        <Footer className="mt-auto" />
+      </div>
     </div>
   );
 }

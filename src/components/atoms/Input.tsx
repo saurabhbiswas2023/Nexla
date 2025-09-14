@@ -8,12 +8,12 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ variant = 'default', size = 'md', fullWidth = false, className = '', ...props }, ref) => {
-    const baseClasses = 'rounded border transition-colors focus:outline-none focus:ring-2';
+    const baseClasses = 'rounded border transition-colors focus:outline-none focus:ring-1';
 
     const variantClasses = {
-      default: 'border-slate-300 focus:ring-blue-200 focus:border-blue-400',
-      error: 'border-red-ultra-light focus:ring-red-50 focus:border-red-200',
-      success: 'border-green-300 focus:ring-green-200 focus:border-green-400',
+      default: 'border-slate-300 focus:ring-blue-300 focus:border-blue-500',
+      error: 'border-red-ultra-light focus:ring-red-300 focus:border-red-500',
+      success: 'border-green-300 focus:ring-green-300 focus:border-green-500',
     };
 
     const sizeClasses = {

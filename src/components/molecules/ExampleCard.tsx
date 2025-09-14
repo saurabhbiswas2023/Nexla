@@ -1,14 +1,11 @@
 import { memo } from 'react';
+import { ConnectorLogos } from './ConnectorLogos';
 
 interface ExampleCardProps {
   /**
    * The example text to display
    */
   label: string;
-  /**
-   * Icon to display (emoji or component)
-   */
-  icon?: string;
   /**
    * Callback when the card is clicked
    */
@@ -37,14 +34,12 @@ interface ExampleCardProps {
  * ```tsx
  * <ExampleCard
  *   label="Connect Shopify to BigQuery"
- *   icon="⚡"
  *   onClick={() => handleExampleClick('shopify-bigquery')}
  * />
  * ```
  */
 export const ExampleCard = memo(function ExampleCard({
   label,
-  icon = '⚡',
   onClick,
   className = '',
   testId = 'example-card',
@@ -74,12 +69,11 @@ export const ExampleCard = memo(function ExampleCard({
       aria-label={`Example: ${label}`}
     >
       <div className="flex items-center gap-3">
-        <div 
-          className="w-7 h-7 rounded-full bg-amber-200 grid place-items-center text-amber-600 flex-shrink-0"
-          aria-hidden="true"
-        >
-          {icon}
-        </div>
+        <ConnectorLogos 
+          text={label}
+          size="md"
+          className="flex-shrink-0"
+        />
         <div className="text-slate-800 font-medium">{label}</div>
       </div>
     </button>
