@@ -7,6 +7,7 @@ import { SearchCard } from '../components/molecules/SearchCard';
 import { ExampleCard } from '../components/molecules/ExampleCard';
 import { HeroSection } from '../components/organisms/HeroSection';
 import { ThemeToggle } from '../components/atoms/ThemeToggle';
+import { clearAllSessionData, createChatSession } from '../lib/routeGuards';
 
 export function LandingPage() {
   // Reset ALL stores on landing page mount for clean slate
@@ -16,21 +17,16 @@ export function LandingPage() {
     useCanvasStore.getState().resetStore();
     useProgressStore.getState().resetStore();
 
-    // Also clear localStorage to ensure fresh start
-    localStorage.removeItem('prefillPrompt');
-    
-    // Clear any other potential localStorage items
-    localStorage.removeItem('canvas-store');
-    localStorage.removeItem('chat-store');
-    localStorage.removeItem('progress-store');
+    // Clear all session data for fresh start
+    clearAllSessionData();
   }, []);
 
   const handleSearchSubmit = (value: string) => {
-    localStorage.setItem('prefillPrompt', value);
+    createChatSession(value);
   };
 
   const handleExampleClick = (example: string) => {
-    localStorage.setItem('prefillPrompt', example);
+    createChatSession(example);
     window.location.href = '/chat';
   };
 

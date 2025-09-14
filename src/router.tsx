@@ -1,5 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
+import { ProtectedRoute } from './components/atoms/ProtectedRoute';
+import { canAccessChat } from './lib/routeGuards';
 
 // Lazy load pages for code splitting
 const LandingPage = lazy(() => import('./pages/LandingPage').then(module => ({ default: module.LandingPage })));
@@ -27,9 +29,11 @@ export const router = createBrowserRouter([
   { 
     path: '/chat', 
     element: (
-      <Suspense fallback={<PageLoader />}>
-        <ChatPage />
-      </Suspense>
+      <ProtectedRoute canAccess={canAccessChat} redirectTo="/">
+        <Suspense fallback={<PageLoader />}>
+          <ChatPage />
+        </Suspense>
+      </ProtectedRoute>
     )
   },
 ]);
