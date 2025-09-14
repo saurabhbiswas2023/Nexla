@@ -45,7 +45,7 @@ export function computeNodeStatus(
 
   if (role === 'transform') {
     // These transforms are complete when selected (no additional config needed)
-    if (name === 'Map & Validate' || name === 'Cleanse') {
+    if (name === 'Map & Validate' || name === 'Cleanse' || name === 'Data Analysis') {
       return 'complete';
     }
     

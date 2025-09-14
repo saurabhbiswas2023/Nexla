@@ -2,7 +2,7 @@ import { useChatStore, processPrefillFromLanding } from '../store/chat';
 import { Canvas } from '../components/organisms/Canvas';
 import { Footer } from '../components/atoms/Footer';
 import { ChatHeader } from '../components/molecules/ChatHeader';
-import { ChatInput } from '../components/molecules/ChatInput';
+import { ChatInput, type ChatInputRef } from '../components/molecules/ChatInput';
 import { MessageArea } from '../components/organisms/MessageArea';
 import { ScrollIndicator } from '../components/atoms/ScrollIndicator';
 import { Button } from '../components/atoms/Button';
@@ -13,7 +13,7 @@ export function ChatPage() {
   const { messages, input, setInput, sendWithCanvasUpdate, aiThinking, highlightId } =
     useChatStore();
   const headerRef = useRef<HTMLElement | null>(null);
-  const inputAreaRef = useRef<HTMLFormElement | null>(null);
+  const chatInputRef = useRef<ChatInputRef | null>(null);
   
   // State for dynamic message area height
   const [messageAreaMaxHeight, setMessageAreaMaxHeight] = useState<string>('calc(100vh - 280px)');
@@ -26,11 +26,22 @@ export function ChatPage() {
     processPrefillFromLanding();
   }, []);
 
+  // Auto-focus input after AI responses complete
+  useEffect(() => {
+    if (!aiThinking && messages.length > 1) {
+      // Small delay to ensure DOM is updated
+      const timer = setTimeout(() => {
+        chatInputRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [aiThinking, messages.length]);
+
   // Calculate dynamic message area height
   useEffect(() => {
     const calculateMessageAreaHeight = () => {
       const headerHeight = headerRef.current?.offsetHeight || 60; // Header height
-      const inputAreaHeight = inputAreaRef.current?.offsetHeight || 120; // Input area height
+      const inputAreaHeight = 120; // Fixed input area height estimate
       const footerHeight = 50; // Footer height (from Footer component)
       const padding = 50; // Extra padding for safety
       
@@ -49,7 +60,7 @@ export function ChatPage() {
   useEffect(() => {
     const calculateMessageAreaHeight = () => {
       const headerHeight = headerRef.current?.offsetHeight || 60;
-      const inputAreaHeight = inputAreaRef.current?.offsetHeight || 120;
+      const inputAreaHeight = 120; // Fixed input area height estimate
       const footerHeight = 50;
       const padding = 50;
       
@@ -105,7 +116,7 @@ export function ChatPage() {
             
             {/* Chat Input - Molecule */}
             <ChatInput
-              ref={inputAreaRef}
+              ref={chatInputRef}
               value={input}
               onChange={setInput}
               onSubmit={sendWithCanvasUpdate}

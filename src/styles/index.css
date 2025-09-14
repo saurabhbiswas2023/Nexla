@@ -27,6 +27,51 @@
   transform: translateX(2px);
 }
 
+/* Eye-catching AI thinking animations */
+@keyframes thinkingPulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes thinkingGlow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(139, 92, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 30px rgba(139, 92, 246, 0.4);
+  }
+}
+
+@keyframes thinkingBounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-8px);
+  }
+  60% {
+    transform: translateY(-4px);
+  }
+}
+
+.thinking-animation {
+  animation: thinkingPulse 1s ease-in-out infinite;
+}
+
+.thinking-glow {
+  animation: thinkingGlow 1.5s ease-in-out infinite;
+}
+
+.thinking-bounce {
+  animation: thinkingBounce 1.2s ease-in-out infinite;
+}
+
 :root {
   color-scheme: light dark;
 }

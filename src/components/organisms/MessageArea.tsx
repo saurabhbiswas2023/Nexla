@@ -63,23 +63,23 @@ export const MessageArea = memo(forwardRef<HTMLDivElement, MessageAreaProps>(
     useEffect(() => {
       // Use setTimeout to ensure DOM has updated
       const timeoutId = setTimeout(() => {
-        endRef.current?.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'end',
-          inline: 'nearest'
-        });
+        // Scroll to the very bottom of the container instead of using scrollIntoView
+        const container = endRef.current?.parentElement;
+        if (container) {
+          container.scrollTop = container.scrollHeight;
+        }
       }, 100); // Slightly longer delay for smoother animation
       return () => clearTimeout(timeoutId);
-    }, [messages.length]);
+    }, [messages.length, messages]);
 
     // Initial smooth scroll on mount
     useEffect(() => {
       const timeoutId = setTimeout(() => {
-        endRef.current?.scrollIntoView({ 
-          behavior: 'smooth', // Changed from 'auto' to 'smooth' for first view
-          block: 'end',
-          inline: 'nearest'
-        });
+        // Scroll to the very bottom on initial load
+        const container = endRef.current?.parentElement;
+        if (container) {
+          container.scrollTop = container.scrollHeight;
+        }
       }, 300); // Longer delay for initial smooth scroll
       return () => clearTimeout(timeoutId);
     }, []);
@@ -97,7 +97,6 @@ export const MessageArea = memo(forwardRef<HTMLDivElement, MessageAreaProps>(
         style={{ 
           scrollBehavior: 'smooth',
           scrollPaddingTop: '20px',
-          scrollPaddingBottom: '20px',
           maxHeight
         }}
       >

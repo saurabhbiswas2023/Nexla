@@ -14,6 +14,119 @@ import { useProgressStore } from './progressStore';
 // Removed complex regex-based detection functions - now using LLM-based intent detection
 
 /**
+ * FALLBACK: Detect obvious patterns when LLM fails
+ */
+function detectPatternFallback(input: string): { source?: string; destination?: string; transform?: string } | null {
+  
+  // PATTERN 1: "Analyze X in Y" - X is source, Y is destination, transform is analysis
+  const analyzeMatch = /analyze\s+(.+?)\s+(?:in|into|using)\s+(.+)/i.exec(input);
+  if (analyzeMatch) {
+    const sourceText = analyzeMatch[1].trim();
+    const destinationText = analyzeMatch[2].trim();
+    
+    // Map common source patterns
+    let detectedSource: string | undefined;
+    if (/stripe/i.test(sourceText)) detectedSource = 'Stripe';
+    else if (/shopify/i.test(sourceText)) detectedSource = 'Shopify';
+    else if (/salesforce/i.test(sourceText)) detectedSource = 'Salesforce';
+    else if (/postgresql|postgres/i.test(sourceText)) detectedSource = 'PostgreSQL';
+    
+    // Map common destination patterns  
+    let detectedDestination: string | undefined;
+    if (/google\s+sheets/i.test(destinationText)) detectedDestination = 'Google BigQuery'; // Use BigQuery as sheets alternative
+    else if (/bigquery/i.test(destinationText)) detectedDestination = 'Google BigQuery';
+    else if (/snowflake/i.test(destinationText)) detectedDestination = 'Snowflake';
+    else if (/analytics/i.test(destinationText)) detectedDestination = 'Google Analytics';
+    
+    if (detectedSource && detectedDestination) {
+      return {
+        source: detectedSource,
+        destination: detectedDestination,
+        transform: 'Data Analysis'
+      };
+    }
+  }
+  
+  // Don't use webhook fallback if email services are explicitly mentioned
+  const emailServicePatterns = [
+    /sendgrid/i,
+    /mailchimp/i,
+    /email/i,
+    /mail/i,
+    /smtp/i
+  ];
+  
+  if (emailServicePatterns.some(pattern => pattern.test(input))) {
+    return null; // Let LLM handle email services
+  }
+  
+  // Webhook patterns
+  const webhookPatterns = [
+    /webhook/i,
+    /web hook/i,
+    /http endpoint/i,
+    /rest endpoint/i,
+    /api endpoint/i
+  ];
+  
+  const hasWebhook = webhookPatterns.some(pattern => pattern.test(input));
+  if (!hasWebhook) return null;
+  
+  // Source detection patterns
+  const sourcePatterns = [
+    { pattern: /get\s+(\w+)\s+/i, connector: 'PostgreSQL' },
+    { pattern: /from\s+(\w+)/i, connector: 'PostgreSQL' },
+    { pattern: /postgresql|postgres/i, connector: 'PostgreSQL' },
+    { pattern: /mysql/i, connector: 'MySQL' },
+    { pattern: /salesforce/i, connector: 'Salesforce' },
+    { pattern: /shopify/i, connector: 'Shopify' },
+    { pattern: /bigquery/i, connector: 'Google BigQuery' },
+    { pattern: /snowflake/i, connector: 'Snowflake' }
+  ];
+  
+  let detectedSource: string | undefined;
+  let detectedDestination: string | undefined;
+  
+  // Detect source
+  for (const { pattern, connector } of sourcePatterns) {
+    if (pattern.test(input)) {
+      detectedSource = connector;
+      break;
+    }
+  }
+  
+  // If webhook is mentioned and we have directional words, it's likely the destination
+  const toWebhookPatterns = [
+    /send.*to.*webhook/i,
+    /send.*webhook/i,
+    /to.*webhook/i,
+    /push.*to.*webhook/i,
+    /post.*to.*webhook/i,
+    /send.*to.*rest\s+endpoint/i,
+    /send.*to.*http\s+endpoint/i,
+    /to.*rest\s+endpoint/i,
+    /to.*http\s+endpoint/i,
+    /send.*to.*web\s+hook/i,
+    /to.*web\s+hook/i
+  ];
+  
+  if (toWebhookPatterns.some(pattern => pattern.test(input))) {
+    detectedDestination = 'Webhook';
+  }
+  
+  // Only return if we detected at least one connector
+  if (detectedSource || detectedDestination) {
+    return {
+      source: detectedSource,
+      destination: detectedDestination,
+      transform: undefined // No transform for webhook patterns
+    };
+  }
+  
+  return null;
+}
+
+/**
  * PRE-LLM: Detect if user input is a single connector name that needs role clarification
  * This runs BEFORE the LLM to catch obvious cases deterministically
  */
@@ -123,6 +236,9 @@ type ChatState = {
   processCollectionInput: (input: string) => void;
   completeFieldCollection: () => void;
   skipFieldCollection: () => void;
+  
+  // Helper method for adding AI responses with thinking animation
+  addAIResponseWithThinking: (content: string, additionalUpdates?: Record<string, unknown>) => void;
   
   // Reset all chat data to initial state
   resetStore: () => void;
@@ -298,6 +414,7 @@ export const useChatStore = create<ChatState>()(
                 'Map & Validate': {},
                 'Cleanse': {},
                 'Enrich & Map': updatedCanvasState.getTransformValuesByType('Enrich & Map'),
+                'Data Analysis': updatedCanvasState.getTransformValuesByType('Data Analysis'),
               },
             });
 
@@ -716,8 +833,70 @@ export const useChatStore = create<ChatState>()(
         setTimeout(() => set({ highlightId: null }), 900);
 
         try {
+          // FALLBACK DETECTION: Handle obvious patterns before LLM
+          const patternFallback = detectPatternFallback(input.trim());
+          if (patternFallback) {
+            console.log('🎯 PATTERN FALLBACK DETECTED:', patternFallback);
+            
+            // MINIMUM THINKING ANIMATION: Ensure at least 500ms of thinking animation
+            const thinkingStartTime = Date.now();
+            const minThinkingDuration = 500;
+            
+            // Apply pattern detection directly
+            const canvasStore = useCanvasStore.getState();
+            if (patternFallback.source) {
+              canvasStore.setSelectedSource(patternFallback.source);
+            }
+            if (patternFallback.destination) {
+              canvasStore.setSelectedDestination(patternFallback.destination);
+            }
+            if (patternFallback.transform) {
+              canvasStore.setSelectedTransform(patternFallback.transform);
+            }
+            
+            // Update conversation history
+            const newHistory = [...conversationHistory, input.trim()];
+            
+            // Generate success response
+            const successResponse = `Perfect! I've identified your systems. Now let's configure the connections.`;
+
+            // Calculate remaining thinking time
+            const elapsedTime = Date.now() - thinkingStartTime;
+            const remainingTime = Math.max(0, minThinkingDuration - elapsedTime);
+
+            setTimeout(() => {
+              set((s) => ({
+                messages: s.messages.map((m) =>
+                  m.id === aiId ? { ...m, content: successResponse, status: 'sent' } : m
+                ),
+                aiThinking: false,
+                isProcessingLLM: false,
+                conversationHistory: newHistory,
+              }));
+              
+              // Start field collection for the identified systems
+              setTimeout(() => {
+                const { startSmartCollection } = get();
+                startSmartCollection();
+              }, 500);
+            }, remainingTime);
+            
+            return;
+          }
+
+          // MINIMUM THINKING ANIMATION: Ensure at least 500ms of thinking animation for LLM
+          const thinkingStartTime = Date.now();
+          const minThinkingDuration = 500;
+
           // Parse the user input with LLM
           const result = await parseFlowWithLLM(input.trim(), conversationHistory);
+          
+          // DEBUG: Log LLM response to see what it's actually returning
+          console.log('🤖 LLM Response:', JSON.stringify(result, null, 2));
+
+          // Calculate remaining thinking time
+          const elapsedTime = Date.now() - thinkingStartTime;
+          const remainingTime = Math.max(0, minThinkingDuration - elapsedTime);
 
           if (result.success && result.data) {
             const canvasStore = useCanvasStore.getState();
@@ -735,15 +914,17 @@ export const useChatStore = create<ChatState>()(
               const clarificationResponse = result.data.followUpQuestion || 
                 `Is ${connectorName} your source (where you get data from) or destination (where you send data to)?`;
 
-              set((s) => ({
-                messages: s.messages.map((m) =>
-                  m.id === aiId ? { ...m, content: clarificationResponse, status: 'sent' } : m
-                ),
-                aiThinking: false,
-                isProcessingLLM: false,
-                conversationHistory: newHistory,
-                pendingRoleClarity: connectorName, // Store connector name waiting for role
-              }));
+              setTimeout(() => {
+                set((s) => ({
+                  messages: s.messages.map((m) =>
+                    m.id === aiId ? { ...m, content: clarificationResponse, status: 'sent' } : m
+                  ),
+                  aiThinking: false,
+                  isProcessingLLM: false,
+                  conversationHistory: newHistory,
+                  pendingRoleClarity: connectorName, // Store connector name waiting for role
+                }));
+              }, remainingTime);
               return; // Don't proceed with canvas updates
             }
 
@@ -808,33 +989,37 @@ export const useChatStore = create<ChatState>()(
             
             if (analysis.totalStepsNeeded > 0) {
               // Start field collection instead of generic response
-              set((s) => ({
-                messages: s.messages.map((m) =>
-                  m.id === aiId ? { ...m, content: "Perfect! I've identified your systems. Now let's configure the connections.", status: 'sent' } : m
-                ),
-                aiThinking: false,
-                isProcessingLLM: false,
-                conversationHistory: newHistory,
-              }));
-
-              // Start field collection after a brief delay
               setTimeout(() => {
-                get().startSmartCollection();
-              }, 500);
+                set((s) => ({
+                  messages: s.messages.map((m) =>
+                    m.id === aiId ? { ...m, content: "Perfect! I've identified your systems. Now let's configure the connections.", status: 'sent' } : m
+                  ),
+                  aiThinking: false,
+                  isProcessingLLM: false,
+                  conversationHistory: newHistory,
+                }));
+
+                // Start field collection after a brief delay
+                setTimeout(() => {
+                  get().startSmartCollection();
+                }, 500);
+              }, remainingTime);
             } else {
               // Generate standard AI response
               const aiResponse =
                 result.data.followUpQuestion ||
                 "Great! I've updated your flow. What would you like to configure next?";
 
-              set((s) => ({
-                messages: s.messages.map((m) =>
-                  m.id === aiId ? { ...m, content: aiResponse, status: 'sent' } : m
-                ),
-                aiThinking: false,
-                isProcessingLLM: false,
-                conversationHistory: newHistory,
-              }));
+              setTimeout(() => {
+                set((s) => ({
+                  messages: s.messages.map((m) =>
+                    m.id === aiId ? { ...m, content: aiResponse, status: 'sent' } : m
+                  ),
+                  aiThinking: false,
+                  isProcessingLLM: false,
+                  conversationHistory: newHistory,
+                }));
+              }, remainingTime);
             }
           } else {
             throw new Error(result.error || 'Failed to parse flow');
@@ -846,43 +1031,95 @@ export const useChatStore = create<ChatState>()(
           const errorResponse =
             "I'm having trouble understanding that. Could you please rephrase your request?";
 
-          set((s) => ({
-            messages: s.messages.map((m) =>
-              m.id === aiId ? { ...m, content: errorResponse, status: 'sent' } : m
-            ),
-            aiThinking: false,
-            isProcessingLLM: false,
-          }));
+          // Use the same minimum thinking duration for error responses
+          const errorRemainingTime = Math.max(0, 500);
+          
+          setTimeout(() => {
+            set((s) => ({
+              messages: s.messages.map((m) =>
+                m.id === aiId ? { ...m, content: errorResponse, status: 'sent' } : m
+              ),
+              aiThinking: false,
+              isProcessingLLM: false,
+            }));
+          }, errorRemainingTime);
         }
+      },
+
+      // Helper function to add thinking animation to any AI response
+      addAIResponseWithThinking: (content: string, additionalUpdates?: Record<string, unknown>) => {
+        console.log('🤖 addAIResponseWithThinking called with:', content.substring(0, 50) + '...');
+        const aiId = crypto.randomUUID();
+        
+        // FIRST: Create thinking message
+        const thinkingMessage: Message = {
+          id: aiId,
+          type: 'ai',
+          content: '',
+          status: 'thinking',
+          createdAt: Date.now(),
+        };
+
+        console.log('💭 Adding thinking message with ID:', aiId);
+        set((state) => ({
+          messages: [...state.messages, thinkingMessage],
+          aiThinking: true,
+          ...additionalUpdates,
+        }));
+
+        // THEN: After 500ms minimum, show the actual response
+        const thinkingStartTime = Date.now();
+        const minThinkingDuration = 500;
+        
+        setTimeout(() => {
+          const elapsedTime = Date.now() - thinkingStartTime;
+          const remainingTime = Math.max(0, minThinkingDuration - elapsedTime);
+          
+          console.log(`⏱️ Elapsed: ${elapsedTime}ms, Remaining: ${remainingTime}ms`);
+          
+          setTimeout(() => {
+            console.log('✅ Updating message to sent status');
+            set((state) => ({
+              messages: state.messages.map((m) =>
+                m.id === aiId ? { 
+                  ...m, 
+                  content, 
+                  status: 'sent' 
+                } : m
+              ),
+              aiThinking: false,
+            }));
+          }, remainingTime);
+        }, 0);
       },
 
       // Field Collection Methods
       startSmartCollection: () => {
+        console.log('🚀 startSmartCollection called');
         const canvasState = useCanvasStore.getState();
         const analysis = analyzeCanvasForCollection(canvasState);
         
+        console.log('📊 Analysis:', analysis);
+        
         if (analysis.totalStepsNeeded === 0) {
+          console.log('⚠️ No steps needed, returning early');
           return;
         }
 
         const collectionState = FieldCollectionOrchestrator.createCollectionPlan(canvasState);
+        console.log('📋 Collection state:', collectionState);
         
         if (collectionState.currentStep) {
-          const aiId = crypto.randomUUID();
-          const aiMessage: Message = {
-            id: aiId,
-            type: 'ai',
-            content: collectionState.currentStep.question,
-            status: 'sent',
-            createdAt: Date.now(),
-          };
-
-          set((state) => ({
-            messages: [...state.messages, aiMessage],
-            fieldCollectionState: collectionState,
-            isCollectingFields: true,
-          }));
-
+          console.log('✨ Adding AI response with thinking for:', collectionState.currentStep.question);
+          get().addAIResponseWithThinking(
+            collectionState.currentStep.question,
+            {
+              fieldCollectionState: collectionState,
+              isCollectingFields: true,
+            }
+          );
+        } else {
+          console.log('⚠️ No current step found');
         }
       },
 
@@ -898,38 +1135,15 @@ export const useChatStore = create<ChatState>()(
         const result = FieldCollectionOrchestrator.processInput(input, fieldCollectionState.currentStep);
         
         if (!result.success) {
-          // Show error message
-          const aiId = crypto.randomUUID();
-          const errorMessage: Message = {
-            id: aiId,
-            type: 'ai',
-            content: result.error || 'Please provide a valid input.',
-            status: 'sent',
-            createdAt: Date.now(),
-          };
-
-          set((state) => ({
-            messages: [...state.messages, errorMessage],
-          }));
+          // Show error message with thinking animation
+          get().addAIResponseWithThinking(result.error || 'Please provide a valid input.');
           return;
         }
 
         // Handle skipped fields
         if (result.wasSkipped) {
-          
-          // Add confirmation message for skipped field
-          const aiId = crypto.randomUUID();
-          const skipMessage: Message = {
-            id: aiId,
-            type: 'ai',
-            content: `Okay, I'll skip the ${fieldCollectionState.currentStep.currentField} field.`,
-            status: 'sent',
-            createdAt: Date.now(),
-          };
-
-          set((state) => ({
-            messages: [...state.messages, skipMessage],
-          }));
+          // Add confirmation message for skipped field with thinking animation
+          get().addAIResponseWithThinking(`Okay, I'll skip the ${fieldCollectionState.currentStep.currentField} field.`);
         }
 
         // Apply canvas update (only if not skipped)
@@ -1004,7 +1218,6 @@ export const useChatStore = create<ChatState>()(
           const nextNodeType = nextStep.nodeType;
           const isNodeTransition = currentNodeType !== nextNodeType;
           
-          const aiId = crypto.randomUUID();
           let messageContent = nextStep.question;
           
           // Add node completion message if transitioning
@@ -1021,24 +1234,18 @@ export const useChatStore = create<ChatState>()(
             messageContent = `Great! Your ${completedNodeName} is fully configured. Now let's set up your ${nextNodeName}.\n\n${nextStep.question}`;
           }
           
-          const nextMessage: Message = {
-            id: aiId,
-            type: 'ai',
-            content: messageContent,
-            status: 'sent',
-            createdAt: Date.now(),
-          };
-
           const updatedCollectionState: CollectionState = {
             ...fieldCollectionState,
             currentStep: nextStep,
             completedSteps: [...fieldCollectionState.completedSteps, fieldCollectionState.currentStep]
           };
 
-          set((state) => ({
-            messages: [...state.messages, nextMessage],
-            fieldCollectionState: updatedCollectionState,
-          }));
+          get().addAIResponseWithThinking(
+            messageContent,
+            {
+              fieldCollectionState: updatedCollectionState,
+            }
+          );
 
         } else {
           // Collection complete
@@ -1047,21 +1254,13 @@ export const useChatStore = create<ChatState>()(
       },
 
       completeFieldCollection: () => {
-        const aiId = crypto.randomUUID();
-        const completionMessage: Message = {
-          id: aiId,
-          type: 'ai',
-          content: 'Perfect! Your data flow is now fully configured. You can see all the connections and credentials in the canvas. Is there anything else you\'d like to adjust?',
-          status: 'sent',
-          createdAt: Date.now(),
-        };
-
-        set((state) => ({
-          messages: [...state.messages, completionMessage],
-          fieldCollectionState: null,
-          isCollectingFields: false,
-        }));
-
+        get().addAIResponseWithThinking(
+          'Perfect! Your data flow is now fully configured. You can see all the connections and credentials in the canvas. Is there anything else you\'d like to adjust?',
+          {
+            fieldCollectionState: null,
+            isCollectingFields: false,
+          }
+        );
       },
 
       skipFieldCollection: () => {

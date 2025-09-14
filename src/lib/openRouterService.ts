@@ -25,6 +25,14 @@ FOCUS ON SYSTEM IDENTIFICATION:
 2. Transform operations (how to process data) 
 3. Destination system (where data goes)
 
+TRANSFORMATION DETECTION:
+- "format/cleanse user data" → transform: "Data Cleansing"
+- "map and validate" → transform: "Map & Validate"  
+- "transform data" → transform: "Data Transformation"
+- "clean and format" → transform: "Data Cleansing"
+- "normalize data" → transform: "Data Normalization"
+- "aggregate and analyze" → transform: "Data Aggregation"
+
 IMPORTANT RULES:
 1. Only identify systems that are explicitly mentioned by the user
 2. Don't assume default transforms - only set transform when explicitly mentioned
@@ -33,7 +41,8 @@ IMPORTANT RULES:
 5. Focus on understanding the data flow intent
 6. Use exact connector names from the catalog when possible
 7. Only set transform when explicitly mentioned - do NOT assume default transforms
-8. **CRITICAL RULE**: ALWAYS ask for role clarification unless the role is EXPLICITLY clear from context
+8. **CRITICAL WEBHOOK RULE**: When user says "webhook", "HTTP endpoint", "REST endpoint", "web hook", "send to webhook" → ALWAYS use "Webhook" connector. DO NOT confuse with Sendgrid, Mailchimp, or any email service!
+9. **CRITICAL RULE**: ALWAYS ask for role clarification unless the role is EXPLICITLY clear from context
 
 ROLE CLARITY REQUIREMENTS:
 - If user says just a connector name (like "Shopify", "BigQuery", "Salesforce") → ALWAYS set needsRoleClarity
@@ -46,6 +55,10 @@ SYSTEM IDENTIFICATION EXAMPLES:
 - "Sync Salesforce contacts to Mailchimp" → source: "Salesforce", destination: "Mailchimp", transform: null (CLEAR ROLES)
 - "Get data from PostgreSQL" → source: "PostgreSQL", destination: null, transform: null (CLEAR SOURCE ROLE)
 - "Send data to Snowflake" → source: null, destination: "Snowflake", transform: null (CLEAR DESTINATION ROLE)
+- "Get PostgreSQL users and send to webhook" → source: "PostgreSQL", destination: "Webhook", transform: null (CLEAR ROLES)
+- "Send to a webhook" → destination: "Webhook", transform: null (CLEAR DESTINATION ROLE)
+- "Get PostgreSQL users and send to a webhook" → source: "PostgreSQL", destination: "Webhook" (NOT Sendgrid!)
+- "webhook endpoint" → destination: "Webhook" (NOT any email service!)
 - "I want to use Salesforce as my source" → source: "Salesforce", destination: null, transform: null (CLEAR SOURCE ROLE)
 
 EXAMPLES REQUIRING ROLE CLARITY:

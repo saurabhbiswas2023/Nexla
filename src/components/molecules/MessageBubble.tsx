@@ -1,4 +1,4 @@
-import { Bot, User as UserIcon, CheckCheck, AlertCircle, Loader } from 'lucide-react';
+import { Bot, User as UserIcon, CheckCheck, AlertCircle } from 'lucide-react';
 
 type Props = {
   type: 'user' | 'ai';
@@ -26,37 +26,33 @@ export function MessageBubble({ type, content, status, createdAt, highlight }: P
           <div className={isUser ? 'text-white/80' : 'text-slate-600'}>
             {isUser ? 'You' : 'NexBot'}
           </div>
+          {/* Thinking animation in header for AI messages */}
+          {!isUser && status === 'thinking' && (
+            <div className="inline-flex items-center gap-1 ml-2">
+              <span
+                className="h-1.5 w-1.5 rounded-full bg-violet-400 thinking-bounce shadow-sm [animation-delay:-0.2s]"
+                style={{ boxShadow: '0 0 4px rgba(139,92,246,0.4)' }}
+              />
+              <span
+                className="h-1.5 w-1.5 rounded-full bg-violet-400 thinking-bounce shadow-sm"
+                style={{ boxShadow: '0 0 4px rgba(139,92,246,0.4)' }}
+              />
+            </div>
+          )}
           {meta && <div className={isUser ? 'text-white/60' : 'text-slate-400'}>· {meta}</div>}
           <div className="ml-auto inline-flex items-center gap-1">
-            {status === 'thinking' && (
-              <Loader
-                size={14}
-                className={isUser ? 'animate-spin text-white/80' : 'animate-spin text-slate-400'}
-              />
-            )}
             {status === 'sent' && (
               <CheckCheck size={14} className={isUser ? 'text-white/80' : 'text-slate-400'} />
             )}
             {status === 'error' && <AlertCircle size={14} className="text-red-500" />}
           </div>
         </div>
-        <div className={`mt-1 whitespace-pre-wrap ${isUser ? '' : 'text-slate-900'}`}>
-          {status === 'thinking' ? (
-            <span className="inline-flex items-center gap-1">
-              <span
-                className={`h-2 w-2 rounded-full ${isUser ? 'bg-white/70' : 'bg-slate-400'} animate-bounce [animation-delay:-0.2s]`}
-              />
-              <span
-                className={`h-2 w-2 rounded-full ${isUser ? 'bg-white/70' : 'bg-slate-400'} animate-bounce [animation-delay:-0.1s]`}
-              />
-              <span
-                className={`h-2 w-2 rounded-full ${isUser ? 'bg-white/70' : 'bg-slate-400'} animate-bounce`}
-              />
-            </span>
-          ) : (
-            content
-          )}
-        </div>
+        {/* Only show content when not thinking */}
+        {status !== 'thinking' && (
+          <div className={`mt-1 whitespace-pre-wrap ${isUser ? '' : 'text-slate-900'}`}>
+            {content}
+          </div>
+        )}
       </div>
     </div>
   );

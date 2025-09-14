@@ -81,6 +81,11 @@ export function analyzeCanvasForCollection(canvasState: CanvasState): CanvasAnal
   const hasEmptyMandatoryFields = (nodeType: 'source' | 'transform' | 'destination', nodeName: string): boolean => {
     if (isDummyNode(nodeName)) return false; // Can't check fields for dummy nodes
     
+    // Special handling for Data Analysis transform - autocomplete (no fields needed)
+    if (nodeType === 'transform' && nodeName === 'Data Analysis') {
+      return false; // Data Analysis is always complete, no fields needed
+    }
+    
     // Special handling for Enrich & Map transform
     if (nodeType === 'transform' && nodeName === 'Enrich & Map') {
       const nodeValues = canvasState.nodeValues[nodeType] || {};
@@ -752,7 +757,7 @@ export class FieldCollectionOrchestrator {
     
     // Handle transform types specially
     if (nodeType === 'transform') {
-      const transformTypes = ['Map & Validate', 'Cleanse', 'Enrich & Map'];
+      const transformTypes = ['Map & Validate', 'Cleanse', 'Enrich & Map', 'Data Analysis'];
       const match = transformTypes.find(type => 
         type.toLowerCase().includes(lowerInput) || lowerInput.includes(type.toLowerCase())
       );

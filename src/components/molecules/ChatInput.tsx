@@ -1,4 +1,4 @@
-import { memo, forwardRef, useEffect, useRef } from 'react';
+import { memo, forwardRef, useEffect, useRef, useImperativeHandle } from 'react';
 import { SendHorizontal } from 'lucide-react';
 import { sanitizeInput } from '../../lib/security';
 
@@ -37,6 +37,10 @@ interface ChatInputProps {
   submitTestId?: string;
 }
 
+export interface ChatInputRef {
+  focus: () => void;
+}
+
 /**
  * ChatInput Molecule Component
  *
@@ -57,7 +61,7 @@ interface ChatInputProps {
  * />
  * ```
  */
-export const ChatInput = memo(forwardRef<HTMLFormElement, ChatInputProps>(
+export const ChatInput = memo(forwardRef<ChatInputRef, ChatInputProps>(
   function ChatInput({
     value,
     onChange,
@@ -69,6 +73,14 @@ export const ChatInput = memo(forwardRef<HTMLFormElement, ChatInputProps>(
     submitTestId = 'send-button',
   }, ref) {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const formRef = useRef<HTMLFormElement>(null);
+
+    // Expose focus method to parent components
+    useImperativeHandle(ref, () => ({
+      focus: () => {
+        textareaRef.current?.focus();
+      }
+    }), []);
 
     // Auto-resize textarea
     useEffect(() => {
@@ -124,7 +136,7 @@ export const ChatInput = memo(forwardRef<HTMLFormElement, ChatInputProps>(
 
     return (
       <form
-        ref={ref}
+        ref={formRef}
         onSubmit={handleSubmit}
         className={`flex-shrink-0 p-4 border-t border-gray-200 bg-gray-50 ${className}`}
         role="form"
