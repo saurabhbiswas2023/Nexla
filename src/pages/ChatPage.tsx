@@ -35,8 +35,6 @@ export function ChatPage() {
   const headerRef = useRef<HTMLElement | null>(null);
   const chatInputRef = useRef<ChatInputRef | null>(null);
   
-  // State for dynamic message area height
-  const [messageAreaMaxHeight, setMessageAreaMaxHeight] = useState<string>('calc(100vh - 280px)');
   
   // State for showing back to top button
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -90,41 +88,6 @@ export function ChatPage() {
     });
   };
 
-  // Calculate dynamic message area height
-  useEffect(() => {
-    const calculateMessageAreaHeight = () => {
-      const headerHeight = headerRef.current?.offsetHeight || 60; // Header height
-      const inputAreaHeight = 120; // Fixed input area height estimate
-      const footerHeight = 50; // Footer height (from Footer component)
-      const padding = 50; // Extra padding for safety
-      
-      const availableHeight = window.innerHeight - headerHeight - inputAreaHeight - footerHeight - padding;
-      setMessageAreaMaxHeight(`${Math.max(200, availableHeight)}px`); // Minimum 200px
-    };
-
-    // Calculate on mount and resize
-    calculateMessageAreaHeight();
-    window.addEventListener('resize', calculateMessageAreaHeight);
-    
-    return () => window.removeEventListener('resize', calculateMessageAreaHeight);
-  }, []);
-
-  // Recalculate when input area changes (textarea grows)
-  useEffect(() => {
-    const calculateMessageAreaHeight = () => {
-      const headerHeight = headerRef.current?.offsetHeight || 60;
-      const inputAreaHeight = 120; // Fixed input area height estimate
-      const footerHeight = 50;
-      const padding = 50;
-      
-      const availableHeight = window.innerHeight - headerHeight - inputAreaHeight - footerHeight - padding;
-      setMessageAreaMaxHeight(`${Math.max(200, availableHeight)}px`);
-    };
-
-    // Small delay to ensure DOM has updated after input change
-    const timeoutId = setTimeout(calculateMessageAreaHeight, 10);
-    return () => clearTimeout(timeoutId);
-  }, [input]);
 
   // Show/hide back to top button based on scroll position
   useEffect(() => {
@@ -151,12 +114,12 @@ export function ChatPage() {
       </div>
 
       {/* Mobile-first responsive content */}
-      <main className="w-full h-full overflow-hidden relative z-20">
+      <main className="w-full min-h-0 overflow-hidden relative z-20">
         {/* Mobile: Vertical stack, Desktop: Horizontal grid */}
         <div className="h-full flex flex-col lg:grid lg:grid-cols-[40%_60%] lg:overflow-hidden">
           {/* Chat Section */}
           <div
-            className="flex flex-col h-screen lg:h-full border-r-0 lg:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800"
+            className="flex flex-col min-h-[50vh] lg:min-h-0 lg:h-full border-r-0 lg:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 pb-14 lg:pb-0"
             data-testid="chat-interface"
           >
             {/* Message Area - Organism */}
@@ -164,7 +127,6 @@ export function ChatPage() {
               messages={messages}
               aiThinking={aiThinking}
               highlightId={highlightId}
-              maxHeight={messageAreaMaxHeight}
             />
             
             {/* Chat Input - Molecule */}
@@ -186,14 +148,14 @@ export function ChatPage() {
           </div>
           
           {/* Canvas Section - Scrollable on mobile, fixed on desktop */}
-          <div className="h-screen lg:h-full bg-gray-50 dark:bg-slate-900 p-4" data-testid="canvas-container">
-            <div className="h-full bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 flex flex-col overflow-hidden">
+          <div className="min-h-[150vh] lg:h-full bg-gray-50 dark:bg-slate-900 p-4 pb-14 lg:pb-4" data-testid="canvas-container">
+            <div className="min-h-[130vh] lg:min-h-[400px] h-full bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 flex flex-col overflow-hidden">
               <div className="lg:hidden mb-4 text-center flex-shrink-0">
                 <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Data Flow Canvas</h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Your data flow visualization appears here</p>
               </div>
-              <div className="flex-1 min-h-0 overflow-hidden">
-                <div className="h-full w-full">
+              <div className="flex-1 min-h-[120vh] lg:min-h-[300px] overflow-hidden">
+                <div className="h-full w-full min-h-[120vh] lg:min-h-[300px]">
                   <Suspense fallback={<CanvasLoader />}>
                     <Canvas 
                       showControls={false} 
