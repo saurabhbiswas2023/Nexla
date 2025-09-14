@@ -41,7 +41,7 @@ export function Footer({
 }: FooterProps) {
   return (
     <footer
-      className={`bg-blue-600 text-white py-3 px-4 text-center text-sm min-h-[50px] flex items-center justify-center ${className}`}
+      className={`bg-blue-600 dark:bg-slate-800 text-white dark:text-slate-300 py-3 px-4 text-center text-sm min-h-[50px] flex items-center justify-center ${className}`}
       role="contentinfo"
       aria-label="Site footer"
       {...props}

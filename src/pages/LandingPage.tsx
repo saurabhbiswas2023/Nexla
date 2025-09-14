@@ -6,6 +6,7 @@ import { Footer } from '../components/atoms/Footer';
 import { SearchCard } from '../components/molecules/SearchCard';
 import { ExampleCard } from '../components/molecules/ExampleCard';
 import { HeroSection } from '../components/organisms/HeroSection';
+import { ThemeToggle } from '../components/atoms/ThemeToggle';
 import nexbVideo from '../assets/video/nexb.mp4';
 
 export function LandingPage() {
@@ -36,8 +37,8 @@ export function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative">
-      {/* Full-Screen Video Background - Desktop Only */}
+    <div className="min-h-screen flex flex-col relative bg-white dark:bg-transparent">
+      {/* Full-Screen Video Background - Desktop Only (Both Light & Dark) */}
       <video
         className="hidden lg:block fixed top-0 left-0 w-full h-full object-cover z-0"
         autoPlay
@@ -50,10 +51,11 @@ export function LandingPage() {
       </video>
 
       {/* Dark overlay for better text readability - Desktop Only */}
-      <div className="hidden lg:block fixed top-0 left-0 w-full h-full bg-black bg-opacity-40 z-10"></div>
+      <div className="hidden lg:block fixed top-0 left-0 w-full h-full bg-black bg-opacity-30 dark:bg-opacity-40 z-10"></div>
 
-      {/* Mobile/Tablet Background - Clean gradient */}
-      <div className="lg:hidden fixed top-0 left-0 w-full h-full bg-gradient-to-br from-violet-600 via-blue-600 to-indigo-700 z-0"></div>
+
+      {/* Theme Toggle - Top Right */}
+      <ThemeToggle className="fixed top-4 right-4 z-30" size="md" />
 
       {/* Content over video */}
       <div className="relative z-20 flex flex-col min-h-screen">
@@ -73,7 +75,7 @@ export function LandingPage() {
           />
 
           {/* Examples */}
-          <div className="text-center mt-10 text-slate-500 text-sm">OR TRY ONE OF THESE EXAMPLES</div>
+          <div className="text-center mt-10 text-slate-500 dark:text-slate-400 text-sm">OR TRY ONE OF THESE EXAMPLES</div>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             {[
               'Connect Shopify to BigQuery',

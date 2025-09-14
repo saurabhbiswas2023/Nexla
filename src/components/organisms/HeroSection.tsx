@@ -47,13 +47,13 @@ export const HeroSection = memo(function HeroSection({
   subtitle = 'AI‑Powered Orchestration for Your Data Flows',
   logo = 'N',
   className = '',
-  backgroundClassName = 'lg:bg-none bg-gradient-to-b from-violet-700 to-blue-500',
+  backgroundClassName = 'lg:bg-none lg:dark:bg-none bg-gradient-to-b from-violet-600 to-blue-600 dark:from-violet-700 dark:to-blue-500',
 }: HeroSectionProps) {
   return (
-    <div className={`${backgroundClassName} text-white pb-6 ${className}`}>
+    <div className={`${backgroundClassName} text-white dark:text-white lg:text-slate-800 lg:dark:text-white pb-6 ${className}`}>
       <div className="container-narrow py-6 text-center">
         <div 
-          className="mx-auto w-14 h-14 rounded-full bg-white/95 text-blue-600 grid place-items-center font-bold text-xl"
+          className="mx-auto w-14 h-14 rounded-full bg-white/95 dark:bg-white/95 lg:bg-blue-600 lg:dark:bg-white/95 text-blue-600 dark:text-blue-600 lg:text-white lg:dark:text-blue-600 grid place-items-center font-bold text-xl"
           role="img"
           aria-label="Nexla logo"
         >
@@ -62,7 +62,7 @@ export const HeroSection = memo(function HeroSection({
         <h1 className="mt-3 text-4xl font-bold sm:text-5xl lg:text-6xl">
           {title}
         </h1>
-        <p className="mt-1 text-lg text-blue-100 sm:text-xl lg:text-2xl max-w-2xl mx-auto">
+        <p className="mt-1 text-lg text-blue-100 dark:text-blue-100  sm:text-xl lg:text-2xl max-w-2xl mx-auto">
           {subtitle}
         </p>
       </div>

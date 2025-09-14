@@ -6,6 +6,7 @@ import { ChatInput } from '../components/molecules/ChatInput';
 import { MessageArea } from '../components/organisms/MessageArea';
 import { ScrollIndicator } from '../components/atoms/ScrollIndicator';
 import { Button } from '../components/atoms/Button';
+import { ThemeToggle } from '../components/atoms/ThemeToggle';
 import { useEffect, useRef, useState } from 'react';
 
 export function ChatPage() {
@@ -73,21 +74,25 @@ export function ChatPage() {
   }, []);
 
   return (
-    <div className="min-h-screen w-screen grid grid-rows-[auto_1fr_auto] lg:h-screen lg:overflow-hidden">
+    <div className="min-h-screen w-screen grid grid-rows-[auto_1fr_auto] lg:h-screen lg:overflow-hidden relative bg-white dark:bg-slate-900">
+      {/* Theme Toggle - Top Right */}
+      <ThemeToggle className="fixed top-4 right-4 z-30" size="md" />
       {/* Chat Header - Molecule */}
-      <ChatHeader 
-        ref={headerRef}
-        botName="NexBot"
-        statusMessage="How can I help you today?"
-      />
+      <div className="relative z-20">
+        <ChatHeader 
+          ref={headerRef}
+          botName="NexBot"
+          statusMessage="How can I help you today?"
+        />
+      </div>
 
       {/* Mobile-first responsive content */}
-      <main className="w-full h-full overflow-hidden">
+      <main className="w-full h-full overflow-hidden relative z-20">
         {/* Mobile: Vertical stack, Desktop: Horizontal grid */}
         <div className="h-full flex flex-col lg:grid lg:grid-cols-[40%_60%] lg:overflow-hidden">
           {/* Chat Section */}
           <div
-            className="flex flex-col h-screen lg:h-full border-r-0 lg:border-r border-gray-200 bg-white"
+            className="flex flex-col h-screen lg:h-full border-r-0 lg:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800"
             data-testid="chat-interface"
           >
             {/* Message Area - Organism */}
@@ -117,11 +122,11 @@ export function ChatPage() {
           </div>
           
           {/* Canvas Section - Scrollable on mobile, fixed on desktop */}
-          <div className="h-screen lg:h-full bg-gray-50 p-4" data-testid="canvas-container">
-            <div className="h-full bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col overflow-hidden">
+          <div className="h-screen lg:h-full bg-gray-50 dark:bg-slate-900 p-4" data-testid="canvas-container">
+            <div className="h-full bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 flex flex-col overflow-hidden">
               <div className="lg:hidden mb-4 text-center flex-shrink-0">
-                <h2 className="text-lg font-semibold text-gray-800">Data Flow Canvas</h2>
-                <p className="text-sm text-gray-600">Your data flow visualization appears here</p>
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Data Flow Canvas</h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Your data flow visualization appears here</p>
               </div>
               <div className="flex-1 min-h-0 overflow-hidden">
                 <div className="h-full w-full">
@@ -134,7 +139,9 @@ export function ChatPage() {
       </main>
 
       {/* Footer - Reusable Footer Atom */}
-      <Footer className="border-t" />
+      <div className="relative z-20">
+        <Footer className="border-t" />
+      </div>
       
       {/* Back to Top Button - Mobile Only */}
       <Button

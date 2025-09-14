@@ -331,14 +331,14 @@ export const SearchCard = memo(function SearchCard({
   return (
     <div 
       ref={containerRef}
-      className={`mx-auto max-w-3xl rounded-2xl bg-white shadow-xl p-6 relative ${className}`}
+      className={`mx-auto max-w-3xl rounded-2xl bg-white dark:bg-slate-800 shadow-xl dark:shadow-2xl p-6 relative ${className}`}
     >
       <div className="flex gap-3">
         <div className="flex-1 relative">
           <Input
             ref={inputRef}
             data-testid={inputTestId}
-            className="flex-1 bg-slate-50"
+            className="flex-1 bg-slate-50 dark:bg-slate-700 dark:text-white"
             placeholder={placeholder}
             value={inputValue}
             onChange={handleInputChange}
@@ -373,7 +373,7 @@ export const SearchCard = memo(function SearchCard({
           {error && (
             <div 
               id="search-error" 
-              className="mt-2 text-sm text-red-600"
+              className="mt-2 text-sm text-red-600 dark:text-red-400"
               role="alert"
               aria-live="polite"
             >

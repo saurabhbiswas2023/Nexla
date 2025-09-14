@@ -11,9 +11,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const baseClasses = 'rounded border transition-colors focus:outline-none focus:ring-1';
 
     const variantClasses = {
-      default: 'border-slate-300 focus:ring-blue-300 focus:border-blue-500',
-      error: 'border-red-ultra-light focus:ring-red-300 focus:border-red-500',
-      success: 'border-green-300 focus:ring-green-300 focus:border-green-500',
+      default: 'border-slate-300 dark:border-slate-600 focus:ring-blue-300 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400',
+      error: 'border-red-ultra-light dark:border-red-400 focus:ring-red-300 dark:focus:ring-red-400 focus:border-red-500 dark:focus:border-red-400',
+      success: 'border-green-300 dark:border-green-400 focus:ring-green-300 dark:focus:ring-green-400 focus:border-green-500 dark:focus:border-green-400',
     };
 
     const sizeClasses = {

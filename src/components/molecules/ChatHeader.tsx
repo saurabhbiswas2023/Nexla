@@ -46,12 +46,12 @@ export const ChatHeader = memo(forwardRef<HTMLElement, ChatHeaderProps>(
     botName = 'NexBot',
     statusMessage = 'How can I help you today?',
     className = '',
-    backgroundClassName = 'bg-violet-600',
+    backgroundClassName = 'bg-violet-600 dark:bg-slate-800',
   }, ref) {
     return (
       <header 
         ref={ref}
-        className={`border-b text-white ${backgroundClassName} ${className}`}
+        className={`border-b border-gray-200 dark:border-gray-700 text-white dark:text-gray-200 ${backgroundClassName} ${className}`}
         role="banner"
         aria-label="Chat header"
       >
@@ -74,7 +74,7 @@ export const ChatHeader = memo(forwardRef<HTMLElement, ChatHeaderProps>(
           </div>
           
           {/* Home button to reset and go back to landing */}
-          <div className="ml-auto">
+          <div className="ml-auto mr-12">
             <button
               onClick={() => {
                 // Reset all stores before navigation
@@ -91,7 +91,7 @@ export const ChatHeader = memo(forwardRef<HTMLElement, ChatHeaderProps>(
                 // Navigate to home
                 window.location.href = '/';
               }}
-              className="flex items-center gap-2 px-3 py-2 rounded-md bg-white/10 hover:bg-white/20 transition-colors text-white/90 hover:text-white text-sm font-medium min-h-[44px]"
+              className="flex items-center gap-2 px-3 py-2 rounded-md bg-white/10 hover:bg-white/20 dark:bg-gray-700/50 dark:hover:bg-gray-700 transition-colors text-white/90 hover:text-white dark:text-gray-200 dark:hover:text-white text-sm font-medium min-h-[44px]"
               aria-label="Go back to home page and start fresh"
               title="Start Fresh - Go to Home"
             >

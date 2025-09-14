@@ -62,9 +62,9 @@ export const Button = memo(function Button({
 
   // Color variants
   const variants = {
-    primary: 'bg-violet-600 text-white hover:bg-violet-500 focus:ring-violet-600 active:bg-violet-700 shadow-sm hover:shadow-md',
-    ghost: 'bg-transparent hover:bg-slate-100 active:bg-slate-200 text-slate-700 border border-slate-300 hover:border-slate-400',
-    floating: 'bg-violet-600 text-white rounded-full shadow-lg hover:shadow-xl hover:bg-violet-500 focus:ring-violet-600 px-4 py-3 gap-2',
+    primary: 'bg-violet-600 dark:bg-violet-500 text-white hover:bg-violet-500 dark:hover:bg-violet-400 focus:ring-violet-600 dark:focus:ring-violet-400 active:bg-violet-700 dark:active:bg-violet-600 shadow-sm hover:shadow-md',
+    ghost: 'bg-transparent hover:bg-slate-100 dark:hover:bg-slate-700 active:bg-slate-200 dark:active:bg-slate-600 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500',
+    floating: 'bg-violet-600 dark:bg-violet-500 text-white rounded-full shadow-lg hover:shadow-xl hover:bg-violet-500 dark:hover:bg-violet-400 focus:ring-violet-600 dark:focus:ring-violet-400 px-4 py-3 gap-2',
   } as const;
 
   // Position variants

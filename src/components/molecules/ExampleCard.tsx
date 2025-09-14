@@ -61,8 +61,8 @@ export const ExampleCard = memo(function ExampleCard({
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       className={`
-        rounded-xl border bg-white p-4 text-left shadow-sm 
-        hover:shadow-md focus:outline-none focus:ring-2 focus:ring-violet-600 focus:ring-offset-2
+        rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 p-4 text-left shadow-sm dark:shadow-lg
+        hover:shadow-md dark:hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-violet-600 dark:focus:ring-violet-400 focus:ring-offset-2 dark:focus:ring-offset-slate-800
         transition-all duration-200 w-full min-h-[44px]
         ${className}
       `}
@@ -74,7 +74,7 @@ export const ExampleCard = memo(function ExampleCard({
           size="md"
           className="flex-shrink-0"
         />
-        <div className="text-slate-800 font-medium">{label}</div>
+        <div className="text-slate-800 dark:text-slate-200 font-medium">{label}</div>
       </div>
     </button>
   );
