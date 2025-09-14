@@ -47,7 +47,7 @@ export const HeroSection = memo(function HeroSection({
   subtitle = 'AI‑Powered Orchestration for Your Data Flows',
   logo = 'N',
   className = '',
-  backgroundClassName = 'lg:bg-none lg:dark:bg-none bg-gradient-to-b from-violet-600 to-blue-600 dark:from-violet-700 dark:to-blue-500',
+  backgroundClassName = 'bg-gradient-to-b from-violet-600 to-blue-600 dark:from-violet-700 dark:to-blue-500',
 }: HeroSectionProps) {
   return (
     <div className={`${backgroundClassName} text-white dark:text-white lg:text-slate-800 lg:dark:text-white pb-6 ${className}`}>
