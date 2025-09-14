@@ -81,6 +81,13 @@ export function analyzeCanvasForCollection(canvasState: CanvasState): CanvasAnal
   const hasEmptyMandatoryFields = (nodeType: 'source' | 'transform' | 'destination', nodeName: string): boolean => {
     if (isDummyNode(nodeName)) return false; // Can't check fields for dummy nodes
     
+    // Special handling for Enrich & Map transform
+    if (nodeType === 'transform' && nodeName === 'Enrich & Map') {
+      const nodeValues = canvasState.nodeValues[nodeType] || {};
+      // Enrich & Map needs at least one field to be complete
+      return Object.keys(nodeValues).length === 0;
+    }
+    
     const connector = connectorCatalog[nodeName];
     if (!connector) return false;
 
@@ -411,8 +418,22 @@ export class FieldCollectionOrchestrator {
     }
     
     // If we just completed an optional field, check if there are more optional fields for this node
+    // BUT: For Enrich & Map, after collecting the mandatory field, move to next node instead of asking for more optional fields
     if (currentStep.stepType === 'optional-fields' && currentStep.remainingFields.length > 0) {
       const systemName = currentStep.systemName!;
+      
+      // Special handling for Enrich & Map: After first field (mandatory), move to next node
+      if (systemName === 'Enrich & Map') {
+        // Check if we have at least one field collected (the mandatory one)
+        const currentValues = canvasState.nodeValues[currentNodeType] || {};
+        const hasRequiredField = Object.keys(currentValues).length > 0;
+        
+        if (hasRequiredField) {
+          // Move to next node instead of asking for more optional fields
+          return this.getNextIncompleteNode(currentNodeType, canvasState, currentStep.currentStepIndex + 1, currentStep.totalSteps);
+        }
+      }
+      
       const currentValues = canvasState.nodeValues[currentNodeType] || {};
       const allFields = currentStep.allFields!;
       
@@ -696,6 +717,14 @@ export class FieldCollectionOrchestrator {
    * Gets connector fields for a system
    */
   private static getFieldsForConnector(systemName: string): { mandatory: string[]; optional: string[] } {
+    // Special handling for Enrich & Map transform
+    if (systemName === 'Enrich & Map') {
+      return {
+        mandatory: ['enrichment_field'], // At least one field required
+        optional: ['additional_field_1', 'additional_field_2', 'additional_field_3']
+      };
+    }
+    
     const connector = connectorCatalog[systemName];
     return connector ? { 
       mandatory: connector.credentials.mandatory, 
@@ -812,7 +841,12 @@ export class FieldCollectionOrchestrator {
       'apiKey': 'sk-1234567890abcdef',
       'token': 'abc123def456',
       'clientId': '3MVG9...',
-      'storeDomain': 'mystore.myshopify.com'
+      'storeDomain': 'mystore.myshopify.com',
+      // Enrich & Map transform fields
+      'enrichment_field': 'customer_score, geo_location, sentiment_analysis',
+      'additional_field_1': 'data_quality_score, duplicate_detection',
+      'additional_field_2': 'address_standardization, phone_validation',
+      'additional_field_3': 'email_verification, company_enrichment'
     };
 
     return examples[fieldName] || null;
@@ -834,7 +868,12 @@ export class FieldCollectionOrchestrator {
       'token': 'access token',
       'clientId': 'client ID',
       'clientSecret': 'client secret',
-      'storeDomain': 'store domain'
+      'storeDomain': 'store domain',
+      // Enrich & Map transform fields
+      'enrichment_field': 'primary enrichment field',
+      'additional_field_1': 'additional enrichment field',
+      'additional_field_2': 'additional enrichment field',
+      'additional_field_3': 'additional enrichment field'
     };
 
     return descriptions[fieldName] || fieldName;

@@ -1,4 +1,5 @@
 import { connectorCatalog } from './connectorCatalog';
+import { logger } from './logger';
 
 // Types for autocomplete system
 export interface AutocompleteSuggestion {
@@ -83,9 +84,7 @@ class AutocompleteService {
       return fallbackSuggestions.slice(0, maxSuggestions);
 
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('Autocomplete error, using fallback:', error);
-      }
+      logger.warn('Autocomplete error, using fallback', error, 'autocomplete-service');
       
       // Emergency fallback: Local suggestions only
       const fallbackSuggestions = await this.getFallbackSuggestions(request);
@@ -190,9 +189,7 @@ RESPONSE FORMAT (JSON only):
       }));
 
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('LLM autocomplete failed:', error);
-      }
+      logger.warn('LLM autocomplete failed', error, 'autocomplete-llm');
       throw error; // Re-throw to trigger fallback
     }
   }

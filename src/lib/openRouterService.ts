@@ -1,4 +1,5 @@
 import { connectorCatalog } from './connectorCatalog';
+import { logger } from './logger';
 
 export interface FlowParseResult {
   success: boolean;
@@ -107,9 +108,7 @@ export async function parseFlowWithLLM(
       }
     } catch {
       // Fallback to regex parsing if JSON parsing fails
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('JSON parsing failed, using fallback regex parsing');
-      }
+        logger.warn('JSON parsing failed, using fallback regex parsing', undefined, 'openrouter-service');
       return parseFlowFromTextRegex(content);
     }
 
@@ -124,9 +123,7 @@ export async function parseFlowWithLLM(
       },
     };
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('OpenRouter service error:', error);
-    }
+    logger.error('OpenRouter service error', error, 'openrouter-service');
 
     // Fallback to regex parsing
     return parseFlowFromTextRegex(userMessage);

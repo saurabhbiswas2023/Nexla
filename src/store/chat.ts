@@ -7,6 +7,7 @@ import {
   type CollectionState,
   analyzeCanvasForCollection 
 } from '../lib/fieldCollectionService';
+import { logger } from '../lib/logger';
 
 type Message = {
   id: string;
@@ -247,9 +248,7 @@ export const useChatStore = create<ChatState>()(
             throw new Error(result.error || 'Failed to parse flow');
           }
         } catch (error) {
-          if (process.env.NODE_ENV === 'development') {
-            console.error('Error in sendWithCanvasUpdate:', error);
-          }
+          logger.error('Error in sendWithCanvasUpdate', error, 'chat-store');
 
           // Fallback response
           const errorResponse =
@@ -299,9 +298,7 @@ export const useChatStore = create<ChatState>()(
         const { fieldCollectionState } = get();
         
         if (!fieldCollectionState?.currentStep) {
-          if (process.env.NODE_ENV === 'development') {
-            console.warn('No active collection step');
-          }
+      logger.warn('No active collection step', undefined, 'field-collection');
           return;
         }
 
@@ -359,14 +356,33 @@ export const useChatStore = create<ChatState>()(
             
           } else if (updateType === 'field-value' && fieldName && fieldValue) {
             // Update field value in canvas
-            const currentValues = canvasStore.nodeValues[nodeType] || {};
-            canvasStore.updateNodeValues({
-              [nodeType]: {
-                ...currentValues,
-                [fieldName]: fieldValue
+            if (nodeType === 'transform') {
+              // For transforms, update both general transform values and type-specific values
+              const currentTransformValues = canvasStore.nodeValues.transform || {};
+              canvasStore.updateNodeValues({
+                transform: {
+                  ...currentTransformValues,
+                  [fieldName]: fieldValue
+                }
+              });
+              
+              // Also update transform-specific values by type
+              const currentTransformName = canvasStore.selectedTransform;
+              if (currentTransformName) {
+                canvasStore.updateTransformValuesByType(currentTransformName, {
+                  [fieldName]: fieldValue
+                });
               }
-            });
-            
+            } else {
+              // For source/destination, use regular update
+              const currentValues = canvasStore.nodeValues[nodeType] || {};
+              canvasStore.updateNodeValues({
+                [nodeType]: {
+                  ...currentValues,
+                  [fieldName]: fieldValue
+                }
+              });
+            }
           }
         }
 

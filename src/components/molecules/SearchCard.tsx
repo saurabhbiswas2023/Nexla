@@ -4,6 +4,7 @@ import { Button } from '../atoms/Button';
 import { SuggestionDropdown } from './SuggestionDropdown';
 import { sanitizeInput } from '../../lib/security';
 import { autocompleteService, AutocompleteSuggestion } from '../../lib/autocompleteService';
+import { logger } from '../../lib/logger';
 
 interface SearchCardProps {
   /**
@@ -189,9 +190,7 @@ export const SearchCard = memo(function SearchCard({
       setShowSuggestions(newSuggestions.length > 0);
       setSelectedIndex(-1);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('Autocomplete error:', error);
-      }
+      logger.warn('Autocomplete error', error, 'search-card');
       setSuggestions([]);
       setShowSuggestions(false);
     } finally {

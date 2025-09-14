@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary';
+import { logger } from '../../lib/logger';
 import { AlertTriangle } from 'lucide-react';
 
 interface Props {
@@ -42,9 +43,7 @@ export function ErrorBoundary({ children, fallback }: Props) {
     <ReactErrorBoundary
       FallbackComponent={fallback ? () => <>{fallback}</> : ErrorFallback}
       onError={(error, errorInfo) => {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Flow Canvas Error:', error, errorInfo);
-        }
+        logger.error('Flow Canvas Error', { error, errorInfo }, 'error-boundary');
 
         // In production, you might want to log to an error reporting service
         if (process.env.NODE_ENV === 'production') {

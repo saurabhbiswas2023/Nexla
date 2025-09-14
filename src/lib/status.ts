@@ -39,7 +39,12 @@ export function computeNodeStatus(
   values: Record<string, string> | undefined
 ): Status {
   if (role === 'transform') {
-    if (name === 'Map & Validate') return 'complete';
+    // These transforms are complete when selected (no additional config needed)
+    if (name === 'Map & Validate' || name === 'Cleanse') {
+      return 'complete';
+    }
+    
+    // For other transforms, check if they have extra configuration
     const hasExtras = Object.keys(values || {}).length > 0;
     return hasExtras ? 'complete' : 'pending';
   }
