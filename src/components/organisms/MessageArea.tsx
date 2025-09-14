@@ -109,7 +109,7 @@ export const MessageArea = memo(forwardRef<HTMLDivElement, MessageAreaProps>(
               type={message.type}
               content={message.content}
               status={message.status}
-              createdAt={message.createdAt ? new Date(message.createdAt) : new Date()}
+              createdAt={message.createdAt || Date.now()}
               highlight={message.id === highlightId}
             />
           ))

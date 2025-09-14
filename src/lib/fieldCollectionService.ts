@@ -163,7 +163,7 @@ export class FieldCollectionOrchestrator {
    * Determines the first collection step based on analysis - Node-Complete Logic
    */
   private static determineFirstStep(analysis: CanvasAnalysis, canvasState: CanvasState): CollectionStep {
-    let stepIndex = 1;
+    const stepIndex = 1;
 
     // Priority: Complete Source Node → Complete Transform Node → Complete Destination Node
     
@@ -310,7 +310,8 @@ export class FieldCollectionOrchestrator {
    * Gets list of optional fields that have already been asked (including skipped ones)
    * For now, we'll track this in the collection state or use a simple heuristic
    */
-  private static getAskedOptionalFields(nodeType: 'source' | 'transform' | 'destination', canvasState: CanvasState): string[] {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private static getAskedOptionalFields(_nodeType: 'source' | 'transform' | 'destination', _canvasState: CanvasState): string[] {
     // For now, return empty array - we'll implement proper tracking later
     // This means we'll ask all optional fields each time, but with skip option
     return [];

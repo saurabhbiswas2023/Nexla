@@ -610,4 +610,107 @@ npm run dev
 
 ---
 
+## **🧪 MANDATORY TESTING PROTOCOL**
+
+### **REQUIRED: After ANY development task**
+```bash
+# ✅ STEP 1: Close all servers first
+taskkill /f /im node.exe
+
+# ✅ STEP 2: Start fresh development server
+cd Nexla; npm run dev
+
+# ✅ STEP 3: Run comprehensive quality checks
+npm run lint          # ESLint: 0 errors, 0 warnings
+npm run build         # TypeScript: 0 compilation errors
+npm run test:a11y     # Accessibility: WCAG 2.1 AA compliance
+npm audit             # Security: No high/critical vulnerabilities
+
+# ✅ STEP 4: Performance validation
+# - Lighthouse score > 90
+# - Bundle size < 500KB gzipped
+# - First Contentful Paint < 2s
+# - Largest Contentful Paint < 2.5s
+```
+
+### **🔍 ACCESSIBILITY TESTING REQUIREMENTS**
+```bash
+# ✅ REQUIRED: Test with axe-core
+npm run test:a11y
+
+# ✅ REQUIRED: Manual accessibility checks
+# - Keyboard navigation (Tab, Enter, Space, Arrow keys)
+# - Screen reader compatibility (NVDA/JAWS simulation)
+# - Color contrast ratio 4.5:1 minimum
+# - Touch targets 44px minimum
+# - Focus indicators visible
+# - ARIA labels and roles present
+```
+
+### **📊 PERFORMANCE TESTING REQUIREMENTS**
+```bash
+# ✅ REQUIRED: Bundle analysis
+npm run build:analyze
+
+# ✅ REQUIRED: Performance metrics
+# - Time to Interactive < 3s
+# - Cumulative Layout Shift < 0.1
+# - Memory usage monitoring
+# - React DevTools Profiler analysis
+```
+
+### **🔒 SECURITY TESTING REQUIREMENTS**
+```bash
+# ✅ REQUIRED: Security audit
+npm audit --audit-level=moderate
+
+# ✅ REQUIRED: Input validation tests
+# - XSS prevention validation
+# - CSRF protection verification
+# - Input sanitization testing
+# - Content Security Policy validation
+```
+
+### **📱 MOBILE TESTING REQUIREMENTS**
+```bash
+# ✅ REQUIRED: Responsive design validation
+# - Test on mobile viewport (320px-768px)
+# - Test on tablet viewport (768px-1024px)
+# - Test on desktop viewport (1024px+)
+# - Touch interaction testing
+# - Scroll behavior validation
+```
+
+### **⚠️ TESTING FAILURE PROTOCOL**
+```bash
+# ❌ IF ANY TEST FAILS:
+# 1. STOP development immediately
+# 2. Fix the failing test
+# 3. Re-run ALL tests
+# 4. Only proceed when ALL tests pass
+# 5. Document the fix in commit message
+```
+
+### **🎯 QUALITY GATES (MUST PASS)**
+- **ESLint**: 0 errors, 0 warnings
+- **TypeScript**: 0 compilation errors
+- **Accessibility**: 100% axe-core compliance
+- **Performance**: Lighthouse score > 90
+- **Security**: No high/critical vulnerabilities
+- **Mobile**: Responsive on all breakpoints
+- **Bundle Size**: < 500KB gzipped
+
+### **📋 PRE-COMMIT CHECKLIST**
+- [ ] All servers closed and restarted
+- [ ] ESLint passes with 0 errors/warnings
+- [ ] TypeScript compiles without errors
+- [ ] Accessibility tests pass (axe-core)
+- [ ] Performance metrics meet targets
+- [ ] Security audit passes
+- [ ] Mobile responsiveness verified
+- [ ] Manual testing completed
+- [ ] Code review completed
+
+---
+
 **🎊 USE THIS DOCUMENT FOR EVERY CODING SESSION TO ENSURE CONSISTENCY AND QUALITY**

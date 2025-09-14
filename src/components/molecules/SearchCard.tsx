@@ -1,7 +1,6 @@
 import { useState, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Input } from '../atoms/Input';
-import { Button } from '../atoms/Button';
 import { sanitizeInput } from '../../lib/security';
 
 interface SearchCardProps {
