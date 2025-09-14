@@ -46,6 +46,9 @@ export function LandingPage() {
           onSubmit={handleSearchSubmit}
           inputTestId="landing-input"
           submitTestId="landing-submit"
+          enableAutocomplete={true}
+          debounceMs={300}
+          maxSuggestions={5}
         />
 
         {/* Examples */}

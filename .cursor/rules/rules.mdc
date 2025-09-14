@@ -282,7 +282,13 @@ npm run dev
 
 # ✅ Report server status (✅ running / ❌ errors)
 # ✅ Quality report auto-generated on commit
-# ✅ Wait for user instructions (no tests/commits unless requested)
+# ✅ Wait for user instructions
+
+# ❌ NEVER DO UNLESS EXPLICITLY TOLD:
+# ❌ Do NOT commit: git add, git commit
+# ❌ Do NOT push: git push
+# ❌ Do NOT run tests: npm test, playwright test
+# ❌ Do NOT install packages: npm install
 ```
 
 ### **Testing Protocol (When Requested):**
@@ -339,11 +345,18 @@ test: add E2E tests for flow creation
 
 ## **🎯 FINAL REMINDERS**
 
-### **User Permission Required:**
-- Running tests or quality checks
-- Git commits and pushes
-- Major refactoring
-- Installing dependencies
+### **🚨 USER PERMISSION REQUIRED:**
+- **Git Operations**: git add, git commit, git push
+- **Testing**: npm test, playwright test, any test commands
+- **Package Management**: npm install, npm update, package changes
+- **Major Refactoring**: Large code changes or restructuring
+- **Quality Checks**: Manual quality reports (auto on commit is OK)
+
+### **✅ ALLOWED WITHOUT PERMISSION:**
+- **Development Server**: npm run dev
+- **Code Changes**: Editing files, creating components
+- **Reading Files**: Analyzing codebase, understanding structure
+- **Documentation**: Updating docs, README files
 
 ### **Always Remember:**
 - **Mobile-first**: 320px screens first

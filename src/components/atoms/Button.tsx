@@ -51,19 +51,19 @@ export const Button = memo(function Button({
   if (!visible) return null;
 
   // Base styles
-  const baseStyles = 'inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 min-h-[44px] min-w-[44px]';
+  const baseStyles = 'inline-flex items-center justify-center font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 min-h-[44px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed';
   
   // Size variants
   const sizes = {
-    sm: 'px-3 py-1.5 text-xs rounded',
-    md: 'px-4 py-2 text-sm rounded-md',
-    lg: 'px-6 py-3 text-base rounded-lg',
+    sm: 'px-4 py-2 text-xs rounded',
+    md: 'px-6 py-2 text-sm rounded-md',
+    lg: 'px-8 py-3 text-base rounded-lg',
   } as const;
 
   // Color variants
   const variants = {
-    primary: 'bg-violet-600 text-white hover:bg-violet-500 focus:ring-violet-600 active:bg-violet-700',
-    ghost: 'bg-transparent hover:bg-slate-100 active:bg-slate-200 text-slate-700',
+    primary: 'bg-violet-600 text-white hover:bg-violet-500 focus:ring-violet-600 active:bg-violet-700 shadow-sm hover:shadow-md',
+    ghost: 'bg-transparent hover:bg-slate-100 active:bg-slate-200 text-slate-700 border border-slate-300 hover:border-slate-400',
     floating: 'bg-violet-600 text-white rounded-full shadow-lg hover:shadow-xl hover:bg-violet-500 focus:ring-violet-600 px-4 py-3 gap-2',
   } as const;
 
