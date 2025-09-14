@@ -15,9 +15,9 @@ interface ThemeProviderProps {
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => {
-    // Check localStorage first, default to light
+    // Check localStorage first, default to dark
     const savedTheme = localStorage.getItem('nexla-theme') as Theme;
-    return savedTheme || 'light';
+    return savedTheme || 'dark';
   });
 
   useEffect(() => {

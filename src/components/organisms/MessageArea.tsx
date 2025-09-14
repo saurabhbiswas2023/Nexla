@@ -53,7 +53,7 @@ export const MessageArea = memo(forwardRef<HTMLDivElement, MessageAreaProps>(
     messages,
     aiThinking = false,
     highlightId = null,
-    maxHeight,
+    maxHeight = 'calc(100vh - 280px)',
     className = '',
     testId = 'message-area',
   }, ref) {
@@ -88,7 +88,7 @@ export const MessageArea = memo(forwardRef<HTMLDivElement, MessageAreaProps>(
       <div
         ref={ref}
         data-testid={testId}
-        className={`flex-1 overflow-y-auto px-4 py-2 space-y-3 min-h-0 scrollbar-thin smooth-scroll ${className}`}
+        className={`flex-1 overflow-y-auto p-4 space-y-6 min-h-0 scrollbar-thin smooth-scroll ${className}`}
         role="log"
         aria-live="polite"
         aria-relevant="additions"
@@ -97,7 +97,7 @@ export const MessageArea = memo(forwardRef<HTMLDivElement, MessageAreaProps>(
         style={{ 
           scrollBehavior: 'smooth',
           scrollPaddingTop: '20px',
-          ...(maxHeight && { maxHeight })
+          maxHeight
         }}
       >
         {messages.length === 0 ? (
