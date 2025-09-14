@@ -15,7 +15,7 @@ function ErrorFallback({
   resetErrorBoundary: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center h-64 p-6 bg-red-50 border border-red-200 rounded-xl">
+    <div className="flex flex-col items-center justify-center h-64 p-6 bg-red-ultra-light border-red-ultra-light rounded-xl">
       <AlertTriangle className="w-12 h-12 text-red-500 mb-4" />
       <h3 className="text-lg font-semibold text-red-800 mb-2">Something went wrong</h3>
       <p className="text-sm text-red-600 text-center mb-4">
@@ -28,7 +28,7 @@ function ErrorFallback({
         Try Again
       </button>
       {process.env.NODE_ENV === 'development' && error && (
-        <details className="mt-4 p-3 bg-red-100 rounded border text-xs">
+        <details className="mt-4 p-3 bg-red-ultra-light rounded border-red-ultra-light text-xs">
           <summary className="cursor-pointer font-mono">Error Details</summary>
           <pre className="mt-2 whitespace-pre-wrap">{error.stack}</pre>
         </details>

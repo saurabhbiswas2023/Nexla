@@ -26,6 +26,7 @@ type ChatState = {
   clearMessages: () => void;
   aiThinking: boolean;
   highlightId: string | null;
+  isProcessingLLM: boolean;
   
   // Field Collection State
   fieldCollectionState: CollectionState | null;
@@ -56,6 +57,7 @@ export const useChatStore = create<ChatState>()(
       setInput: (v) => set({ input: v }),
       aiThinking: false,
       highlightId: null,
+      isProcessingLLM: false,
       
       // Field Collection State
       fieldCollectionState: null,
@@ -154,6 +156,7 @@ export const useChatStore = create<ChatState>()(
           input: '',
           aiThinking: true,
           highlightId: userId,
+          isProcessingLLM: true,
         });
 
         // Clear highlight shortly after to create a flash effect
@@ -166,44 +169,45 @@ export const useChatStore = create<ChatState>()(
           if (result.success && result.data) {
             const canvasStore = useCanvasStore.getState();
 
-            // Check if we have a complete flow (source, transform, destination)
-            if (result.data.source && result.data.transform && result.data.destination) {
-              // Update all nodes at once for complete flow
-              canvasStore.loadConfiguration({
-                selectedSource: result.data.source,
-                selectedTransform: result.data.transform,
-                selectedDestination: result.data.destination,
-              });
+            console.log('🎯 LLM Response received, preparing batched canvas update:', result.data);
 
-              // Update credentials if provided
-              if (result.data.credentials) {
-                Object.entries(result.data.credentials).forEach(([nodeType, creds]) => {
-                  if (
-                    nodeType === 'source' ||
-                    nodeType === 'transform' ||
-                    nodeType === 'destination'
-                  ) {
-                    canvasStore.updateNodeConfiguration(
-                      nodeType as 'source' | 'transform' | 'destination',
-                      nodeType,
-                      creds as Record<string, string | undefined>
-                    );
-                  }
-                });
-              }
+            // Prepare batched update object (all changes in memory, no renders yet)
+            const batchedUpdates: {
+              source?: { name: string; credentials?: Record<string, string | undefined> };
+              destination?: { name: string; credentials?: Record<string, string | undefined> };
+              transform?: { name: string; credentials?: Record<string, string | undefined> };
+            } = {};
+
+            // Collect source updates
+            if (result.data.source) {
+              batchedUpdates.source = {
+                name: result.data.source,
+                credentials: result.data.credentials?.source as Record<string, string | undefined> | undefined,
+              };
+            }
+
+            // Collect destination updates
+            if (result.data.destination) {
+              batchedUpdates.destination = {
+                name: result.data.destination,
+                credentials: result.data.credentials?.destination as Record<string, string | undefined> | undefined,
+              };
+            }
+
+            // Collect transform updates
+            if (result.data.transform) {
+              batchedUpdates.transform = {
+                name: result.data.transform,
+                credentials: result.data.credentials?.transform as Record<string, string | undefined> | undefined,
+              };
+            }
+
+            // Single atomic canvas update - only one render!
+            if (Object.keys(batchedUpdates).length > 0) {
+              console.log('🚀 Executing batched canvas update:', batchedUpdates);
+              canvasStore.batchUpdateCanvas(batchedUpdates);
             } else {
-              // Update individual nodes as they're identified
-              if (result.data.source) {
-                canvasStore.loadConfiguration({ selectedSource: result.data.source });
-              }
-              if (result.data.destination) {
-                canvasStore.loadConfiguration({ selectedDestination: result.data.destination });
-              }
-              if (result.data.transform) {
-                canvasStore.loadConfiguration({ selectedTransform: result.data.transform });
-              }
-              // Note: We don't automatically set a default transform anymore
-              // The transform should remain "Dummy Transform" until explicitly mentioned
+              console.log('⏭️ No canvas updates needed');
             }
 
             // Update conversation history
@@ -220,6 +224,7 @@ export const useChatStore = create<ChatState>()(
                   m.id === aiId ? { ...m, content: "Perfect! I've identified your systems. Now let's configure the connections.", status: 'sent' } : m
                 ),
                 aiThinking: false,
+                isProcessingLLM: false,
                 conversationHistory: newHistory,
               }));
 
@@ -238,6 +243,7 @@ export const useChatStore = create<ChatState>()(
                   m.id === aiId ? { ...m, content: aiResponse, status: 'sent' } : m
                 ),
                 aiThinking: false,
+                isProcessingLLM: false,
                 conversationHistory: newHistory,
               }));
             }
@@ -256,6 +262,7 @@ export const useChatStore = create<ChatState>()(
               m.id === aiId ? { ...m, content: errorResponse, status: 'sent' } : m
             ),
             aiThinking: false,
+            isProcessingLLM: false,
           }));
         }
       },
@@ -480,6 +487,18 @@ export const processPrefillFromLanding = () => {
 
   console.log('🔄 Processing prefill from landing:', prefill);
 
+  // Check if canvas is already in default state to avoid unnecessary reset
+  const canvasState = useCanvasStore.getState();
+  const isCanvasDefault = canvasState.selectedSource === 'Dummy Source' && 
+                         canvasState.selectedDestination === 'Dummy Destination' &&
+                         canvasState.selectedTransform === 'Dummy Transform';
+
+  if (!isCanvasDefault) {
+    console.log('🔄 Canvas not in default state, will be updated by LLM response');
+  } else {
+    console.log('✅ Canvas already in default state, ready for LLM update');
+  }
+
   // Replace messages entirely with just the welcome message
   useChatStore.setState({
     messages: [
@@ -496,6 +515,7 @@ export const processPrefillFromLanding = () => {
     conversationHistory: [],
     highlightId: null,
     aiThinking: false,
+    isProcessingLLM: false,
   });
 
   // Process the prefill with the enhanced chatbot

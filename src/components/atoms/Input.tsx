@@ -12,7 +12,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
     const variantClasses = {
       default: 'border-slate-300 focus:ring-blue-200 focus:border-blue-400',
-      error: 'border-red-300 focus:ring-red-200 focus:border-red-400',
+      error: 'border-red-ultra-light focus:ring-red-50 focus:border-red-200',
       success: 'border-green-300 focus:ring-green-200 focus:border-green-400',
     };
 

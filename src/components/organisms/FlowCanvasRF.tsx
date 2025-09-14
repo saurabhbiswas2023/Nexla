@@ -228,6 +228,8 @@ function InnerCanvas({
     [links, roleById]
   );
 
+  // Note: Automatic fit view removed - users can manually fit view using controls
+
   // Enable responsive layout
   useEffect(() => {
     setTimeout(() => layout(), 300);
@@ -243,7 +245,7 @@ function InnerCanvas({
   return (
     <div
       ref={hostRef}
-      className="relative rounded-xl bg-slate-50 border h-full w-full"
+      className="relative rounded-xl bg-slate-50 border h-full w-full canvas-transition"
       data-testid="flow-canvas"
     >
       <ReactFlow
@@ -273,7 +275,7 @@ function InnerCanvas({
         style={{ width: '100%', height: '100%' }}
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
-        <Controls position="bottom-left" showInteractive={false} />
+        <Controls position="bottom-left" showInteractive={false} showFitView={true} />
       </ReactFlow>
     </div>
   );

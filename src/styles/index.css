@@ -96,3 +96,47 @@ body {
 .scrollbar-invisible::-webkit-scrollbar-thumb {
   display: none;
 }
+
+/* Enhanced smooth scrolling for better user experience */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  .smooth-scroll {
+    scroll-behavior: smooth;
+    scroll-snap-type: y proximity;
+  }
+  
+  /* Smooth transitions for canvas and chat elements */
+  .canvas-transition {
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .message-transition {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* Thin border utilities for lighter, more elegant borders */
+.border-thin {
+  border-width: 0.5px;
+}
+
+.border-red-thin {
+  border-width: 0.5px;
+  border-color: rgb(254 242 242); /* ultra-light red, lighter than red-50 */
+}
+
+.border-red-light {
+  border-color: rgb(254 242 242); /* ultra-light red */
+}
+
+.border-red-ultra-light {
+  border-width: 0.5px;
+  border-color: rgba(239, 68, 68, 0.1); /* red-500 with 10% opacity for ultra-subtle effect */
+}
+
+.bg-red-ultra-light {
+  background-color: rgba(239, 68, 68, 0.02); /* ultra-light red background */
+}

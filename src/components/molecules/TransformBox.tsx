@@ -85,8 +85,8 @@ export function TransformBox({
                   </div>
                 ) : null}
                 <input
-                  className="mt-2 w-full rounded border px-2 py-1 text-[12px] focus:outline-none"
-                  style={{ borderColor: '#cbd5e1' }}
+                  className="mt-1 w-full rounded px-1.5 py-0.5 text-[12px] focus:outline-none h-6"
+                  style={{ border: '0', backgroundColor: '#f8fafc' }}
                   placeholder="Add field name and press Enter"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}

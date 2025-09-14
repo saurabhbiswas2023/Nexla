@@ -72,6 +72,12 @@ export interface CanvasState {
   ) => void;
   resetToDefaultConfiguration: () => void;
   getFlowConfigurationJSON: () => string;
+  // Batched update method for atomic canvas updates
+  batchUpdateCanvas: (updates: {
+    source?: { name: string; credentials?: Record<string, string | undefined> };
+    destination?: { name: string; credentials?: Record<string, string | undefined> };
+    transform?: { name: string; credentials?: Record<string, string | undefined> };
+  }) => void;
 }
 
 const defaultNodeValues: NodeValues = {
@@ -330,6 +336,83 @@ export const useCanvasStore = create<CanvasState>()(
         getFlowConfigurationJSON: () => {
           const state = get();
           return JSON.stringify(state.flowConfiguration, null, 2);
+        },
+
+        // Batched update method for atomic canvas updates
+        batchUpdateCanvas: (updates) => {
+          const currentState = get();
+          
+          console.log('🔄 Batching canvas updates:', updates);
+          
+          // Prepare the complete configuration in memory (no intermediate renders)
+          const newFlowConfiguration = { ...currentState.flowConfiguration };
+          const newNodeValues = { ...currentState.nodeValues };
+          let newSelectedSource = currentState.selectedSource;
+          let newSelectedDestination = currentState.selectedDestination;
+          let newSelectedTransform = currentState.selectedTransform;
+
+          // Apply source updates
+          if (updates.source) {
+            newSelectedSource = updates.source.name;
+            newFlowConfiguration.nodes.source = {
+              name: updates.source.name,
+              credentials: {
+                ...currentState.flowConfiguration.nodes.source.credentials,
+                ...updates.source.credentials,
+              },
+            };
+            newNodeValues.source = {
+              ...currentState.nodeValues.source,
+              ...updates.source.credentials,
+            };
+          }
+
+          // Apply destination updates
+          if (updates.destination) {
+            newSelectedDestination = updates.destination.name;
+            newFlowConfiguration.nodes.destination = {
+              name: updates.destination.name,
+              credentials: {
+                ...currentState.flowConfiguration.nodes.destination.credentials,
+                ...updates.destination.credentials,
+              },
+            };
+            newNodeValues.destination = {
+              ...currentState.nodeValues.destination,
+              ...updates.destination.credentials,
+            };
+          }
+
+          // Apply transform updates
+          if (updates.transform) {
+            newSelectedTransform = updates.transform.name;
+            newFlowConfiguration.nodes.transform = {
+              name: updates.transform.name,
+              credentials: {
+                ...currentState.flowConfiguration.nodes.transform.credentials,
+                ...updates.transform.credentials,
+              },
+            };
+            newNodeValues.transform = {
+              ...currentState.nodeValues.transform,
+              ...updates.transform.credentials,
+            };
+          }
+
+          // Single atomic update - only one render!
+          set(
+            {
+              selectedSource: newSelectedSource,
+              selectedDestination: newSelectedDestination,
+              selectedTransform: newSelectedTransform,
+              flowConfiguration: newFlowConfiguration,
+              nodeValues: newNodeValues,
+            },
+            false,
+            'batchUpdateCanvas'
+          );
+
+          console.log('✅ Canvas batch update completed in single render');
         },
       }),
       {

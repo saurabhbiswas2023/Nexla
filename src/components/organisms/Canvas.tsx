@@ -75,6 +75,8 @@ export function Canvas({
     getFlowConfigurationJSON,
   } = useCanvasStore();
 
+  // Note: Transition state management removed for cleaner code
+
   // Helper function to announce changes to screen readers
   const announceChange = useCallback((message: string) => {
     setAnnouncement(message);
@@ -472,7 +474,7 @@ export function Canvas({
               </div>
               {validationErrors.length > 0 && (
                 <div
-                  className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg"
+                  className="mt-2 p-2 bg-red-ultra-light border-red-ultra-light rounded-lg"
                   role="alert"
                   aria-live="polite"
                 >

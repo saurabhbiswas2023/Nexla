@@ -63,8 +63,8 @@ export function ProgressIndicator({
       label: 'Complete',
     },
     error: {
-      bgColor: 'bg-red-50',
-      borderColor: 'border-red-200',
+      bgColor: 'bg-red-ultra-light',
+      borderColor: 'border-red-ultra-light',
       textColor: 'text-red-700',
       icon: '❌',
       label: 'Error',

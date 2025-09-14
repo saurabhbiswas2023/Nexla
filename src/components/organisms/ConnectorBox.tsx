@@ -115,8 +115,8 @@ export function ConnectorBox({ instance, nodeId, onEditValue }: Props) {
                     <div className="font-medium">{k}</div>
                     {missing || editing[k] ? (
                       <input
-                        className="mt-1 w-full rounded border px-2 py-1 text-[12px] focus:outline-none"
-                        style={{ borderColor: missing && isPending ? '#ef4444' : '#cbd5e1' }}
+                        className="mt-0.5 w-full rounded px-1.5 py-0.5 text-[12px] focus:outline-none h-6"
+                        style={{ border: '0', backgroundColor: '#f8fafc' }}
                         type={k.toLowerCase().includes('password') ? 'password' : 'text'}
                         value={localValues[k] ?? (typeof raw === 'string' ? raw : (raw ?? ''))}
                         onChange={(e) =>
@@ -180,7 +180,7 @@ export function ConnectorBox({ instance, nodeId, onEditValue }: Props) {
                       />
                     ) : (
                       <div
-                        className="mt-1 min-h-[44px] text-[12px] text-slate-800 cursor-text truncate flex items-center px-2 py-1 rounded hover:bg-slate-50 transition-colors"
+                        className="mt-0.5 text-[12px] text-slate-800 cursor-text truncate flex items-center px-1.5 py-0.5 rounded hover:bg-slate-50 transition-colors h-6"
                         onClick={() =>
                           setEditing((m: Record<string, boolean>) => ({ ...m, [k]: true }))
                         }
@@ -216,8 +216,8 @@ export function ConnectorBox({ instance, nodeId, onEditValue }: Props) {
                         <div className="font-medium">{k}</div>
                         {(editing[k] ?? true) ? (
                           <input
-                            className="mt-1 w-full rounded border px-2 py-1 text-[12px] focus:outline-none"
-                            style={{ borderColor: '#cbd5e1' }}
+                            className="mt-0.5 w-full rounded px-1.5 py-0.5 text-[12px] focus:outline-none h-6"
+                            style={{ border: '0', backgroundColor: '#f8fafc' }}
                             type={k.toLowerCase().includes('password') ? 'password' : 'text'}
                             value={localValues[k] ?? (typeof raw === 'string' ? raw : (raw ?? ''))}
                             onChange={(e) =>
@@ -259,7 +259,7 @@ export function ConnectorBox({ instance, nodeId, onEditValue }: Props) {
                           />
                         ) : (
                           <div
-                            className="mt-1 min-h-[44px] text-[12px] cursor-text truncate flex items-center px-2 py-1 rounded hover:bg-slate-50 transition-colors"
+                            className="mt-0.5 text-[12px] cursor-text truncate flex items-center px-1.5 py-0.5 rounded hover:bg-slate-50 transition-colors h-6"
                             onClick={() =>
                               setEditing((m: Record<string, boolean>) => ({ ...m, [k]: true }))
                             }

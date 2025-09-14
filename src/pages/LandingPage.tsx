@@ -8,7 +8,7 @@ import { HeroSection } from '../components/organisms/HeroSection';
 
 export function LandingPage() {
 
-  // Clear all Zustand stores on landing page mount
+  // Clear stores on landing page mount - but only reset canvas if needed
   useEffect(() => {
     console.log('🧹 Clearing Zustand stores on landing page');
 
@@ -16,13 +16,23 @@ export function LandingPage() {
     useChatStore.getState().clearMessages();
     useChatStore.setState({ input: '', aiThinking: false, highlightId: null });
 
-    // Reset canvas store to default configuration
-    useCanvasStore.getState().resetToDefaultConfiguration();
+    // Only reset canvas if we're coming from a completed flow (not dummy state)
+    const canvasState = useCanvasStore.getState();
+    const hasExistingFlow = canvasState.selectedSource !== 'Dummy Source' || 
+                           canvasState.selectedDestination !== 'Dummy Destination' ||
+                           canvasState.selectedTransform !== 'Dummy Transform';
+    
+    if (hasExistingFlow) {
+      console.log('🔄 Resetting canvas from existing flow state');
+      canvasState.resetToDefaultConfiguration();
+    } else {
+      console.log('⏭️ Canvas already in default state, skipping reset');
+    }
 
     // Also clear localStorage to ensure fresh start
     localStorage.removeItem('prefillPrompt');
 
-    console.log('✅ All stores cleared');
+    console.log('✅ Stores cleared efficiently');
   }, []);
 
   const handleSearchSubmit = (value: string) => {

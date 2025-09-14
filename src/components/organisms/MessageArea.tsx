@@ -63,16 +63,24 @@ export const MessageArea = memo(forwardRef<HTMLDivElement, MessageAreaProps>(
     useEffect(() => {
       // Use setTimeout to ensure DOM has updated
       const timeoutId = setTimeout(() => {
-        endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-      }, 50);
+        endRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'end',
+          inline: 'nearest'
+        });
+      }, 100); // Slightly longer delay for smoother animation
       return () => clearTimeout(timeoutId);
     }, [messages.length]);
 
-    // Initial scroll on mount
+    // Initial smooth scroll on mount
     useEffect(() => {
       const timeoutId = setTimeout(() => {
-        endRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
-      }, 100);
+        endRef.current?.scrollIntoView({ 
+          behavior: 'smooth', // Changed from 'auto' to 'smooth' for first view
+          block: 'end',
+          inline: 'nearest'
+        });
+      }, 300); // Longer delay for initial smooth scroll
       return () => clearTimeout(timeoutId);
     }, []);
 
@@ -80,7 +88,7 @@ export const MessageArea = memo(forwardRef<HTMLDivElement, MessageAreaProps>(
       <div
         ref={ref}
         data-testid={testId}
-        className={`flex-1 overflow-y-auto p-4 space-y-6 min-h-0 scrollbar-thin ${className}`}
+        className={`flex-1 overflow-y-auto p-4 space-y-6 min-h-0 scrollbar-thin smooth-scroll ${className}`}
         role="log"
         aria-live="polite"
         aria-relevant="additions"
@@ -88,6 +96,8 @@ export const MessageArea = memo(forwardRef<HTMLDivElement, MessageAreaProps>(
         aria-label="Chat messages"
         style={{ 
           scrollBehavior: 'smooth',
+          scrollPaddingTop: '20px',
+          scrollPaddingBottom: '20px',
           maxHeight
         }}
       >
