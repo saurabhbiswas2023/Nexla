@@ -20,7 +20,7 @@ export function MessageBubble({ type, content, status, createdAt, highlight }: P
       className={`${isUser ? 'ml-auto max-w-[90%]' : 'max-w-[80%]'} w-full ${highlight ? 'ring-2 ring-violet-300 rounded-2xl transition-[box-shadow] duration-700' : ''}`}
     >
       <div
-        className={`rounded-2xl px-4 py-3 shadow-sm border ${isUser ? 'bg-violet-600 text-white border-violet-600' : 'bg-white border-slate-200'}`}
+        className={`rounded-2xl px-4 py-2 shadow-sm border ${isUser ? 'bg-violet-600 text-white border-violet-600' : 'bg-white border-slate-200'}`}
       >
         <div className="flex items-center gap-2 text-sm">
           <Avatar size={16} className={isUser ? 'text-white/80' : 'text-slate-500'} />
@@ -50,7 +50,7 @@ export function MessageBubble({ type, content, status, createdAt, highlight }: P
         </div>
         {/* Only show content when not thinking */}
         {status !== 'thinking' && (
-          <div className={`mt-1 whitespace-pre-wrap ${isUser ? '' : 'text-slate-900'}`}>
+          <div className={`mt-0.5 whitespace-pre-wrap ${isUser ? '' : 'text-slate-900'}`}>
             {content}
           </div>
         )}
