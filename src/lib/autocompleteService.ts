@@ -32,9 +32,9 @@ interface LLMAutocompleteResponse {
 }
 
 // OpenRouter configuration
-const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const OPENROUTER_API_KEY = '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';
-
+const OPEN_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || '';
+//const OPEN_API_URL = 'https://api.openai.com/v1/chat/completions';
+const OPEN_API_URL = 'https://openrouter.ai/api/v1';
 class AutocompleteService {
   private queryCache = new Map<string, AutocompleteSuggestion[]>();
   private connectorCache = new Map<string, AutocompleteSuggestion[]>();
@@ -140,13 +140,11 @@ RESPONSE FORMAT (JSON only):
 }`;
 
     try {
-      const response = await fetch(OPENROUTER_API_URL, {
+      const response = await fetch(OPEN_API_URL, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+          'Authorization': `Bearer ${OPEN_API_KEY}`,
           'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://nexla-data-flow.com',
-          'X-Title': 'Nexla Data Flow Architect - Autocomplete',
         },
         body: JSON.stringify({
           model: 'openai/gpt-4o-mini',

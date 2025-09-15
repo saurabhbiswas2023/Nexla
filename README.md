@@ -45,7 +45,7 @@
 ### **Prerequisites**
 - **Node.js**: v18.0.0 or higher ([Download](https://nodejs.org/))
 - **npm**: v8.0.0 or higher (comes with Node.js)
-- **OpenAI API Key**: Required for AI functionality ([Get API Key](https://platform.openai.com/api-keys))
+- **OpenRouter API Key**: Required for AI functionality ([Get API Key](https://openrouter.ai/))
 
 ### **Installation**
 ```bash

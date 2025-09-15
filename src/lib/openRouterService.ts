@@ -14,8 +14,11 @@ export interface FlowParseResult {
   error?: string;
 }
 
-const OPEN_API_KEY = import.meta.env.OPEN_AI_API_KEY || '';
-const OPEN_API_URL = 'https://api.openai.com/v1/chat/completions';
+const OPEN_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || '';
+console.log("\n\n VITE_OPENAI_API_KEY",OPEN_API_KEY);
+//const OPEN_API_URL = 'https://api.openai.com/v1/chat/completions';
+
+const OPEN_API_URL = 'https://openrouter.ai/api/v1';
 const systemPrompt = `You are an AI assistant that helps users build data integration flows. Your primary job is to identify systems and transformations from user messages.
 
 FOCUS ON SYSTEM IDENTIFICATION:
@@ -158,7 +161,6 @@ Respond with JSON only:
       headers: {
         Authorization: `Bearer ${OPEN_API_KEY}`,
         'Content-Type': 'application/json',
-       
       },
       body: JSON.stringify({
         model: 'openai/gpt-4o-mini', // BEST INTENT PARSING LLM
@@ -229,11 +231,9 @@ export async function parseFlowWithLLM(
       headers: {
         Authorization: `Bearer ${OPEN_API_KEY}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://nexla-data-flow.com',
-        'X-Title': 'Nexla Data Flow Architect',
       },
       body: JSON.stringify({
-        model: 'openai/gpt-4o-mini', // WORKING MODEL FROM YESTERDAY
+        model: 'openai/gpt-4o-mini',
         messages,
         temperature: 0.3,
         max_tokens: 500,
