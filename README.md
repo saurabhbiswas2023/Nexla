@@ -43,9 +43,9 @@
 ## ⚡ **QUICK SETUP**
 
 ### **Prerequisites**
-- **Node.js**: v18.0.0 or higher ([Download](https://nodejs.org/){:target="_blank"})
+- **Node.js**: v18.0.0 or higher (<a href="https://nodejs.org/" target="_blank">Download</a>)
 - **npm**: v8.0.0 or higher (comes with Node.js)
-- **OpenRouter API Key**: Required for AI functionality ([Get API Key](https://openrouter.ai/){:target="_blank"})
+- **OpenRouter API Key**: Required for AI functionality (<a href="https://openrouter.ai/" target="_blank">Get API Key</a>)
 - Even without API key, it will have fallback 
 
 ### **Installation**
