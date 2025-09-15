@@ -1,31 +1,24 @@
 name: Quality Report
-
 on:
   push:
     branches: [ main, master, develop ]
   pull_request:
     branches: [ main, master, develop ]
-
 jobs:
   quality-report:
     runs-on: ubuntu-latest
-    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
-        
     - name: Install dependencies
       run: npm ci
-      
     - name: Generate Quality Report
       run: npm run quality:report
-      
     - name: Upload Quality Report
       uses: actions/upload-artifact@v4
       if: always()
@@ -33,7 +26,6 @@ jobs:
         name: quality-report-${{ github.sha }}
         path: reports/
         retention-days: 30
-        
     - name: Comment PR with Quality Report
       if: github.event_name == 'pull_request'
       uses: actions/github-script@v7
@@ -41,26 +33,20 @@ jobs:
         script: |
           const fs = require('fs');
           const path = require('path');
-          
           try {
             const reportPath = path.join('reports', 'latest-report.json');
             const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
-            
             const score = report.summary.score;
             const emoji = score >= 90 ? '🎉' : score >= 70 ? '⚠️' : '❌';
             const status = score >= 90 ? 'Excellent' : score >= 70 ? 'Good' : 'Needs Improvement';
-            
             const comment = `
           ## ${emoji} Quality Report - ${status} (${score}%)
-          
           **Commit:** \`${report.commit.hash}\`
           **Author:** ${report.commit.author}
-          
           ### Results Summary
           - ✅ **Passed:** ${report.summary.passed}
           - ❌ **Failed:** ${report.summary.failed}  
           - ⚠️ **Warnings:** ${report.summary.warnings}
-          
           ### Detailed Results
           | Check | Status | Details |
           |-------|--------|---------|
@@ -70,12 +56,9 @@ jobs:
           | Build | ${report.build.status === 'PASSED' ? '✅' : '❌'} | Bundle size check |
           | Performance | ${report.performance.status === 'PASSED' ? '✅' : '⚠️'} | ${report.performance.score}% score |
           | Accessibility | ${report.accessibility.status === 'PASSED' ? '✅' : '⚠️'} | ${report.accessibility.score}% compliance |
-          
           ${score < 70 ? '**⚠️ Quality score is below threshold. Please address the issues before merging.**' : ''}
-          
           [View Full Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
           `;
-          
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,

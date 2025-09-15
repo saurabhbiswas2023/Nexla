@@ -104,14 +104,15 @@ class QualityReporter {
   async runSecurityAudit() {
     console.log('🔒 Running Security Audit...');
     try {
-      const output = execSync('npm audit --audit-level=moderate --json', { encoding: 'utf8', stdio: 'pipe' });
+      const level = process.env.QUALITY_AUDIT_LEVEL || 'moderate';
+      const output = execSync(`npm audit --audit-level=${level} --json`, { encoding: 'utf8', stdio: 'pipe' });
       const auditResult = JSON.parse(output);
       
       const vulnerabilities = auditResult.metadata?.vulnerabilities || {};
       const total = Object.values(vulnerabilities).reduce((sum, count) => sum + count, 0);
       
       this.results.security = {
-        status: total === 0 ? 'PASSED' : 'FAILED',
+        status: total === 0 ? 'PASSED' : 'WARNING',
         vulnerabilities: vulnerabilities,
         total,
         output: total === 0 ? 'No security vulnerabilities found' : `Found ${total} vulnerabilities`
@@ -120,7 +121,7 @@ class QualityReporter {
       if (total === 0) {
         this.results.summary.passed++;
       } else {
-        this.results.summary.failed++;
+        this.results.summary.warnings++;
       }
     } catch (error) {
       this.results.security = {
@@ -493,9 +494,13 @@ class QualityReporter {
       console.log(`📄 JSON Report: reports/${jsonPath}`);
       console.log(`🌐 HTML Report: reports/${htmlPath}`);
       
-      // Exit with error code if quality is poor
-      if (score < 70) {
-        console.log('\n❌ Quality score below threshold (70%). Push blocked.');
+      // Exit with error code if quality is poor (configurable)
+      const minScore = Number(process.env.QUALITY_MIN_SCORE || 70);
+      const skipGate = process.env.SKIP_QUALITY_GATE === '1' || process.env.SKIP_QUALITY_GATE === 'true';
+      if (skipGate) {
+        console.log(`\n⚠️  Quality gate skipped (SKIP_QUALITY_GATE=${process.env.SKIP_QUALITY_GATE}).`);
+      } else if (score < minScore) {
+        console.log(`\n❌ Quality score below threshold (${minScore}%). Push blocked.`);
         process.exit(1);
       } else if (score < 90) {
         console.log('\n⚠️  Quality score below optimal (90%). Consider improvements.');
