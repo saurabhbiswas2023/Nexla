@@ -36,8 +36,7 @@
 
 **AI-Powered Data Integration Platform** - Create data flows through natural language conversations with real-time visual feedback. Transform complex data integration into intuitive chat interactions.
 
-**🚀 Live Demo**: [nexla-demo.com](https://nexla-demo.com) | **📊 Quality Score**: 100%
-
+# **🚀 Live Demo**: [nexla-demo.com](https://nexla.vercel.app/) 
 ---
 
 ## ⚡ **QUICK SETUP**
@@ -50,8 +49,8 @@
 ### **Installation**
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-org/nexla-data-flow-architect.git
-cd nexla-data-flow-architect
+git clone https://github.com/saurabhbiswas2023/Nexla.git
+cd Nexla
 
 # 2. Install dependencies
 npm install
@@ -285,7 +284,12 @@ Nexla/
 ├── tests/                  # Test files
 └── scripts/                # Build and utility scripts
 ```
+## PERFORMANCE REPORT
+### Landing Page
+![[Pasted image 20250915135139.png]]
 
+### Chat Page
+![[Pasted image 20250915135504.png]]
 ---
 
 ## 📞 **SUPPORT & CONTRIBUTION**
