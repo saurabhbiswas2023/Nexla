@@ -216,13 +216,54 @@ npm run preview         # Preview production build
 npm run lint            # ESLint code quality check
 npm run lint:fix        # Auto-fix ESLint issues
 npm run test:unit       # Run unit tests
+npm run pretest:e2e     # Install Playwright browsers (one-time or CI)
 npm run test:e2e        # Run E2E tests
+npm run e2e:serve       # Build preview server and run E2E tests
 npm run quality:report  # Generate quality report
 
 # Utilities
 npm run reports:serve   # View quality dashboard
 npm audit              # Security vulnerability check
 ```
+
+---
+
+## 🧪 **TESTING GUIDE**
+
+### Unit Testing (Vitest)
+- Command: `npm run test:unit`
+- Coverage: `npx vitest run --coverage`
+- Environment: jsdom with global setup in `src/test/setup.ts`
+- Location: tests colocated with sources, e.g., `src/components/atoms/*.test.tsx`
+- Note: Unit test files are not included in the production `dist/` bundle.
+
+### E2E Testing (Playwright)
+- One-time browser install: `npm run pretest:e2e`
+- Run against preview server: `npm run e2e:serve`
+- Config: `playwright.config.ts` (baseURL `http://localhost:5173`)
+- Tests: `tests/landing.spec.ts` (landing page scenarios)
+  - Loads hero/search/footer
+  - Search submit creates a session or navigates
+  - Example card click navigates to `/chat`
+
+---
+
+## 📊 **QUALITY REPORT & GATES**
+
+- Generate locally: `npm run quality:report`
+- Outputs:
+  - JSON: `reports/quality-report-<timestamp>.json` and `reports/latest-report.json`
+  - HTML: `reports/quality-report-<timestamp>.html` and `reports/latest-report.html`
+- CI: `.github/workflows/quality-report.yml` runs on push/PR and uploads artifacts.
+
+### Thresholds and Environment Overrides
+- Default minimum score to pass: `70%`
+- Environment variables (optional):
+  - `QUALITY_MIN_SCORE` — override minimum score (e.g., `60`)
+  - `QUALITY_AUDIT_LEVEL` — npm audit level (`low|moderate|high|critical`), default `moderate`
+  - `SKIP_QUALITY_GATE=1` — skip failing the gate (use sparingly)
+
+View the latest report at `reports/latest-report.html` for detailed pass/fail breakdowns and recommendations.
 
 ---
 
