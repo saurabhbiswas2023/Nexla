@@ -37,6 +37,7 @@
 **AI-Powered Data Integration Platform** - Create data flows through natural language conversations with real-time visual feedback. Transform complex data integration into intuitive chat interactions.
 
 # **🚀 Live Demo**: [nexla-demo.com](https://nexla.vercel.app/) 
+### GithHub Repo : https://github.com/saurabhbiswas2023/Nexla
 ---
 
 ## ⚡ **QUICK SETUP**
@@ -256,14 +257,7 @@ npm audit              # Security vulnerability check
   - HTML: `reports/quality-report-<timestamp>.html` and `reports/latest-report.html`
 - CI: `.github/workflows/quality-report.yml` runs on push/PR and uploads artifacts.
 
-### Thresholds and Environment Overrides
-- Default minimum score to pass: `70%`
-- Environment variables (optional):
-  - `QUALITY_MIN_SCORE` — override minimum score (e.g., `60`)
-  - `QUALITY_AUDIT_LEVEL` — npm audit level (`low|moderate|high|critical`), default `moderate`
-  - `SKIP_QUALITY_GATE=1` — skip failing the gate (use sparingly)
 
-View the latest report at `reports/latest-report.html` for detailed pass/fail breakdowns and recommendations.
 
 ---
 
@@ -293,13 +287,7 @@ Nexla/
 ![[Pasted image 20250915135504.png]]
 ---
 
-## 📞 **SUPPORT & CONTRIBUTION**
 
-### **Getting Help**
-- **📚 Documentation**: Complete guides in [`docs/`](./docs/) folder
-- **🐛 Issues**: Report bugs via GitHub Issues
-- **💬 Discussions**: Join community discussions
-- **📧 Contact**: [support@nexla.com](mailto:support@nexla.com)
 
 ### **Contributing**
 - **🔧 Development Setup**: Follow setup instructions above
