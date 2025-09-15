@@ -281,10 +281,10 @@ Nexla/
 ```
 ## PERFORMANCE REPORT
 ### Landing Page
-![[Pasted image 20250915135139.png]]
+![Landing Page Performance](docs/assets/Pasted%20image%2020250915135139.png)
 
 ### Chat Page
-![[Pasted image 20250915135504.png]]
+![Chat Page Performance](docs/assets/Pasted%20image%2020250915135504.png)
 ---
 
 
