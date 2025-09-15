@@ -14,7 +14,7 @@ export interface FlowParseResult {
   error?: string;
 }
 
-const OPEN_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || '';
+const OPEN_API_KEY = import.meta.env.OPEN_AI_API_KEY || '';
 const OPEN_API_URL = 'https://api.openai.com/v1/chat/completions';
 const systemPrompt = `You are an AI assistant that helps users build data integration flows. Your primary job is to identify systems and transformations from user messages.
 

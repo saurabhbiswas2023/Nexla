@@ -34,7 +34,7 @@ cp .env.example .env
 
 2. Add your OpenRouter API key:
 ```bash
-VITE_OPENROUTER_API_KEY=your_openrouter_api_key_here
+OPEN_AI_API_KEY=your_openrouter_api_key_here
 ```
 
 Get your API key from [OpenRouter](https://openrouter.ai/keys).
