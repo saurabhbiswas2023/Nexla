@@ -36,16 +36,16 @@
 
 **AI-Powered Data Integration Platform** - Create data flows through natural language conversations with real-time visual feedback. Transform complex data integration into intuitive chat interactions.
 
-# **🚀 Live Demo**: [nexla-demo.com](https://nexla.vercel.app/) 
-### GithHub Repo : https://github.com/saurabhbiswas2023/Nexla
+# **🚀 Live Demo**: <a href="https://nexla.vercel.app/" target="_blank">nexla-demo.com</a> 
+### GithHub Repo : <a href="https://github.com/saurabhbiswas2023/Nexla" target="_blank">https://github.com/saurabhbiswas2023/Nexla</a>
 ---
 
 ## ⚡ **QUICK SETUP**
 
 ### **Prerequisites**
-- **Node.js**: v18.0.0 or higher ([Download](https://nodejs.org/))
+- **Node.js**: v18.0.0 or higher ([Download](https://nodejs.org/){:target="_blank"})
 - **npm**: v8.0.0 or higher (comes with Node.js)
-- **OpenRouter API Key**: Required for AI functionality ([Get API Key](https://openrouter.ai/))
+- **OpenRouter API Key**: Required for AI functionality ([Get API Key](https://openrouter.ai/){:target="_blank"})
 - Even without API key, it will have fallback 
 
 ### **Installation**
